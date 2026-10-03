@@ -1,0 +1,78 @@
+/*
+ * StandardIds.h
+ * -------------
+ * Purpose: IDs of commands and controls that every application has: file, edit, window and help commands, dialog buttons.
+ * Notes  : (currently none)
+ * Authors: OpenMPT Devs
+ * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
+ */
+
+
+#pragma once
+
+#include "openmpt/all/BuildSettings.hpp"
+
+
+OPENMPT_NAMESPACE_BEGIN
+
+
+enum StandardId : uint32
+{
+	IDOK = 1,
+	IDCANCEL = 2,
+	IDYES = 6,
+	IDNO = 7,
+	IDRETRY = 4,
+
+	ID_FILE_NEW = 0xE100,
+	ID_FILE_OPEN = 0xE101,
+	ID_FILE_CLOSE = 0xE102,
+	ID_FILE_SAVE = 0xE103,
+	ID_FILE_SAVE_AS = 0xE104,
+	ID_FILE_MRU_FIRST = 0xE110,
+	ID_FILE_MRU_LAST = 0xE11F,
+	ID_EDIT_CLEAR = 0xE120,
+	ID_EDIT_CLEAR_ALL = 0xE121,
+	ID_EDIT_COPY = 0xE122,
+	ID_EDIT_CUT = 0xE123,
+	ID_EDIT_FIND = 0xE124,
+	ID_EDIT_PASTE = 0xE125,
+	ID_EDIT_PASTE_SPECIAL = 0xE126,
+	ID_EDIT_REPEAT = 0xE127,
+	ID_EDIT_REPLACE = 0xE128,
+	ID_EDIT_SELECT_ALL = 0xE129,
+	ID_EDIT_REDO = 0xE12A,
+	ID_EDIT_UNDO = 0xE12B,
+	ID_WINDOW_NEW = 0xE130,
+	ID_WINDOW_ARRANGE = 0xE131,
+	ID_WINDOW_CASCADE = 0xE132,
+	ID_WINDOW_TILE_HORZ = 0xE133,
+	ID_WINDOW_TILE_VERT = 0xE134,
+	ID_WINDOW_SPLIT = 0xE135,
+	ID_APP_ABOUT = 0xE140,
+	ID_APP_EXIT = 0xE141,
+	ID_HELP_INDEX = 0xE142,
+	ID_HELP_FINDER = 0xE143,
+	ID_HELP_USING = 0xE144,
+	ID_CONTEXT_HELP = 0xE145,
+	ID_HELP = 0xE146,
+	ID_NEXT_PANE = 0xE150,
+	ID_PREV_PANE = 0xE151,
+	ID_VIEW_TOOLBAR = 0xE800,
+	ID_VIEW_STATUS_BAR = 0xE801,
+	ID_INDICATOR_CAPS = 0xE701,
+	ID_INDICATOR_NUM = 0xE702,
+	ID_INDICATOR_SCRL = 0xE703,
+	ID_INDICATOR_OVR = 0xE704,
+	ID_INDICATOR_REC = 0xE705,
+	ID_INDICATOR_EXT = 0xE706,
+	ID_SEPARATOR = 0,
+};
+
+
+// Return value of list and combo box functions that failed
+constexpr int CB_ERR = -1;
+constexpr int LB_ERR = -1;
+
+
+OPENMPT_NAMESPACE_END

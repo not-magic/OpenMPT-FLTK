@@ -1,0 +1,2 @@
+pugixml v1.16 (2026-06-16) (.tar.gz archive)
+ *  The docs and scripts folders have been omitted.

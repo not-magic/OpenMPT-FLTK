@@ -1,0 +1,8 @@
+[submodule "openmpt"]
+	path = openmpt
+	url = git@github.com:OpenMPT/openmpt.git
+	branch = master
+[submodule "fltk"]
+	path = fltk
+	url = git@github.com:fltk/fltk.git
+	branch = branch-1.4
