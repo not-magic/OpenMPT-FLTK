@@ -18,6 +18,9 @@ namespace Tracker
 {
 // Implemented in mptrack/Mptrack.cpp
 mpt::recursive_mutex_with_lock_count &GetGlobalMutexRef();
+
+// The audio thread calls this before relocking, as it would otherwise starve the GUI thread on the unfair mutex
+void YieldToLockWaiters();
 }  // namespace Tracker
 
 class TrackerCriticalSection

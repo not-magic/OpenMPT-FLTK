@@ -665,6 +665,7 @@ bool CMainFrame::SoundCallbackIsLockedByCurrentThread() const
 void CMainFrame::SoundCallbackLock()
 {
 	MPT_TRACE_SCOPE();
+	Tracker::YieldToLockWaiters();
 	m_SoundDeviceFillBufferCriticalSection.Enter();
 	MPT_ASSERT_ALWAYS(m_pSndFile != nullptr);
 	m_AudioThreadId = mpt::log::Trace::GetCurrentThreadId();

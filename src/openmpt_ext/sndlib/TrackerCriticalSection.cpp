@@ -5,7 +5,25 @@
 
 #include "../misc/mptMutex.h"
 
+#include <atomic>
+#include <thread>
+
 OPENMPT_NAMESPACE_BEGIN
+
+namespace
+{
+
+std::atomic<int> g_lockWaiterCount{0};
+
+}  // namespace
+
+
+void Tracker::YieldToLockWaiters()
+{
+	while(g_lockWaiterCount.load(std::memory_order_acquire) > 0)
+		std::this_thread::yield();
+}
+
 
 TrackerCriticalSection::TrackerCriticalSection()
 	: m_globalMutex(Tracker::GetGlobalMutexRef())
@@ -41,7 +59,9 @@ void TrackerCriticalSection::Enter()
 	if(!m_isInSection)
 	{
 		m_isInSection = true;
+		g_lockWaiterCount.fetch_add(1, std::memory_order_acq_rel);
 		m_globalMutex.lock();
+		g_lockWaiterCount.fetch_sub(1, std::memory_order_acq_rel);
 	}
 }
 
