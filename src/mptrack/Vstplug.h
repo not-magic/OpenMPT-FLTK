@@ -25,7 +25,7 @@
 OPENMPT_NAMESPACE_BEGIN
 
 
-class CSoundFile;
+class CTrackerSoundFile;
 struct SNDMIXPLUGIN;
 struct VSTPluginLib;
 enum class PluginCategory : uint8;
@@ -71,7 +71,7 @@ private:
 	template <typename Tfn> uint32 SETryOrError(Tfn fn);
 
 public:
-	CVstPlugin(bool maskCrashes, HMODULE hLibrary, VSTPluginLib &factory, SNDMIXPLUGIN &mixPlugin, Vst::AEffect &effect, CSoundFile &sndFile);
+	CVstPlugin(bool maskCrashes, HMODULE hLibrary, VSTPluginLib &factory, SNDMIXPLUGIN &mixPlugin, Vst::AEffect &effect, CTrackerSoundFile &sndFile);
 	~CVstPlugin();
 
 	CVstPlugin(const CVstPlugin &) = delete;

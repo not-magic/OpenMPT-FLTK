@@ -1201,7 +1201,6 @@ void COptionsMixer::OnOK()
 // CEQSavePresetDlg
 //
 
-#ifndef NO_EQ
 
 class CEQSavePresetDlg : public DialogBase
 {
@@ -1270,14 +1269,12 @@ bool CEQSlider::PreTranslateMessage(int event)
 	return VSlider::PreTranslateMessage(event);
 }
 
-#endif // !NO_EQ
 
 
 //////////////////////////////////////////////////////////
 // COptionsPlayer - DSP / EQ settings
 
 
-#ifndef NO_EQ
 #define EQ_MAX_FREQS	5
 
 const uint32 gEqBandFreqs[MAX_EQ_BANDS][EQ_MAX_FREQS] =
@@ -1289,10 +1286,8 @@ const uint32 gEqBandFreqs[MAX_EQ_BANDS][EQ_MAX_FREQS] =
 	{ 3000, 3500, 4000, 4500, 5000 },
 	{ 6000, 7000, 8000, 9000, 10000 },
 };
-#endif // !NO_EQ
 
 UI_MESSAGE_MAP_BEGIN(COptionsPlayer, PropertyPage)
-#ifndef NO_EQ
 	// EQ
 	UI_COMMAND(IDC_CHECK3,  &COptionsPlayer::OnSettingsChanged)
 	UI_COMMAND(IDC_BUTTON1, &COptionsPlayer::OnEqUser1)
@@ -1302,7 +1297,6 @@ UI_MESSAGE_MAP_BEGIN(COptionsPlayer, PropertyPage)
 	UI_COMMAND(IDC_BUTTON5, &COptionsPlayer::OnSavePreset)
 	UI_COMMAND_RANGE(ID_EQSLIDER_BASE, ID_EQSLIDER_BASE + MAX_EQ_BANDS, &COptionsPlayer::OnSliderMenu)
 	UI_COMMAND_RANGE(ID_EQMENU_BASE, ID_EQMENU_BASE + EQ_MAX_FREQS,     &COptionsPlayer::OnSliderFreq)
-#endif // !NO_EQ
 
 	// DSP
 	UI_NOTIFY(ui::ComboSelChange, IDC_COMBO2, &COptionsPlayer::OnSettingsChanged)
@@ -1329,9 +1323,7 @@ void COptionsPlayer::DoDataExchange(DataExchange* pDX)
 
 
 COptionsPlayer::COptionsPlayer() : PropertyPage{IDD_OPTIONS_PLAYER}
-#ifndef NO_EQ
 	, m_EQPreset(TrackerSettings::Instance().m_EqSettings)
-#endif
 {
 }
 
@@ -1342,7 +1334,6 @@ bool COptionsPlayer::OnInitDialog()
 
 	uint32 dwQuality = TrackerSettings::Instance().MixerDSPMask;
 
-#ifndef NO_EQ
 	for (uint32 i = 0; i < MAX_EQ_BANDS; i++)
 	{
 		m_Sliders[i].Init(IDC_SLIDER7 + i, i, this);
@@ -1353,49 +1344,21 @@ bool COptionsPlayer::OnInitDialog()
 	UpdateDialog();
 
 	if (dwQuality & SNDDSP_EQ) CheckDlgButton(IDC_CHECK3, ui::CheckOn);
-#else
-	GetDlgItem(IDC_CHECK3)->EnableWindow(false);
-#endif
 
 	// Effects
-#ifndef NO_DSP
 	if (dwQuality & SNDDSP_MEGABASS) CheckDlgButton(IDC_CHECK1, ui::CheckOn);
-#else
-	GetDlgItem(IDC_CHECK1)->EnableWindow(false);
-#endif
-#ifndef NO_AGC
 	if (dwQuality & SNDDSP_AGC) CheckDlgButton(IDC_CHECK2, ui::CheckOn);
-#else
-	GetDlgItem(IDC_CHECK2)->EnableWindow(false);
-#endif
-#ifndef NO_DSP
 	if (dwQuality & SNDDSP_SURROUND) CheckDlgButton(IDC_CHECK4, ui::CheckOn);
-#else
-	GetDlgItem(IDC_CHECK4)->EnableWindow(false);
-#endif
-#ifndef NO_DSP
 	if (dwQuality & SNDDSP_BITCRUSH) CheckDlgButton(IDC_CHECK5, ui::CheckOn);
-#else
-	GetDlgItem(IDC_CHECK5)->EnableWindow(false);
-#endif
 
-#ifndef NO_DSP
 	m_SbBitCrushBits.SetRange(1, 24);
 	m_SbBitCrushBits.SetPos(TrackerSettings::Instance().m_BitCrushSettings.m_Bits);
-#else
-	m_SbBitCurshBits.EnableWindow(false);
-#endif
 
-#ifndef NO_DSP
 	// Bass Expansion
 	m_SbXBassDepth.SetRange(0,4);
 	m_SbXBassDepth.SetPos(8-TrackerSettings::Instance().m_MegaBassSettings.m_nXBassDepth);
 	m_SbXBassRange.SetRange(0,4);
 	m_SbXBassRange.SetPos(4 - (TrackerSettings::Instance().m_MegaBassSettings.m_nXBassRange - 1) / 5);
-#else
-	m_SbXBassDepth.EnableWindow(false);
-	m_SbXBassRange.EnableWindow(false);
-#endif
 
 #ifndef NO_REVERB
 	// Reverb
@@ -1420,7 +1383,6 @@ bool COptionsPlayer::OnInitDialog()
 	m_CbnReverbPreset.EnableWindow(false);
 #endif
 
-#ifndef NO_DSP
 	// Surround
 	{
 		uint32 n = TrackerSettings::Instance().m_SurroundSettings.m_nProLogicDepth;
@@ -1431,10 +1393,6 @@ bool COptionsPlayer::OnInitDialog()
 		m_SbSurroundDelay.SetRange(0, 8);
 		m_SbSurroundDelay.SetPos((TrackerSettings::Instance().m_SurroundSettings.m_nProLogicDelay-5)/5);
 	}
-#else
-	m_SbSurroundDepth.EnableWindow(false);
-	m_SbSurroundDelay.EnableWindow(false);
-#endif
 
 	return true;
 }
@@ -1477,32 +1435,19 @@ void COptionsPlayer::OnOK()
 {
 	uint32 dwQuality = 0;
 
-#ifndef NO_DSP
 	if (IsDlgButtonChecked(IDC_CHECK1)) dwQuality |= SNDDSP_MEGABASS;
-#endif
-#ifndef NO_AGC
 	if (IsDlgButtonChecked(IDC_CHECK2)) dwQuality |= SNDDSP_AGC;
-#endif
-#ifndef NO_EQ
 	if (IsDlgButtonChecked(IDC_CHECK3)) dwQuality |= SNDDSP_EQ;
-#endif
-#ifndef NO_DSP
 	if (IsDlgButtonChecked(IDC_CHECK4)) dwQuality |= SNDDSP_SURROUND;
-#endif
 #ifndef NO_REVERB
 	if (IsDlgButtonChecked(IDC_CHECK6)) dwQuality |= SNDDSP_REVERB;
 #endif
-#ifndef NO_DSP
 	if (IsDlgButtonChecked(IDC_CHECK5)) dwQuality |= SNDDSP_BITCRUSH;
-#endif
 
-#ifndef NO_DSP
 	{
 		TrackerSettings::Instance().m_BitCrushSettings.m_Bits = m_SbBitCrushBits.GetPos();
 	}
-#endif
 
-#ifndef NO_DSP
 	// Bass Expansion
 	{
 		uint32 nXBassDepth = 8-m_SbXBassDepth.GetPos();
@@ -1514,7 +1459,6 @@ void COptionsPlayer::OnOK()
 		TrackerSettings::Instance().m_MegaBassSettings.m_nXBassDepth = nXBassDepth;
 		TrackerSettings::Instance().m_MegaBassSettings.m_nXBassRange = nXBassRange;
 	}
-#endif
 #ifndef NO_REVERB
 	// Reverb
 	{
@@ -1523,7 +1467,6 @@ void COptionsPlayer::OnOK()
 		if (nReverbType < NUM_REVERBTYPES) TrackerSettings::Instance().m_ReverbSettings.m_nReverbType = nReverbType;
 	}
 #endif
-#ifndef NO_DSP
 	// Surround
 	{
 		uint32 nProLogicDepth = m_SbSurroundDepth.GetPos();
@@ -1531,7 +1474,6 @@ void COptionsPlayer::OnOK()
 		TrackerSettings::Instance().m_SurroundSettings.m_nProLogicDepth = nProLogicDepth;
 		TrackerSettings::Instance().m_SurroundSettings.m_nProLogicDelay = nProLogicDelay;
 	}
-#endif
 
 	TrackerSettings::Instance().MixerDSPMask = dwQuality;
 
@@ -1540,11 +1482,10 @@ void COptionsPlayer::OnOK()
 }
 
 
-#ifndef NO_EQ
 
 void COptionsPlayer::UpdateEQ(bool bReset)
 {
-	CriticalSection cs;
+	TrackerCriticalSection cs;
 	if(CMainFrame::GetMainFrame()->GetSoundFilePlaying())
 		CMainFrame::GetMainFrame()->GetSoundFilePlaying()->SetEQGains(m_EQPreset.Gains, m_EQPreset.Freqs, bReset);
 }
@@ -1622,7 +1563,7 @@ void COptionsPlayer::OnSliderMenu(uint32 nID)
 	uint32 n = nID - ID_EQSLIDER_BASE;
 	if (n < MAX_EQ_BANDS)
 	{
-		HMENU hMenu = ::CreatePopupMenu();
+		HMENU hMenu = ui::CreatePopupMenu();
 		m_nSliderMenu = n;
 		if (!hMenu) return;
 		const uint32 *pFreqs = gEqBandFreqs[m_nSliderMenu];
@@ -1630,12 +1571,12 @@ void COptionsPlayer::OnSliderMenu(uint32 nID)
 		{
 			uint32 d = ui::MenuItemString;
 			if (m_EQPreset.Freqs[m_nSliderMenu] == pFreqs[i]) d |= ui::MenuItemChecked;
-			::AppendMenu(hMenu, d, ID_EQMENU_BASE+i, f2s(pFreqs[i]));
+			ui::AppendMenu(hMenu, d, ID_EQMENU_BASE+i, f2s(pFreqs[i]));
 		}
 		Point pt(m_Sliders[m_nSliderMenu].m_x, m_Sliders[m_nSliderMenu].m_y);
 		m_Sliders[m_nSliderMenu].ClientToScreen(&pt);
-		::TrackPopupMenu(hMenu, TPM_LEFTALIGN|TPM_RIGHTBUTTON, pt.x, pt.y, 0, this, NULL);
-		::DestroyMenu(hMenu);
+		ui::TrackPopupMenu(hMenu, TPM_LEFTALIGN|TPM_RIGHTBUTTON, pt.x, pt.y, 0, this, NULL);
+		ui::DestroyMenu(hMenu);
 	}
 }
 
@@ -1655,7 +1596,6 @@ void COptionsPlayer::OnSliderFreq(uint32 nID)
 	}
 }
 
-#endif // !NO_EQ
 
 
 /////////////////////////////////////////////////////////////
@@ -1928,7 +1868,7 @@ void COptionsWine::DoDataExchange(DataExchange* pDX)
 bool COptionsWine::OnInitDialog()
 {
 	PropertyPage::OnInitDialog();
-	GetDlgItem(IDC_CHECK_WINE_ENABLE)->EnableWindow(mpt::OS::Windows::IsWine() ? true : false);
+	GetDlgItem(IDC_CHECK_WINE_ENABLE)->EnableWindow(false);
 	CheckDlgButton(IDC_CHECK_WINE_ENABLE, TrackerSettings::Instance().WineSupportEnabled ? ui::CheckOn : ui::CheckOff);
 	int index;
 	index = m_CbnPulseAudio.AddString(UL_("Auto"    )); m_CbnPulseAudio.SetItemData(index, 1);

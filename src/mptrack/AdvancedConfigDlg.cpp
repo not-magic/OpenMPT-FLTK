@@ -116,7 +116,7 @@ void COptionsAdvanced::ReInit()
 
 void COptionsAdvanced::OnOK()
 {
-	CSoundFile::SetDefaultNoteNames();
+	CTrackerSoundFile::SetDefaultNoteNames();
 	CMainFrame *pMainFrm = CMainFrame::GetMainFrame();
 	if (pMainFrm) pMainFrm->PostMessage(MSG_MOD_INVALIDATEPATTERNS, HINT_MPTOPTIONS);
 	PropertyPage::OnOK();

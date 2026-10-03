@@ -21,6 +21,7 @@
 #include "mpt/io/base.hpp"
 #include "mpt/io/io.hpp"
 #include "mpt/io/io_stdstream.hpp"
+#include "PluginUi.h"
 
 #include <ostream>
 
@@ -79,7 +80,7 @@ VSTPresets::ErrorCode VSTPresets::LoadFile(FileReader &file, IMixPlugin &plugin)
 
 		std::string prgName;
 		file.ReadString<mpt::String::maybeNullTerminated>(prgName, 28);
-		plugin.SetCurrentProgramName(mpt::ToUnicode(mpt::Charset::Locale, prgName));
+		PluginUi(plugin).SetCurrentProgramName(mpt::ToUnicode(mpt::Charset::Locale, prgName));
 
 		if(!memcmp(header.fxMagic, "FxCk", 4))
 		{
@@ -248,7 +249,7 @@ void VSTPresets::SaveProgram(std::ostream &f, IMixPlugin &plugin)
 	mpt::IO::WriteIntBE(f, numParams);
 
 	char name[28];
-	mpt::String::WriteBuf(mpt::String::maybeNullTerminated, name) = mpt::ToCharset(mpt::Charset::Locale, plugin.GetCurrentProgramName());
+	mpt::String::WriteBuf(mpt::String::maybeNullTerminated, name) = mpt::ToCharset(mpt::Charset::Locale, PluginUi(plugin).GetCurrentProgramName());
 	mpt::IO::WriteRaw(f, name, 28);
 
 	if(writeChunk)

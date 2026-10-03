@@ -324,7 +324,7 @@ mpt::ustring CAboutDlg::GetTabText(int tab)
 				text += lf;
 			}
 #ifdef MPT_ENABLE_ARCH_INTRINSICS
-			text += MPT_UFORMAT("Optional CPU features used: {}\n")(CPUFeaturesToString(CPU::GetEnabledFeatures()));
+			text += MPT_UFORMAT("Optional CPU features used: {}\n")(CPUFeaturesToString(mpt::arch::get_cpu_info().get_features()));
 #endif // MPT_ENABLE_ARCH_INTRINSICS
 			text += lf;
 #ifdef MPT_ENABLE_ARCH_INTRINSICS
@@ -347,67 +347,7 @@ mpt::ustring CAboutDlg::GetTabText(int tab)
 			text += MPT_UFORMAT("Settings{1}: {0}\n")(theApp.GetConfigFileName(), theApp.IsPortableMode() ? UV_(" (portable)") : UV_(""));
 			break;
 		case 1:
-			{
-			std::vector<std::string> components = ComponentManager::Instance()->GetRegisteredComponents();
-			if(!TrackerSettings::Instance().ComponentsKeepLoaded)
-				{
-					text += UL_("Components are loaded and unloaded as needed.\n\n");
-					for(const auto &component : components)
-					{
-						ComponentInfo info = ComponentManager::Instance()->GetComponentInfo(component);
-						mpt::ustring name = mpt::ToUnicode(mpt::Charset::ASCII, (info.name.substr(0, 9) == "Component") ? info.name.substr(9) : info.name);
-						if(!info.settingsKey.empty())
-						{
-							name = mpt::ToUnicode(mpt::Charset::ASCII, info.settingsKey);
-						}
-						text += name + lf;
-					}
-				} else
-				{
-					for(int available = 1; available >= 0; --available)
-					{
-						if(available)
-						{
-							text += UL_("Loaded Components:\n");
-						} else
-						{
-							text += UL_("\nUnloaded Components:\n");
-						}
-						for(const auto &component : components)
-						{
-							ComponentInfo info = ComponentManager::Instance()->GetComponentInfo(component);
-							if(available  && info.state != ComponentStateAvailable) continue;
-							if(!available && info.state == ComponentStateAvailable) continue;
-							mpt::ustring name = mpt::ToUnicode(mpt::Charset::ASCII, (info.name.substr(0, 9) == "Component") ? info.name.substr(9) : info.name);
-							if(!info.settingsKey.empty())
-							{
-								name = mpt::ToUnicode(mpt::Charset::ASCII, info.settingsKey);
-							}
-							text += MPT_UFORMAT("{}: {}")
-								( name
-								, info.state == ComponentStateAvailable ? UV_("ok") :
-									info.state == ComponentStateUnavailable? UV_("missing") :
-									info.state == ComponentStateUnintialized ? UV_("not loaded") :
-									info.state == ComponentStateBlocked ? UV_("blocked") :
-									info.state == ComponentStateUnregistered ? UV_("unregistered") :
-									UV_("unknown")
-								);
-							if(info.type != ComponentTypeUnknown)
-							{
-								text += MPT_UFORMAT(" ({})")
-									( info.type == ComponentTypeBuiltin ? UV_("builtin") :
-										info.type == ComponentTypeSystem ? UV_("system") :
-										info.type == ComponentTypeSystemInstallable ? UV_("system, optional") :
-										info.type == ComponentTypeBundled ? UV_("bundled") :
-										info.type == ComponentTypeForeign ? UV_("foreign") :
-										UV_("unknown")
-									);
-							}
-							text += lf;
-						}
-					}
-				}
-			}
+			text += UL_("All components are built in.\n");
 			break;
 		case 2:
 			text += Build::GetFullCreditsString();

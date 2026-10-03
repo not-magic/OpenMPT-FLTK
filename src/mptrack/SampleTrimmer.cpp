@@ -18,12 +18,13 @@
 #include "Reporting.h"
 #include "../tracklib/SampleEdit.h"
 #include "../soundlib/OPL.h"
+#include "openmpt_ext/sndlib/TrackerCriticalSection.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
 class CRenderProgressDlg : public CProgressDialog
 {
-	CSoundFile &m_SndFile;
+	CTrackerSoundFile &m_SndFile;
 
 	class DummyAudioTarget : public IAudioTarget
 	{
@@ -35,7 +36,7 @@ class CRenderProgressDlg : public CProgressDialog
 public:
 	std::vector<SmpLength> m_SamplePlayLengths;
 
-	CRenderProgressDlg(Wnd *parent, CSoundFile &sndFile)
+	CRenderProgressDlg(Wnd *parent, CTrackerSoundFile &sndFile)
 		: CProgressDialog{parent}
 		, m_SndFile{sndFile}
 	{
@@ -167,7 +168,7 @@ void CModDoc::OnShowSampleTrimmer()
 			if(dlg.m_SamplePlayLengths[smp] != 0 && sample.nLength > dlg.m_SamplePlayLengths[smp])
 			{
 				GetSampleUndo().PrepareUndo(smp, sundo_delete, "Automatic Sample Trimming", dlg.m_SamplePlayLengths[smp], sample.nLength);
-				SampleEdit::ResizeSample(sample, dlg.m_SamplePlayLengths[smp], m_SndFile);
+				CallLocked([&] { return SampleEdit::ResizeSample(sample, dlg.m_SamplePlayLengths[smp], m_SndFile); });
 				sample.uFlags.set(SMP_MODIFIED);
 			}
 		}

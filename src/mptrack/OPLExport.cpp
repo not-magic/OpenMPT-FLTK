@@ -94,7 +94,7 @@ class OPLCapture final : public OPL::IRegisterLogger
 	};
 
 public:
-	OPLCapture(CSoundFile &sndFile) : m_sndFile{sndFile} {}
+	OPLCapture(CTrackerSoundFile &sndFile) : m_sndFile{sndFile} {}
 
 	void Reset()
 	{
@@ -314,7 +314,7 @@ private:
 
 	std::vector<RegisterDump> m_registerDump;
 	std::map<OPL::Register, OPL::Value> m_prevRegisters, m_registerDumpAtLoopStart;
-	CSoundFile &m_sndFile;
+	CTrackerSoundFile &m_sndFile;
 };
 
 
@@ -333,7 +333,7 @@ private:
 	Edit m_EditSubSong;
 
 	OPLCapture m_oplLogger;
-	CSoundFile &m_sndFile;
+	CTrackerSoundFile &m_sndFile;
 	CModDoc &m_modDoc;
 
 	std::vector<SubSong> m_subSongs;

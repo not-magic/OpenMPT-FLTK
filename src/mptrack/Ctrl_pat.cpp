@@ -981,7 +981,7 @@ void CCtrlPatterns::OnPatternMerge()
 		return;
 	}
 
-	CriticalSection cs;
+	TrackerCriticalSection cs;
 
 	const PATTERNINDEX patternsRequired = static_cast<PATTERNINDEX>((numRows + (patternSize - 1)) / patternSize);
 	// Double-check if we *still* have enough patterns and orders (right now it should not be possible that this number changed, but in the future it might due to scripting / etc.)

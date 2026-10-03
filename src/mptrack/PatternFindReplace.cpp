@@ -31,7 +31,7 @@ void CViewPattern::OnEditFind()
 	CModDoc *pModDoc = GetDocument();
 	if (pModDoc && !dialogOpen)
 	{
-		CSoundFile &sndFile = pModDoc->GetSoundFile();
+		CTrackerSoundFile &sndFile = pModDoc->GetSoundFile();
 		FindReplace settings = FindReplace::instance;
 		ModCommand m{};
 		if(m_Selection.GetUpperLeft() != m_Selection.GetLowerRight())
@@ -66,7 +66,7 @@ void CViewPattern::OnEditFind()
 
 void CViewPattern::OnEditFindNext()
 {
-	CSoundFile &sndFile = *GetSoundFile();
+	CTrackerSoundFile &sndFile = *GetSoundFile();
 	const CModSpecifications &specs = sndFile.GetModSpecifications();
 	uint32 nFound = 0;
 

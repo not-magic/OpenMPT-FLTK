@@ -25,7 +25,7 @@
 #include "mpt/format/message_macros.hpp"
 #include "mpt/parse/parse.hpp"
 #include "mpt/string/types.hpp"
-#include "mpt/textfile/textfile.hpp"
+#include "openmpt_ext/mpt/TextFileExt.h"
 
 #include <list>
 #include <map>
@@ -822,7 +822,7 @@ void CachedIniFileSettingsBackend::ReadFileIntoCache()
 
 std::vector<mpt::ustring> CachedIniFileSettingsBackend::ReadFileAsLines()
 {
-	return split_lines(DecodeText(file.read(), filename));;
+	return split_lines(DecodeText(file.Read(), filename));;
 }
 
 void CachedIniFileSettingsBackend::ReadLinesIntoCache(const std::vector<mpt::ustring> &lines)
@@ -1196,7 +1196,7 @@ void CachedIniFileSettingsBackend::WriteCacheIntoFile(std::optional<Caching> syn
 			}
 		}
 	}
-	file.write(mpt::textfile::encode(mpt::textfile::get_preferred_encoding(), filetext), sync_hint.value_or(sync_default.value_or(Caching::WriteBack)) == Caching::WriteThrough);
+	file.Write(mpt::textfile::encode(mpt::textfile::get_preferred_encoding(), filetext), sync_hint.value_or(sync_default.value_or(Caching::WriteBack)) == Caching::WriteThrough);
 }
 
 #if MPT_SETTINGS_INI_CASE_INSENSITIVE

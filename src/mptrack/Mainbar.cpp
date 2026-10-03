@@ -390,7 +390,7 @@ static void EnableEdit(Spinner &spinner, bool enable)
 }
 
 
-void CMainToolBar::SetCurrentSong(CSoundFile *pSndFile)
+void CMainToolBar::SetCurrentSong(CTrackerSoundFile *pSndFile)
 {
 	// Update Info
 	m_updating = true;
@@ -483,7 +483,7 @@ void CMainToolBar::OnOctaveChanged()
 
 void CMainToolBar::OnTempoSpinDelta(NotifyHeader *, LResult *)
 {
-	const CSoundFile *sndFile = CMainFrame::GetMainFrame()->GetSoundFilePlaying();
+	const CTrackerSoundFile *sndFile = CMainFrame::GetMainFrame()->GetSoundFilePlaying();
 	if(!sndFile || !sndFile->GetModSpecifications().hasFractionalTempo)
 		m_SpinTempo.SetIncrement(1.0);
 	else
@@ -497,7 +497,7 @@ void CMainToolBar::OnSpeedChanged()
 	{
 		bool ok = false;
 		uint32 newSpeed = GetDlgItemInt(IDC_EDIT_CURRENTSPEED, &ok, false);
-		CSoundFile *sndFile = mainFrm->GetSoundFilePlaying();
+		CTrackerSoundFile *sndFile = mainFrm->GetSoundFilePlaying();
 		if(sndFile && ok)
 		{
 			const auto &specs = sndFile->GetModSpecifications();
@@ -513,7 +513,7 @@ void CMainToolBar::OnTempoChanged()
 	if(CMainFrame *mainFrm = CMainFrame::GetMainFrame(); mainFrm && !m_updating)
 	{
 		const TEMPO newTempo(m_SpinTempo.GetValue());
-		CSoundFile *sndFile = mainFrm->GetSoundFilePlaying();
+		CTrackerSoundFile *sndFile = mainFrm->GetSoundFilePlaying();
 		if(sndFile && !m_SpinTempo.GetWindowText().empty())
 		{
 			const auto &specs = sndFile->GetModSpecifications();
@@ -530,7 +530,7 @@ void CMainToolBar::OnRPBChanged()
 	{
 		bool ok = false;
 		uint32 newRPB = GetDlgItemInt(IDC_EDIT_RPB, &ok, false);
-		CSoundFile *sndFile = mainFrm->GetSoundFilePlaying();
+		CTrackerSoundFile *sndFile = mainFrm->GetSoundFilePlaying();
 		if(sndFile && ok && newRPB > 0)
 		{
 			SetRowsPerBeat(newRPB);
@@ -546,7 +546,7 @@ void CMainToolBar::OnGlobalVolChanged()
 	{
 		bool ok = false;
 		uint32 newGlobalVol = GetDlgItemInt(IDC_EDIT_GLOBALVOL, &ok, false);
-		CSoundFile *sndFile = mainFrm->GetSoundFilePlaying();
+		CTrackerSoundFile *sndFile = mainFrm->GetSoundFilePlaying();
 		if(sndFile && ok)
 		{
 			sndFile->m_PlayState.m_nGlobalVolume = Clamp(Util::muldivr_unsigned(newGlobalVol, MAX_GLOBAL_VOLUME, sndFile->GlobalVolumeRange()), uint32(0), MAX_GLOBAL_VOLUME);
@@ -621,11 +621,11 @@ void CMainToolBar::SetRowsPerBeat(ROWINDEX newRPB)
 	if(pMainFrm == nullptr)
 		return;
 	CModDoc *pModDoc = pMainFrm->GetModPlaying();
-	CSoundFile *pSndFile = pMainFrm->GetSoundFilePlaying();
+	CTrackerSoundFile *pSndFile = pMainFrm->GetSoundFilePlaying();
 	if(pModDoc == nullptr || pSndFile == nullptr)
 		return;
 
-	CriticalSection cs;
+	TrackerCriticalSection cs;
 	PATTERNINDEX pat = pSndFile->GetCurrentPattern();
 	bool modified = false;
 	if(pSndFile->Patterns.IsValidPat(pat) && pSndFile->Patterns[pat].GetOverrideSignature())

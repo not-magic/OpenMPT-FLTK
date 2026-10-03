@@ -10,7 +10,7 @@
 
 #include "stdafx.h"
 #include "ui/Ui.h"
-#include "Dlsbank.h"
+#include "DlsBankExt.h"
 #include "InputHandler.h"
 #include "Mainfrm.h"
 #include "resource.h"

@@ -209,7 +209,7 @@ public:
 	using TUNINGVECTOR = std::vector<CTuningCollection*>;
 
 public:
-	CTuningDialog(Wnd *pParent, INSTRUMENTINDEX inst, CSoundFile &csf);
+	CTuningDialog(Wnd *pParent, INSTRUMENTINDEX inst, CTrackerSoundFile &csf);
 	~CTuningDialog() override;
 
 	bool OnInitDialog() override;
@@ -257,7 +257,7 @@ private:
 
 private:
 
-	CSoundFile & m_sndFile;
+	CTrackerSoundFile & m_sndFile;
 
 	CTuningRatioMapWnd m_RatioMapWnd;
 	TUNINGVECTOR m_TuningCollections;

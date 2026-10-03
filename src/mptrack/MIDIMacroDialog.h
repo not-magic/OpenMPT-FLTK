@@ -22,7 +22,7 @@
 
 OPENMPT_NAMESPACE_BEGIN
 
-class CSoundFile;
+class CTrackerSoundFile;
 
 class CMidiMacroSetup : public DialogBase
 {
@@ -39,10 +39,10 @@ protected:
 	};
 	std::vector<MacroEdit> m_EditMacro = std::vector<MacroEdit>(static_cast<int>(kSFxMacros));
 
-	CSoundFile &m_SndFile;
+	CTrackerSoundFile &m_SndFile;
 
 public:
-	CMidiMacroSetup(CSoundFile &sndFile, Wnd *parent = nullptr);
+	CMidiMacroSetup(CTrackerSoundFile &sndFile, Wnd *parent = nullptr);
 private:
 	mpt::heap_value<MIDIMacroConfig> m_vMidiCfg;
 public:

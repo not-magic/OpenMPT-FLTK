@@ -19,7 +19,6 @@
 #include "PatternClipboard.h"
 #include "resource.h"
 #include "TuningDialog.h"
-#include "../common/ComponentManager.h"
 #include "../common/misc_util.h"
 #include "../common/mptFileIO.h"
 #include "../common/mptStringBuffer.h"
@@ -28,14 +27,13 @@
 #include "../soundlib/Tables.h"
 #include "../soundlib/tuningcollection.h"
 #include "mpt/environment/environment.hpp"
-#include "mpt/fs/common_directories.hpp"
-#include "mpt/fs/fs.hpp"
 #include "mpt/io_file/fstream.hpp"
 #include "mpt/io_file/outputfile.hpp"
 #include "mpt/parse/parse.hpp"
 #include "mpt/uuid/uuid.hpp"
 #include "openmpt/sounddevice/SoundDevice.hpp"
 #include "openmpt/sounddevice/SoundDeviceManager.hpp"
+#include "TuningExt.h"
 
 #include <algorithm>
 
@@ -47,11 +45,9 @@ OPENMPT_NAMESPACE_BEGIN
 #define OLD_SOUNDSETUP_SECONDARY             0x40
 #define OLD_SOUNDSETUP_NOBOOSTTHREADPRIORITY 0x80
 
-#ifndef NO_EQ
 
 constexpr EQPreset FlatEQPreset = {"Flat", {16, 16, 16, 16, 16, 16}, {125, 300, 600, 1250, 4000, 8000}};
 
-#endif // !NO_EQ
 
 
 TrackerSettings &TrackerSettings::Instance()
@@ -112,7 +108,10 @@ DebugSettings::DebugSettings(SettingsContainer &conf_)
 	: conf(conf_)
 	// Debug
 #if !defined(MPT_LOG_IS_DISABLED)
-	, DebugLogLevel(conf, UL_("Debug"), UL_("LogLevel"), static_cast<int>(mpt::log::GlobalLogLevel))
+	// libopenmpt's log goes to stderr
+	, DebugLogLevel(conf, UL_("Debug"), UL_("LogLevel"), static_cast<int>(LogWarning))
+#endif
+#if defined(MODPLUG_TRACKER) && !defined(MPT_LOG_IS_DISABLED)
 	, DebugLogFacilitySolo(conf, UL_("Debug"), UL_("LogFacilitySolo"), std::string())
 	, DebugLogFacilityBlocked(conf, UL_("Debug"), UL_("LogFacilityBlocked"), std::string())
 	, DebugLogFileEnable(conf, UL_("Debug"), UL_("LogFileEnable"), mpt::log::FileEnabled)
@@ -128,10 +127,10 @@ DebugSettings::DebugSettings(SettingsContainer &conf_)
 {
 
 		// enable debug features (as early as possible after reading the settings)
-	#if !defined(MPT_LOG_IS_DISABLED)
-		#if !defined(MPT_LOG_GLOBAL_LEVEL_STATIC)
-			mpt::log::GlobalLogLevel = DebugLogLevel;
-		#endif
+	#if !defined(MPT_LOG_IS_DISABLED) && !defined(MPT_LOG_GLOBAL_LEVEL_STATIC)
+		mpt::log::GlobalLogLevel = DebugLogLevel;
+	#endif
+	#if defined(MODPLUG_TRACKER) && !defined(MPT_LOG_IS_DISABLED)
 		mpt::log::SetFacilities(DebugLogFacilitySolo, DebugLogFacilityBlocked);
 		mpt::log::FileEnabled = DebugLogFileEnable;
 		mpt::log::DebuggerEnabled = DebugLogDebuggerEnable;
@@ -226,7 +225,6 @@ TrackerSettings::TrackerSettings(SettingsContainer &conf)
 	, SoundBoostedThreadRealtimePosix(conf, UL_("Sound Settings"), UL_("BoostedThreadRealtimeLinux"), SoundDevice::AppInfo().BoostedThreadRealtimePosix)
 	, SoundBoostedThreadNicenessPosix(conf, UL_("Sound Settings"), UL_("BoostedThreadNicenessPosix"), SoundDevice::AppInfo().BoostedThreadNicenessPosix)
 	, SoundBoostedThreadRtprioPosix(conf, UL_("Sound Settings"), UL_("BoostedThreadRtprioLinux"), SoundDevice::AppInfo().BoostedThreadRtprioPosix)
-	, SoundMaskDriverCrashes(conf, UL_("Sound Settings"), UL_("MaskDriverCrashes"), SoundDevice::AppInfo().MaskDriverCrashes)
 	, SoundAllowDeferredProcessing(conf, UL_("Sound Settings"), UL_("AllowDeferredProcessing"), SoundDevice::AppInfo().AllowDeferredProcessing)
 	// MIDI Settings
 	, m_nMidiDevice(conf, UL_("MIDI Settings"), UL_("MidiDevice"), 0)
@@ -290,8 +288,6 @@ TrackerSettings::TrackerSettings(SettingsContainer &conf)
 	, ExportNormalize(conf, UL_("Export"), UL_("Normalize"), false)
 	, ExportClearPluginBuffers(conf, UL_("Export"), UL_("ClearPluginBuffers"), true)
 	// Components
-	, ComponentsLoadOnStartup(conf, UL_("Components"), UL_("LoadOnStartup"), ComponentManagerSettingsDefault().LoadOnStartup())
-	, ComponentsKeepLoaded(conf, UL_("Components"), UL_("KeepLoaded"), ComponentManagerSettingsDefault().KeepLoaded())
 	// AutoSave
 	, CreateBackupFiles(conf, UL_("AutoSave"), UL_("CreateBackupFiles"), true)
 	, AutosaveEnabled(conf, UL_("AutoSave"), UL_("Enabled"), true)
@@ -339,19 +335,14 @@ TrackerSettings::TrackerSettings(SettingsContainer &conf)
 {
 
 	// Effects
-#ifndef NO_DSP
 	m_MegaBassSettings.m_nXBassDepth = conf.Read<int32>(UL_("Effects"), UL_("XBassDepth"), m_MegaBassSettings.m_nXBassDepth);
 	m_MegaBassSettings.m_nXBassRange = conf.Read<int32>(UL_("Effects"), UL_("XBassRange"), m_MegaBassSettings.m_nXBassRange);
-#endif
 #ifndef NO_REVERB
 	m_ReverbSettings.m_nReverbDepth = conf.Read<int32>(UL_("Effects"), UL_("ReverbDepth"), m_ReverbSettings.m_nReverbDepth);
 	m_ReverbSettings.m_nReverbType = conf.Read<int32>(UL_("Effects"), UL_("ReverbType"), m_ReverbSettings.m_nReverbType);
 #endif
-#ifndef NO_DSP
 	m_SurroundSettings.m_nProLogicDepth = conf.Read<int32>(UL_("Effects"), UL_("ProLogicDepth"), m_SurroundSettings.m_nProLogicDepth);
 	m_SurroundSettings.m_nProLogicDelay = conf.Read<int32>(UL_("Effects"), UL_("ProLogicDelay"), m_SurroundSettings.m_nProLogicDelay);
-#endif
-#ifndef NO_EQ
 	m_EqSettings = conf.Read<EQPreset>(UL_("Effects"), UL_("EQ_Settings"), FlatEQPreset);
 	const EQPreset userPresets[] =
 	{
@@ -365,10 +356,7 @@ TrackerSettings::TrackerSettings(SettingsContainer &conf)
 	m_EqUserPresets[1] = conf.Read<EQPreset>(UL_("Effects"), UL_("EQ_User2"), userPresets[1]);
 	m_EqUserPresets[2] = conf.Read<EQPreset>(UL_("Effects"), UL_("EQ_User3"), userPresets[2]);
 	m_EqUserPresets[3] = conf.Read<EQPreset>(UL_("Effects"), UL_("EQ_User4"), userPresets[3]);
-#endif
-#ifndef NO_DSP
 	m_BitCrushSettings.m_Bits = conf.Read<int32>(UL_("Effects"), UL_("BitCrushBits"), m_BitCrushSettings.m_Bits);
-#endif
 	// Display (Colors)
 	GetDefaultColourScheme(rgbCustomColors);
 	for(int ncol = 0; ncol < MAX_MODCOLORS; ncol++)
@@ -806,13 +794,11 @@ TrackerSettings::TrackerSettings(SettingsContainer &conf)
 	}
 
 	// Effects
-#ifndef NO_EQ
 	FixupEQ(m_EqSettings);
 	FixupEQ(m_EqUserPresets[0]);
 	FixupEQ(m_EqUserPresets[1]);
 	FixupEQ(m_EqUserPresets[2]);
 	FixupEQ(m_EqUserPresets[3]);
-#endif // !NO_EQ
 
 	// Zxx Macros
 	if((MPT_V("1.17.00.00") <= storedVersion) && (storedVersion < MPT_V("1.20.00.00")))
@@ -958,21 +944,21 @@ void TrackerSettings::MigrateOldSoundDeviceSettings(SoundDevice::Manager &manage
 
 void TrackerSettings::MigrateTunings(const Version storedVersion)
 {
-	if(!mpt::native_fs{}.is_directory(PathTunings.GetDefaultDir()))
+	if(!FileSystem::IsDirectory(PathTunings.GetDefaultDir()))
 	{
 		Util::CreateDirectory(PathTunings.GetDefaultDir());
 	}
-	if(!mpt::native_fs{}.is_directory(PathTunings.GetDefaultDir() + P_("Built-in/")))
+	if(!FileSystem::IsDirectory(PathTunings.GetDefaultDir() + P_("Built-in/")))
 	{
 		Util::CreateDirectory((PathTunings.GetDefaultDir() + P_("Built-in/")));
 	}
-	if(!mpt::native_fs{}.is_directory(PathTunings.GetDefaultDir() + P_("Locale/")))
+	if(!FileSystem::IsDirectory(PathTunings.GetDefaultDir() + P_("Locale/")))
 	{
 		Util::CreateDirectory((PathTunings.GetDefaultDir() + P_("Local/")));
 	}
 	{
 		mpt::PathString fn = PathTunings.GetDefaultDir() + P_("Built-in/12TET.tun");
-		if(!mpt::native_fs{}.exists(fn))
+		if(!FileSystem::Exists(fn))
 		{
 			std::unique_ptr<CTuning> pT = CSoundFile::CreateTuning12TET(UL_("12TET"));
 			mpt::IO::SafeOutputFile sf(fn, std::ios::binary, mpt::IO::FlushMode::Full);
@@ -981,7 +967,7 @@ void TrackerSettings::MigrateTunings(const Version storedVersion)
 	}
 	{
 		mpt::PathString fn = PathTunings.GetDefaultDir() + P_("Built-in/12TET [[fs15 1.17.02.49]].tun");
-		if(!mpt::native_fs{}.exists(fn))
+		if(!FileSystem::Exists(fn))
 		{
 			std::unique_ptr<CTuning> pT = CSoundFile::CreateTuning12TET(UL_("12TET [[fs15 1.17.02.49]]"));
 			mpt::IO::SafeOutputFile sf(fn, std::ios::binary, mpt::IO::FlushMode::Full);
@@ -1240,7 +1226,6 @@ void TrackerSettings::GetDefaultColourScheme(std::array<ColorRef, MAX_MODCOLORS>
 }
 
 
-#ifndef NO_EQ
 
 void TrackerSettings::FixupEQ(EQPreset &eqSettings)
 {
@@ -1254,7 +1239,6 @@ void TrackerSettings::FixupEQ(EQPreset &eqSettings)
 	mpt::String::SetNullTerminator(eqSettings.szName);
 }
 
-#endif // !NO_EQ
 
 
 void TrackerSettings::SaveSettings()
@@ -1266,28 +1250,20 @@ void TrackerSettings::SaveSettings()
 	conf.Write<int32>(UL_("Pattern Editor"), UL_("NumClipboards"), mpt::saturate_cast<int32>(PatternClipboard::GetClipboardSize()));
 
 	// Effects
-#ifndef NO_DSP
 	conf.Write<int32>(UL_("Effects"), UL_("XBassDepth"), m_MegaBassSettings.m_nXBassDepth);
 	conf.Write<int32>(UL_("Effects"), UL_("XBassRange"), m_MegaBassSettings.m_nXBassRange);
-#endif
 #ifndef NO_REVERB
 	conf.Write<int32>(UL_("Effects"), UL_("ReverbDepth"), m_ReverbSettings.m_nReverbDepth);
 	conf.Write<int32>(UL_("Effects"), UL_("ReverbType"), m_ReverbSettings.m_nReverbType);
 #endif
-#ifndef NO_DSP
 	conf.Write<int32>(UL_("Effects"), UL_("ProLogicDepth"), m_SurroundSettings.m_nProLogicDepth);
 	conf.Write<int32>(UL_("Effects"), UL_("ProLogicDelay"), m_SurroundSettings.m_nProLogicDelay);
-#endif
-#ifndef NO_EQ
 	conf.Write<EQPreset>(UL_("Effects"), UL_("EQ_Settings"), m_EqSettings);
 	conf.Write<EQPreset>(UL_("Effects"), UL_("EQ_User1"), m_EqUserPresets[0]);
 	conf.Write<EQPreset>(UL_("Effects"), UL_("EQ_User2"), m_EqUserPresets[1]);
 	conf.Write<EQPreset>(UL_("Effects"), UL_("EQ_User3"), m_EqUserPresets[2]);
 	conf.Write<EQPreset>(UL_("Effects"), UL_("EQ_User4"), m_EqUserPresets[3]);
-#endif
-#ifndef NO_DSP
 	conf.Write<int32>(UL_("Effects"), UL_("BitCrushBits"), m_BitCrushSettings.m_Bits);
-#endif
 
 	// Display (Colors)
 	for(int ncol = 0; ncol < MAX_MODCOLORS; ncol++)
@@ -1336,12 +1312,6 @@ void TrackerSettings::SaveSettings()
 }
 
 
-bool TrackerSettings::IsComponentBlocked(const std::string &key)
-{
-	return Setting<bool>(conf, UL_("Components"), UL_("Block") + mpt::ToUnicode(mpt::Charset::ASCII, key), ComponentManagerSettingsDefault().IsBlocked(key));
-}
-
-
 std::vector<uint32> TrackerSettings::GetSampleRates() const
 {
 	return m_SoundSampleRates;
@@ -1376,10 +1346,10 @@ mpt::PathString TrackerSettings::GetDefaultAutosavePath()
 	} else
 	{
 		// Try to find the user data directory first, fall back to other directory
-		path = mpt::common_directories::get_config_directory();
+		path = FileSystem::FindConfigDirectory();
 		if(path.empty())
 		{
-			path = mpt::common_directories::get_temp_directory();
+			path = FileSystem::FindTempDirectory();
 		}
 		path = path.WithTrailingSlash() + P_("OpenMPT/");
 	}

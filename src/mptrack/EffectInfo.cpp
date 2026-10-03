@@ -15,6 +15,7 @@
 #include "../soundlib/Sndfile.h"
 #include "../soundlib/mod_specifications.h"
 #include "../soundlib/Tables.h"
+#include "MIDIMacrosExt.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -683,7 +684,7 @@ bool EffectInfo::GetEffectNameEx(mpt::ustring &pszName, const ModCommand &m, uin
 				const uint8 macroIndex = sndFile.m_PlayState.Chn[chn].nActiveMacro;
 				const PLUGINDEX plugin = sndFile.GetBestPlugin(sndFile.m_PlayState.Chn[chn], chn, PrioritiseChannel, EvenIfMuted) - 1;
 				IMixPlugin *pPlugin = (plugin < MAX_MIXPLUGINS ? sndFile.m_MixPlugins[plugin].pMixPlugin : nullptr);
-				pszName = ui::Format(UL_("SFx MIDI Macro z=%d (SF%X: %s)"), param, macroIndex, sndFile.m_MidiCfg.GetParameteredMacroName(macroIndex, pPlugin).c_str());
+				pszName = ui::Format(UL_("SFx MIDI Macro z=%d (SF%X: %s)"), param, macroIndex, GetParameteredMacroName(sndFile.m_MidiCfg, macroIndex, pPlugin).c_str());
 			} else
 			{
 				pszName = ui::Format(UL_("SFx MIDI Macro z=%02X (%d)"), param, param);
@@ -832,7 +833,7 @@ bool EffectInfo::GetEffectNameEx(mpt::ustring &pszName, const ModCommand &m, uin
 							s += UL_(" rows");
 							break;
 						case 0xF0: // macro
-							s = sndFile.m_MidiCfg.GetParameteredMacroName(param & 0x0F);
+							s = GetParameteredMacroName(sndFile.m_MidiCfg, param & 0x0F);
 							break;
 						default:
 							break;
@@ -923,7 +924,7 @@ bool EffectInfo::GetEffectNameEx(mpt::ustring &pszName, const ModCommand &m, uin
 							} else
 							{
 								// macro
-								s = sndFile.m_MidiCfg.GetParameteredMacroName(param & 0x0F);
+								s = GetParameteredMacroName(sndFile.m_MidiCfg, param & 0x0F);
 							}
 							break;
 						default:

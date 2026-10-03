@@ -15,6 +15,7 @@
 #include "../../soundlib/Sndfile.h"
 #include "../../soundlib/MIDIEvents.h"
 #include "../../mptrack/resource.h"
+#include "PluginUi.h"
 
 OPENMPT_NAMESPACE_BEGIN
 
@@ -31,7 +32,6 @@ UI_MESSAGE_MAP_BEGIN(LFOPluginEditor, CAbstractVstEditor)
 	UI_COMMAND(IDC_RADIO7, &LFOPluginEditor::OnParameterChanged)
 	UI_COMMAND(IDC_RADIO8, &LFOPluginEditor::OnParameterChanged)
 	UI_NOTIFY(ui::EditUpdate, IDC_EDIT1, &LFOPluginEditor::OnParameterChanged)
-	UI_MESSAGE(LFOPlugin::WM_PARAM_UDPATE, &LFOPluginEditor::OnUpdateParam)
 UI_MESSAGE_MAP_END()
 
 
@@ -174,7 +174,7 @@ void LFOPluginEditor::UpdateView(UpdateHint hint)
 	m_outPlug.Update(PluginComboBox::Config{PluginComboBox::ShowLibraryNames | PluginComboBox::ShowNoPlugin}
 		.Hint(hint)
 		.CurrentSelection(m_lfoPlugin.m_pMixStruct->GetOutputPlugin())
-		.FirstPlugin(m_lfoPlugin.GetSlot() + 1), m_lfoPlugin.GetSoundFile());
+		.FirstPlugin(PluginUi(m_lfoPlugin).GetSlot() + 1), TrackerSoundFile(m_lfoPlugin.GetSoundFile()));
 }
 
 
@@ -189,7 +189,7 @@ void LFOPluginEditor::InitSlider(HSlider &slider, LFOPlugin::Parameters param)
 
 void LFOPluginEditor::SetSliderText(LFOPlugin::Parameters param)
 {
-	mpt::ustring s = m_lfoPlugin.GetParamName(param) + UL_(": ") + m_lfoPlugin.GetFormattedParamValue(param);
+	mpt::ustring s = PluginUi(m_lfoPlugin).GetParamName(param) + UL_(": ") + PluginUi(m_lfoPlugin).GetFormattedParamValue(param);
 	SetDlgItemText(IDC_STATIC1 + param, s);
 }
 
@@ -225,7 +225,7 @@ void LFOPluginEditor::OnHScroll(uint32 nCode, uint32 nPos, ScrollBar *pSB)
 
 		float value = GetSliderValue(*slider);
 		m_lfoPlugin.SetParameter(param, value);
-		m_lfoPlugin.AutomateParameter(param);
+		PluginUi(m_lfoPlugin).AutomateParameter(param);
 		SetSliderText(param);
 	}
 }
@@ -236,7 +236,7 @@ void LFOPluginEditor::OnPolarityChanged()
 	if(!m_locked)
 	{
 		m_lfoPlugin.m_polarity = IsDlgButtonChecked(IDC_CHECK1) != ui::CheckOff;
-		m_lfoPlugin.AutomateParameter(LFOPlugin::kPolarity);
+		PluginUi(m_lfoPlugin).AutomateParameter(LFOPlugin::kPolarity);
 	}
 }
 
@@ -247,7 +247,7 @@ void LFOPluginEditor::OnTempoSyncChanged()
 	{
 		m_lfoPlugin.m_tempoSync = IsDlgButtonChecked(IDC_CHECK2) != ui::CheckOff;
 		m_lfoPlugin.RecalculateFrequency();
-		m_lfoPlugin.AutomateParameter(LFOPlugin::kTempoSync);
+		PluginUi(m_lfoPlugin).AutomateParameter(LFOPlugin::kTempoSync);
 		InitSlider(m_frequencySlider, LFOPlugin::kFrequency);
 	}
 }
@@ -258,7 +258,7 @@ void LFOPluginEditor::OnBypassChanged()
 	if(!m_locked)
 	{
 		m_lfoPlugin.m_bypassed = IsDlgButtonChecked(IDC_CHECK3) != ui::CheckOff;
-		m_lfoPlugin.AutomateParameter(LFOPlugin::kBypassed);
+		PluginUi(m_lfoPlugin).AutomateParameter(LFOPlugin::kBypassed);
 	}
 }
 
@@ -268,7 +268,7 @@ void LFOPluginEditor::OnLoopModeChanged()
 	if(!m_locked)
 	{
 		m_lfoPlugin.m_oneshot = IsDlgButtonChecked(IDC_CHECK4) != ui::CheckOff;
-		m_lfoPlugin.AutomateParameter(LFOPlugin::kLoopMode);
+		PluginUi(m_lfoPlugin).AutomateParameter(LFOPlugin::kLoopMode);
 	}
 }
 
@@ -278,7 +278,7 @@ void LFOPluginEditor::OnWaveformChanged(uint32 nID)
 	if(!m_locked)
 	{
 		m_lfoPlugin.m_waveForm = static_cast<LFOPlugin::LFOWaveform>(nID - IDC_RADIO1);
-		m_lfoPlugin.AutomateParameter(LFOPlugin::kWaveform);
+		PluginUi(m_lfoPlugin).AutomateParameter(LFOPlugin::kWaveform);
 	}
 }
 
@@ -322,7 +322,7 @@ void LFOPluginEditor::OnParameterChanged()
 		}
 		m_lfoPlugin.m_outputToCC = outputToCC;
 		m_lfoPlugin.m_outputParam = param;
-		m_lfoPlugin.SetModified();
+		PluginUi(m_lfoPlugin).SetModified();
 		m_locked = false;
 	}
 }
@@ -334,11 +334,11 @@ void LFOPluginEditor::OnOutputPlugChanged()
 		return;
 
 	PLUGINDEX plug = m_outPlug.GetSelection().value_or(PLUGINDEX_INVALID);
-	m_lfoPlugin.GetSoundFile().m_MixPlugins[m_lfoPlugin.GetSlot()].SetOutputPlugin(plug);
-	m_lfoPlugin.SetModified();
+	m_lfoPlugin.GetSoundFile().m_MixPlugins[PluginUi(m_lfoPlugin).GetSlot()].SetOutputPlugin(plug);
+	PluginUi(m_lfoPlugin).SetModified();
 	UpdateParamDisplays();
-	if(CModDoc *modDoc = m_lfoPlugin.GetSoundFile().GetpModDoc(); modDoc != nullptr)
-		modDoc->UpdateAllViews(nullptr, PluginHint(m_lfoPlugin.GetSlot() + 1).Info(), this);
+	if(CModDoc *modDoc = PluginUi(m_lfoPlugin).GetModDoc(); modDoc != nullptr)
+		modDoc->UpdateAllViews(nullptr, PluginHint(PluginUi(m_lfoPlugin).GetSlot() + 1).Info(), this);
 }
 
 
@@ -347,18 +347,84 @@ void LFOPluginEditor::OnPluginEditor()
 	std::vector<IMixPlugin *> plug;
 	if(m_lfoPlugin.GetOutputPlugList(plug) && plug.front() != nullptr)
 	{
-		plug.front()->ToggleEditor();
+		PluginUi(*plug.front()).ToggleEditor();
 	}
 }
 
 
-LResult LFOPluginEditor::OnUpdateParam(WParam wParam, LParam lParam)
+std::pair<PlugParamValue, PlugParamValue> LFOPluginEditor::FindParamUIRange(const LFOPlugin &, PlugParamIndex param)
 {
-	if(wParam == m_lfoPlugin.GetSlot())
+	if(param == LFOPlugin::kWaveform)
+		return {0.0f, LFOPlugin::WaveformToParam(static_cast<LFOPlugin::LFOWaveform>(LFOPlugin::kNumWaveforms - 1))};
+	return {0.0f, 1.0f};
+}
+
+
+mpt::ustring LFOPluginEditor::FindParamName(const LFOPlugin &, PlugParamIndex param)
+{
+	switch(param)
 	{
-		UpdateParam(static_cast<int32>(lParam));
+	case LFOPlugin::kAmplitude: return U_("Amplitude");
+	case LFOPlugin::kOffset: return U_("Offset");
+	case LFOPlugin::kFrequency: return U_("Frequency");
+	case LFOPlugin::kTempoSync: return U_("Tempo Sync");
+	case LFOPlugin::kWaveform: return U_("Waveform");
+	case LFOPlugin::kPolarity: return U_("Polarity");
+	case LFOPlugin::kBypassed: return U_("Bypassed");
+	case LFOPlugin::kLoopMode: return U_("Loop Mode");
+	case LFOPlugin::kCurrentPhase: return U_("Set LFO Phase");
 	}
-	return 0;
+	return mpt::ustring();
+}
+
+
+mpt::ustring LFOPluginEditor::FindParamLabel(const LFOPlugin &plugin, PlugParamIndex param)
+{
+	if(param != LFOPlugin::kFrequency)
+		return mpt::ustring();
+	if(plugin.m_tempoSync && plugin.m_computedFrequency > 0.0 && plugin.m_computedFrequency < 1.0)
+		return U_("Beats Per Cycle");
+	if(plugin.m_tempoSync)
+		return U_("Cycles Per Beat");
+	return U_("Hz");
+}
+
+
+mpt::ustring LFOPluginEditor::FindParamDisplay(LFOPlugin &plugin, PlugParamIndex param)
+{
+	switch(param)
+	{
+	case LFOPlugin::kPolarity:
+		return plugin.m_polarity ? U_("Inverted") : U_("Normal");
+	case LFOPlugin::kTempoSync:
+		return plugin.m_tempoSync ? U_("Yes") : U_("No");
+	case LFOPlugin::kBypassed:
+		return plugin.m_bypassed ? U_("Yes") : U_("No");
+	case LFOPlugin::kWaveform:
+	{
+		static const mpt::ustring waveforms[] = {U_("Sine"), U_("Triangle"), U_("Saw"), U_("Square"), U_("Noise"), U_("Smoothed Noise")};
+		if(plugin.m_waveForm < static_cast<int>(std::size(waveforms)))
+			return waveforms[plugin.m_waveForm];
+		return mpt::ustring();
+	}
+	case LFOPlugin::kLoopMode:
+		return plugin.m_oneshot ? U_("One-Shot") : U_("Looped");
+	case LFOPlugin::kCurrentPhase:
+		return U_("Write-Only");
+	}
+	if(param >= LFOPlugin::kLFONumParameters)
+		return mpt::ustring();
+
+	PlugParamValue value = plugin.GetParameter(param);
+	if(param == LFOPlugin::kOffset)
+		value = 2.0f * value - 1.0f;
+	if(param == LFOPlugin::kFrequency)
+	{
+		value = static_cast<PlugParamValue>(plugin.m_computedFrequency);
+		if(plugin.m_tempoSync && value > 0.0f && value < 1.0f)
+			value = static_cast<PlugParamValue>(1.0 / plugin.m_computedFrequency);
+	}
+	return mpt::ufmt::fix(value, 3);
 }
 
 

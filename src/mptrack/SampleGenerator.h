@@ -75,7 +75,7 @@ public:
 	bool ShowDialog();
 	bool TestExpression();
 	bool CanRenderSample() const;
-	bool RenderSample(CSoundFile *pSndFile, SAMPLEINDEX nSample);
+	bool RenderSample(CTrackerSoundFile *pSndFile, SAMPLEINDEX nSample);
 
 	CSampleGenerator();
 

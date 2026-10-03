@@ -19,7 +19,7 @@
 
 OPENMPT_NAMESPACE_BEGIN
 
-class CSoundFile;
+class CTrackerSoundFile;
 class IMixPlugin;
 struct SNDMIXPLUGIN;
 
@@ -56,7 +56,7 @@ public:
 		PLUGINDEX m_firstPlugin = 0;
 	};
 
-	int Update(const Config config, const CSoundFile &sndFile);
+	int Update(const Config config, const CTrackerSoundFile &sndFile);
 	// Set zero-based plugin index, or PLUGINDEX_INVALID for "no plugin" choice
 	void SetSelection(PLUGINDEX plugin);
 	// Return 0-based plugin index, or PLUGINDEX_INVALID if "no plugin" is selected or no selection is made.

@@ -79,13 +79,13 @@ private:
 	bool m_AnyChannel : 1;
 };
 
-class CSoundFile;
+class CTrackerSoundFile;
 
 
 class CMIDIMapper
 {
 public:
-	CMIDIMapper(CSoundFile &sndfile) : m_rSndFile{sndfile} {}
+	CMIDIMapper(CTrackerSoundFile &sndfile) : m_rSndFile{sndfile} {}
 
 	// If mapping found:
 	// - mappedIndex is set to mapped value(plug index)
@@ -122,7 +122,7 @@ private:
 	void Sort() { std::stable_sort(m_Directives.begin(), m_Directives.end()); }
 
 private:
-	CSoundFile &m_rSndFile;
+	CTrackerSoundFile &m_rSndFile;
 	std::vector<CMIDIMappingDirective> m_Directives;
 	uint16 m_lastCCvalue = 0;
 	uint8 m_lastCC = uint8_max;

@@ -27,6 +27,7 @@
 #include "mpt/io_file/outputfile.hpp"
 #include "mpt/parse/parse.hpp"
 #include "mpt/string/utility.hpp"
+#include "TuningExt.h"
 
 #include <algorithm>
 
@@ -46,7 +47,7 @@ using NOTEINDEXTYPE = Tuning::NOTEINDEXTYPE;
 
 
 // CTuningDialog dialog
-CTuningDialog::CTuningDialog(Wnd* pParent, INSTRUMENTINDEX inst, CSoundFile &csf)
+CTuningDialog::CTuningDialog(Wnd* pParent, INSTRUMENTINDEX inst, CTrackerSoundFile &csf)
 	: ResizableDialog(IDD_TUNING, pParent)
 	, m_sndFile(csf)
 	, m_TreeCtrlTuning(this)
@@ -630,7 +631,7 @@ void CTuningDialog::OnBnClickedButtonExport()
 				failure = (pT->Serialize(fout) != Tuning::SerializationResult::Success);
 			} else if(sclFilter != -1 && filterIndex == sclFilter)
 			{
-				failure = !pT->WriteSCL(fout, dlg.GetFirstFile());
+				failure = !Tuning::WriteSCL(*pT, fout, dlg.GetFirstFile());
 				if(!failure)
 				{
 					if(m_pActiveTuning->GetType() == Tuning::Type::GENERAL)
@@ -1363,7 +1364,7 @@ void CTuningDialog::OnRemoveTuning()
 				mpt::ustring s = UL_("Tuning '") + mpt::ToUnicode(pT->GetName()) + UL_("' is used by instruments. Remove anyway?");
 				if(Reporting::Confirm(s, false, true) == cnfYes)
 				{
-					CriticalSection cs;
+					TrackerCriticalSection cs;
 					for(INSTRUMENTINDEX i = 1; i <= m_sndFile.GetNumInstruments(); i++)
 					{
 						if(m_sndFile.Instruments[i]->pTuning == pT)
@@ -1716,7 +1717,7 @@ CTuningDialog::EnSclImport CTuningDialog::ImportScl(std::istream& iStrm, const m
 	{
 		for(NOTEINDEXTYPE note = 0; note < mpt::saturate_cast<NOTEINDEXTYPE>(names.size()); ++note)
 		{
-			pT->SetNoteName(note, mpt::ustring(CSoundFile::GetDefaultNoteNames()[note]));
+			pT->SetNoteName(note, mpt::ustring(CTrackerSoundFile::GetDefaultNoteNames()[note]));
 		}
 	} else
 	{

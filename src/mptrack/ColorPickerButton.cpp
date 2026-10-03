@@ -31,7 +31,7 @@ void ColorPickerButton::SetColor(ColorRef color)
 }
 
 
-std::optional<ColorRef> ColorPickerButton::PickChannelColor(const CSoundFile &sndFile, CHANNELINDEX chn)
+std::optional<ColorRef> ColorPickerButton::PickChannelColor(const CTrackerSoundFile &sndFile, CHANNELINDEX chn)
 {
 	static std::array<ColorRef, 16> colors = {0};
 	// Build a set of currently used channel colors to be displayed in the color picker.
@@ -39,8 +39,8 @@ std::optional<ColorRef> ColorPickerButton::PickChannelColor(const CSoundFile &sn
 	std::map<ColorRef, int> usedColors;
 	for(CHANNELINDEX i = 0; i < sndFile.GetNumChannels(); i++)
 	{
-		auto color = sndFile.ChnSettings[i].color;
-		if(color == ModChannelSettings::INVALID_COLOR)
+		const auto color = sndFile.GetChannelColor(i);
+		if(color == CTrackerSoundFile::INVALID_CHANNEL_COLOR)
 			continue;
 		const int distance = std::abs(static_cast<int>(i) - chn);
 		usedColors[color] = usedColors.count(color) ? std::min(distance, usedColors[color]) : distance;
@@ -105,7 +105,7 @@ void ColorPickerButton::draw()
 	const bool isPressed = value() != 0;
 	painter.Draw3dRect(rect, ui::GetSystemColor(isPressed ? ui::SysColor::ButtonShadow : ui::SysColor::ButtonHighlight), ui::GetSystemColor(isPressed ? ui::SysColor::ButtonHighlight : ui::SysColor::ButtonShadow));
 	rect.DeflateRect(1, 1);
-	if(m_color == ModChannelSettings::INVALID_COLOR || !active())
+	if(m_color == CTrackerSoundFile::INVALID_CHANNEL_COLOR || !active())
 		painter.FillSolidRect(rect, ui::GetSystemColor(ui::SysColor::ButtonFace));
 	else
 		painter.FillSolidRect(rect, m_color);

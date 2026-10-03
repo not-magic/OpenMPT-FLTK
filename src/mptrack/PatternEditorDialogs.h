@@ -85,7 +85,7 @@ protected:
 	ComboBox cbnNote, cbnVolCmd, cbnCommand, cbnPlugParam;
 	PluginComboBox cbnInstr;
 	HSlider sldVolParam, sldParam;
-	CSoundFile &sndFile;
+	CTrackerSoundFile &sndFile;
 	const CModSpecifications *oldSpecs = nullptr;
 	ModCommand *m = nullptr;
 	EffectInfo effectInfo;
@@ -96,7 +96,7 @@ protected:
 	bool modified = false;
 
 public:
-	CEditCommand(CSoundFile &sndFile);
+	CEditCommand(CTrackerSoundFile &sndFile);
 
 public:
 	bool ShowEditWindow(PATTERNINDEX pat, const PatternCursor &cursor, Wnd *parent);
@@ -175,12 +175,12 @@ class CSplitKeyboardSettings : public DialogBase
 {
 protected:
 	ComboBox m_CbnSplitInstrument, m_CbnSplitNote, m_CbnOctaveModifier, m_CbnSplitVolume;
-	CSoundFile &sndFile;
+	CTrackerSoundFile &sndFile;
 
 public:
 	SplitKeyboardSettings &m_Settings;
 
-	CSplitKeyboardSettings(Wnd *parent, CSoundFile &sf, SplitKeyboardSettings &settings);
+	CSplitKeyboardSettings(Wnd *parent, CTrackerSoundFile &sf, SplitKeyboardSettings &settings);
 
 protected:
 	void DoDataExchange(DataExchange* pDX) override;

@@ -122,7 +122,7 @@ protected:
 	friend ScopedLogCapturer;
 	mutable std::vector<LogEntry> m_Log;
 	LogMode m_LogMode = LogModeInstantReporting;
-	CSoundFile m_SndFile;
+	CTrackerSoundFile m_SndFile;
 
 	WindowHandle m_hWndFollow = nullptr;
 	FlagSet<Notification::Type, uint16> m_notifyType;
@@ -162,8 +162,8 @@ protected: // create from serialization only
 
 // public members
 public:
-	CSoundFile &GetSoundFile() { return m_SndFile; }
-	const CSoundFile &GetSoundFile() const { return m_SndFile; }
+	CTrackerSoundFile &GetSoundFile() { return m_SndFile; }
+	const CTrackerSoundFile &GetSoundFile() const { return m_SndFile; }
 
 	void SetModified(bool modified = true);
 	bool ModifiedSinceLastAutosave();
@@ -236,7 +236,7 @@ public:
 	bool RemovePlugin(PLUGINDEX plugin);
 
 	void ClonePlugin(SNDMIXPLUGIN &target, const SNDMIXPLUGIN &source);
-	void AppendModule(const CSoundFile &source);
+	void AppendModule(const CTrackerSoundFile &source);
 
 	// Create a new pattern and, if order position is specified, inserts it into the order list.
 	PATTERNINDEX InsertPattern(ROWINDEX rows, ORDERINDEX ord = ORDERINDEX_INVALID);

@@ -406,7 +406,7 @@ bool CAutotuneDlg::OnInitDialog()
 	m_CbnNoteBox.ResetContent();
 	for(int note = 0; note < 12; note++)
 	{
-		const int item = m_CbnNoteBox.AddString(mpt::ToUnicode(CSoundFile::GetDefaultNoteName(note)));
+		const int item = m_CbnNoteBox.AddString(mpt::ToUnicode(CTrackerSoundFile::GetDefaultNoteName(note)));
 		m_CbnNoteBox.SetItemData(item, note);
 		if(note == m_targetNote)
 		{

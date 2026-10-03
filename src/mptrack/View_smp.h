@@ -182,7 +182,7 @@ protected:
 
 	SmpLength SnapToGrid(const SmpLength pos) const;
 	// Returns effective grid segment size, in samples
-	double GetGridSegmentSize(const ModSample &sample, const CSoundFile &sndFile) const;
+	double GetGridSegmentSize(const ModSample &sample, const CTrackerSoundFile &sndFile) const;
 
 	// Returns index of preview channel if exactly one one is being previewed, CHANNELINDEX_INVALID otherwise.
 	CHANNELINDEX GetPreviewChannel() const;

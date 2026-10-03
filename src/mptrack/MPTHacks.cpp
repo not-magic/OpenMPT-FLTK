@@ -17,6 +17,8 @@
 #include "Moddoc.h"
 #include "../soundlib/modsmp_ctrl.h"
 #include "../soundlib/mod_specifications.h"
+#include "ModSequenceExt.h"
+#include "openmpt_ext/sndlib/TrackerCriticalSection.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -277,7 +279,7 @@ bool CModDoc::HasMPTHacks(const bool autofix)
 		{
 			foundHere = foundHacks = true;
 			if(autofix)
-				ctrlSmp::ConvertToMono(smp, m_SndFile, ctrlSmp::mixChannels);
+				CallLocked([&] { return ctrlSmp::ConvertToMono(smp, m_SndFile, ctrlSmp::mixChannels); });
 		} else if(modType == MOD_TYPE_S3M && smp.uFlags[CHN_ADLIB])
 		{
 			if(smp.adlib[8] >= 4)
@@ -464,7 +466,7 @@ bool CModDoc::HasMPTHacks(const bool autofix)
 			foundHacks = true;
 			if(autofix)
 			{
-				m_SndFile.Order.WriteGlobalsToPattern(seq, true, false);
+				WriteGlobalsToPattern(m_SndFile, seq, true, false);
 			}
 		}
 	}

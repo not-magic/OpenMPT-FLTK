@@ -17,13 +17,13 @@
 
 OPENMPT_NAMESPACE_BEGIN
 
-class CSoundFile;
+class CTrackerSoundFile;
 
 // CPatternGotoDialog dialog
 
 class CPatternGotoDialog : public DialogBase
 {
-	CSoundFile &m_SndFile;
+	CTrackerSoundFile &m_SndFile;
 	Spinner m_SpinRow, m_SpinChannel, m_SpinPattern, m_SpinOrder;
 
 public:
@@ -33,7 +33,7 @@ public:
 	ORDERINDEX m_nOrder, m_nActiveOrder;
 
 public:
-	CPatternGotoDialog(Wnd *pParent, ROWINDEX row, CHANNELINDEX chan, PATTERNINDEX pat, ORDERINDEX ord, CSoundFile &sndFile);
+	CPatternGotoDialog(Wnd *pParent, ROWINDEX row, CHANNELINDEX chan, PATTERNINDEX pat, ORDERINDEX ord, CTrackerSoundFile &sndFile);
 	bool OnInitDialog() override;
 
 protected:

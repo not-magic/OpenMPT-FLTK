@@ -17,7 +17,7 @@
 OPENMPT_NAMESPACE_BEGIN
 
 // Add samples, instruments, plugins and patterns from another module to the current module
-void CModDoc::AppendModule(const CSoundFile &source)
+void CModDoc::AppendModule(const CTrackerSoundFile &source)
 {
 	const CModSpecifications &specs = m_SndFile.GetModSpecifications();
 	// Mappings between old and new indices

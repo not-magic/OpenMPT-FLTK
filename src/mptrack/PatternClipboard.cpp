@@ -60,14 +60,14 @@ std::string PatternClipboard::GetFileExtension(const char *ext, bool addPadding)
 }
 
 
-std::string PatternClipboard::FormatClipboardHeader(const CSoundFile &sndFile)
+std::string PatternClipboard::FormatClipboardHeader(const CTrackerSoundFile &sndFile)
 {
 	return "ModPlug Tracker " + GetFileExtension(sndFile.GetModSpecifications().fileExtension, true) + "\r\n";
 }
 
 
 // Copy a range of patterns to both the system clipboard and the internal clipboard.
-bool PatternClipboard::Copy(const CSoundFile &sndFile, ORDERINDEX first, ORDERINDEX last, bool onlyOrders)
+bool PatternClipboard::Copy(const CTrackerSoundFile &sndFile, ORDERINDEX first, ORDERINDEX last, bool onlyOrders)
 {
 	const ModSequence &order = sndFile.Order();
 	LimitMax(first, order.GetLength());
@@ -155,7 +155,7 @@ bool PatternClipboard::Copy(const CSoundFile &sndFile, ORDERINDEX first, ORDERIN
 
 
 // Copy a pattern selection to both the system clipboard and the internal clipboard.
-bool PatternClipboard::Copy(const CSoundFile &sndFile, PATTERNINDEX pattern, PatternRect selection)
+bool PatternClipboard::Copy(const CTrackerSoundFile &sndFile, PATTERNINDEX pattern, PatternRect selection)
 {
 	std::string data = CreateClipboardString(sndFile, pattern, selection);
 	if(data.empty())
@@ -177,7 +177,7 @@ bool PatternClipboard::Copy(const CSoundFile &sndFile, PATTERNINDEX pattern, Pat
 
 
 // Copy a pattern or pattern channel to the internal pattern or channel clipboard.
-bool PatternClipboard::Copy(const CSoundFile &sndFile, PATTERNINDEX pattern, CHANNELINDEX channel)
+bool PatternClipboard::Copy(const CTrackerSoundFile &sndFile, PATTERNINDEX pattern, CHANNELINDEX channel)
 {
 	if(!sndFile.Patterns.IsValidPat(pattern))
 		return false;
@@ -204,7 +204,7 @@ bool PatternClipboard::Copy(const CSoundFile &sndFile, PATTERNINDEX pattern, CHA
 
 
 // Create the clipboard text for a pattern selection
-std::string PatternClipboard::CreateClipboardString(const CSoundFile &sndFile, PATTERNINDEX pattern, PatternRect selection)
+std::string PatternClipboard::CreateClipboardString(const CTrackerSoundFile &sndFile, PATTERNINDEX pattern, PatternRect selection)
 {
 	if(!sndFile.Patterns.IsValidPat(pattern))
 		return "";
@@ -335,7 +335,7 @@ std::string PatternClipboard::CreateClipboardString(const CSoundFile &sndFile, P
 
 
 // Try pasting a pattern selection from the system clipboard.
-bool PatternClipboard::Paste(CSoundFile &sndFile, PatternEditPos &pastePos, PasteModes mode, PatternRect &pasteRect, bool &orderChanged)
+bool PatternClipboard::Paste(CTrackerSoundFile &sndFile, PatternEditPos &pastePos, PasteModes mode, PatternRect &pasteRect, bool &orderChanged)
 {
 	std::string data;
 	if(!FromSystemClipboard(data) || !HandlePaste(sndFile, pastePos, mode, data, pasteRect, orderChanged))
@@ -348,7 +348,7 @@ bool PatternClipboard::Paste(CSoundFile &sndFile, PatternEditPos &pastePos, Past
 
 
 // Try pasting a pattern selection from an internal clipboard.
-bool PatternClipboard::Paste(CSoundFile &sndFile, PatternEditPos &pastePos, PasteModes mode, PatternRect &pasteRect, clipindex_t internalClipboard, bool &orderChanged)
+bool PatternClipboard::Paste(CTrackerSoundFile &sndFile, PatternEditPos &pastePos, PasteModes mode, PatternRect &pasteRect, clipindex_t internalClipboard, bool &orderChanged)
 {
 	if(internalClipboard >= instance.m_clipboards.size())
 		return false;
@@ -358,7 +358,7 @@ bool PatternClipboard::Paste(CSoundFile &sndFile, PatternEditPos &pastePos, Past
 
 
 // Paste from pattern or channel clipboard.
-bool PatternClipboard::Paste(CSoundFile &sndFile, PATTERNINDEX pattern, CHANNELINDEX channel)
+bool PatternClipboard::Paste(CTrackerSoundFile &sndFile, PATTERNINDEX pattern, CHANNELINDEX channel)
 {
 	PatternEditPos pastePos{0, ORDERINDEX_INVALID, pattern, channel != CHANNELINDEX_INVALID ? channel : CHANNELINDEX(0)};
 	PatternRect pasteRect;
@@ -368,7 +368,7 @@ bool PatternClipboard::Paste(CSoundFile &sndFile, PATTERNINDEX pattern, CHANNELI
 
 
 // Parse clipboard string and perform the pasting operation.
-bool PatternClipboard::HandlePaste(CSoundFile &sndFile, PatternEditPos &pastePos, PasteModes mode, const std::string &data, PatternRect &pasteRect, bool &orderChanged)
+bool PatternClipboard::HandlePaste(CTrackerSoundFile &sndFile, PatternEditPos &pastePos, PasteModes mode, const std::string &data, PatternRect &pasteRect, bool &orderChanged)
 {
 	const std::string whitespace(" \n\r\t");
 	PATTERNINDEX pattern = pastePos.pattern;

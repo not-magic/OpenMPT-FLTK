@@ -65,7 +65,7 @@ namespace MidiExport
 
 		ModInstrument m_instr;
 		const ModInstrument *const m_oldInstr;
-		const CSoundFile &m_sndFile;
+		const CTrackerSoundFile &m_sndFile;
 		const SubSong &m_subsongInfo;
 		MidiTrack *const m_tempoTrack;  // Pointer to tempo track, nullptr if this is the tempo track
 		decltype(m_MidiCh) *m_lastMidiCh = nullptr;
@@ -125,7 +125,7 @@ namespace MidiExport
 
 		operator ModInstrument& () { return m_instr; }
 
-		MidiTrack(VSTPluginLib &factory, CSoundFile &sndFile, const SubSong &subsongInfo, SNDMIXPLUGIN &mixStruct, MidiTrack *tempoTrack, const mpt::ustring &name, const ModInstrument *oldInstr, bool overlappingInstruments, const MidiInOut *originalPlugin)
+		MidiTrack(VSTPluginLib &factory, CTrackerSoundFile &sndFile, const SubSong &subsongInfo, SNDMIXPLUGIN &mixStruct, MidiTrack *tempoTrack, const mpt::ustring &name, const ModInstrument *oldInstr, bool overlappingInstruments, const MidiInOut *originalPlugin)
 			: IMidiPlugin{factory, sndFile, mixStruct}
 			, m_oldInstr{oldInstr}
 			, m_sndFile{sndFile}
@@ -429,14 +429,6 @@ namespace MidiExport
 		bool IsInstrument() const override { return true; }
 		bool CanRecieveMidiEvents() override { return true; }
 		bool ShouldProcessSilence() override { return true; }
-		mpt::ustring GetDefaultEffectName() override { return {}; }
-		mpt::ustring GetParamName(PlugParamIndex) override { return {}; }
-		mpt::ustring GetParamLabel(PlugParamIndex) override { return {}; }
-		mpt::ustring GetParamDisplay(PlugParamIndex) override { return {}; }
-		mpt::ustring GetCurrentProgramName() override { return {}; }
-		void SetCurrentProgramName(const mpt::ustring &) override { }
-		mpt::ustring GetProgramName(int32) override { return {}; }
-		bool HasEditor() const override { return false; }
 		int GetNumInputChannels() const override { return 0; }
 		int GetNumOutputChannels() const override { return 0; }
 
@@ -458,13 +450,13 @@ namespace MidiExport
 		std::vector<SNDMIXPLUGIN> m_oldPlugins;
 		SNDMIXPLUGIN tempoTrackPlugin;
 		VSTPluginLib m_plugFactory;
-		CSoundFile &m_sndFile;
+		CTrackerSoundFile &m_sndFile;
 		std::ostream &m_file;
 		const SubSong &m_subsongInfo;
 		const bool m_wasInstrumentMode;
 
 	public:
-		Conversion(CSoundFile &sndFile, const InstrMap &instrMap, std::ostream &file, bool overlappingInstruments, const SubSong &subsongInfo)
+		Conversion(CTrackerSoundFile &sndFile, const InstrMap &instrMap, std::ostream &file, bool overlappingInstruments, const SubSong &subsongInfo)
 			: m_oldInstruments(sndFile.GetNumInstruments())
 			, m_plugFactory(nullptr, true, {}, {})
 			, m_sndFile(sndFile)
@@ -603,7 +595,7 @@ namespace MidiExport
 			std::move(m_oldPlugins.cbegin(), m_oldPlugins.cend(), std::begin(m_sndFile.m_MixPlugins));
 
 			// Be sure that instrument pointers to our faked instruments are gone.
-			const auto muteFlag = CSoundFile::GetChannelMuteFlag();
+			const auto muteFlag = CTrackerSoundFile::GetChannelMuteFlag();
 			for(CHANNELINDEX i = 0; i < MAX_CHANNELS; i++)
 			{
 				m_sndFile.m_PlayState.Chn[i].Reset(ModChannel::resetTotal, m_sndFile, i, muteFlag);
@@ -686,7 +678,7 @@ bool CModToMidi::OnInitDialog()
 	m_SpinInstrument.SetPos(0);
 	m_currentInstr = 1;
 	m_CbnInstrument.SetRedraw(false);
-	const CSoundFile &sndFile = m_modDoc.GetSoundFile();
+	const CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 	if(m_modDoc.GetNumInstruments())
 	{
 		for(INSTRUMENTINDEX nIns = 1; nIns <= sndFile.GetNumInstruments(); nIns++)
@@ -758,7 +750,7 @@ void CModToMidi::FillProgramBox(bool percussion)
 {
 	if(m_percussion == percussion)
 		return;
-	const CSoundFile &sndFile = m_modDoc.GetSoundFile();
+	const CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 	m_CbnProgram.SetRedraw(false);
 	m_CbnProgram.ResetContent();
 	if(percussion)
@@ -977,7 +969,7 @@ void CModToMidi::DoConversion(const mpt::PathString &fileName)
 		GetDlgItem(control)->EnableWindow(false);
 	GotoDlgCtrl(GetDlgItem(IDCANCEL));
 
-	CSoundFile &sndFile = m_modDoc.GetSoundFile();
+	CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 	SetRange(0, mpt::saturate_round<uint64>(std::accumulate(m_subSongs.begin(), m_subSongs.end(), 0.0, [](double acc, const auto &song) { return acc + song.duration; }) * sndFile.GetSampleRate()));
 	GetDlgItem(IDC_PROGRESS1)->ShowWindow(true);
 

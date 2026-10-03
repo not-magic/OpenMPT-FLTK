@@ -25,6 +25,7 @@
 #include "../common/mptStringBuffer.h"
 #include "EffectInfo.h"
 #include "PatternFont.h"
+#include "PluginUi.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -569,7 +570,7 @@ void CViewPattern::OnDraw(ui::Painter *pDC)
 
 	CHANNELINDEX xofs = static_cast<CHANNELINDEX>(GetXScrollPos());
 	ROWINDEX yofs = static_cast<ROWINDEX>(GetYScrollPos());
-	const CSoundFile &sndFile = pModDoc->GetSoundFile();
+	const CTrackerSoundFile &sndFile = pModDoc->GetSoundFile();
 	const uint32 nColumnWidth = m_szCell.cx;
 	const uint32 numChannels = sndFile.GetNumChannels();
 	int ypaint = rcClient.top + m_szHeader.cy - GetSmoothScrollOffset();
@@ -724,7 +725,7 @@ void CViewPattern::OnDraw(ui::Painter *pDC)
 					m_bInItemRect && m_nDragItem.Type() == DragItem::ChannelHeader && m_nDragItem.Value() == chn,
 					recordGroup != RecordGroup::NoGroup ? ui::TextRight : ui::TextCenter, chanColorHeight);
 
-				if(channel.color != ModChannelSettings::INVALID_COLOR)
+				if(const uint32 channelColor = sndFile.GetChannelColor(chn); channelColor != CTrackerSoundFile::INVALID_CHANNEL_COLOR)
 				{
 					// Channel color
 					Rect r;
@@ -733,7 +734,7 @@ void CViewPattern::OnDraw(ui::Painter *pDC)
 					r.left = rect.left + chanColorOffset;
 					r.right = rect.right - chanColorOffset;
 
-					pDC->FillSolidRect(r, channel.color);
+					pDC->FillSolidRect(r, channelColor);
 				}
 
 				// When dragging around channel headers, mark insertion position
@@ -812,7 +813,7 @@ void CViewPattern::DrawPatternData(ui::Painter * hdc, const int lineWidth, PATTE
 	static_assert(1 << PatternCursor::lastColumn <= Util::MaxValueOfType(ChannelState{}.selectedCols), "Columns are used as bitmasks");
 	static_assert(!((1 << PatternCursor::lastColumn) & (COLUMN_BITS_INVISIBLE | COLUMN_BITS_SKIP)), "Column bits and special bits overlap");
 
-	const CSoundFile &sndFile = GetDocument()->GetSoundFile();
+	const CTrackerSoundFile &sndFile = GetDocument()->GetSoundFile();
 	if(!sndFile.Patterns.IsValidPat(nPattern))
 		return;
 	const CPattern &pattern = sndFile.Patterns[nPattern];
@@ -1247,7 +1248,7 @@ void CViewPattern::DrawChannelVUMeter(ui::Painter * hdc, int x, int y, uint32 nC
 // Draw an inverted border around the dragged selection.
 void CViewPattern::DrawDragSel(ui::Painter * hdc)
 {
-	const CSoundFile *pSndFile = GetSoundFile();
+	const CTrackerSoundFile *pSndFile = GetSoundFile();
 	Rect rect;
 	int x1, y1, x2, y2;
 	int nChannels, nRows;
@@ -1356,7 +1357,7 @@ void CViewPattern::OnDrawDragSel()
 
 void CViewPattern::UpdateScrollSize()
 {
-	const CSoundFile *pSndFile = GetSoundFile();
+	const CTrackerSoundFile *pSndFile = GetSoundFile();
 	const CHANNELINDEX numChannels = pSndFile ? pSndFile->GetNumChannels() : 0;
 	const ROWINDEX numRows = (pSndFile && pSndFile->Patterns.IsValidPat(m_nPattern)) ? pSndFile->Patterns[m_nPattern].GetNumRows() : 0;
 
@@ -1494,7 +1495,7 @@ void CViewPattern::SetCurSel(PatternCursor beginSel, PatternCursor endSel)
 
 	// Get new selection area
 	m_Selection = PatternRect(beginSel, endSel);
-	if(const CSoundFile *sndFile = GetSoundFile(); sndFile != nullptr && sndFile->Patterns.IsValidPat(m_nPattern))
+	if(const CTrackerSoundFile *sndFile = GetSoundFile(); sndFile != nullptr && sndFile->Patterns.IsValidPat(m_nPattern))
 	{
 		m_Selection.Sanitize(sndFile->Patterns[m_nPattern].GetNumRows(), sndFile->GetNumChannels(), LastVisibleColumn());
 	}
@@ -1546,7 +1547,7 @@ void CViewPattern::InvalidatePattern(bool invalidateChannelHeaders, bool invalid
 
 void CViewPattern::InvalidateRow(ROWINDEX n)
 {
-	const CSoundFile *pSndFile = GetSoundFile();
+	const CTrackerSoundFile *pSndFile = GetSoundFile();
 	if(pSndFile && pSndFile->Patterns.IsValidPat(m_nPattern))
 	{
 		int yofs = GetYScrollPos() - m_nMidRow;
@@ -1602,7 +1603,7 @@ void CViewPattern::InvalidateChannelsHeaders(CHANNELINDEX chn)
 
 void CViewPattern::UpdateIndicator(bool updateAccessibility)
 {
-	const CSoundFile *sndFile = GetSoundFile();
+	const CTrackerSoundFile *sndFile = GetSoundFile();
 	CMainFrame *mainFrm = CMainFrame::GetMainFrame();
 	if(mainFrm == nullptr || sndFile == nullptr || !sndFile->Patterns.IsValidPat(m_nPattern))
 		return;
@@ -1625,7 +1626,7 @@ void CViewPattern::UpdateIndicator(bool updateAccessibility)
 
 mpt::ustring CViewPattern::GetCursorDescription() const
 {
-	const CSoundFile &sndFile = *GetSoundFile();
+	const CTrackerSoundFile &sndFile = *GetSoundFile();
 	mpt::ustring s;
 	if(!sndFile.Patterns.IsValidPat(m_nPattern))
 	{
@@ -1699,7 +1700,7 @@ mpt::ustring CViewPattern::GetCursorDescription() const
 				const SNDMIXPLUGIN &plug = sndFile.m_MixPlugins[m->instr - 1];
 				if(plug.pMixPlugin != nullptr)
 				{
-					s = plug.pMixPlugin->GetFormattedParamName(m->GetValueVolCol());
+					s = PluginUi(*plug.pMixPlugin).GetFormattedParamName(m->GetValueVolCol());
 				}
 			}
 		} else if(m->volcmd != VOLCMD_NONE)
@@ -1750,7 +1751,7 @@ mpt::ustring CViewPattern::GetCursorDescription() const
 
 void CViewPattern::UpdateXInfoText()
 {
-	const CSoundFile *sndFile = GetSoundFile();
+	const CTrackerSoundFile *sndFile = GetSoundFile();
 	CMainFrame *mainFrm = CMainFrame::GetMainFrame();
 	if(mainFrm == nullptr || sndFile == nullptr)
 		return;

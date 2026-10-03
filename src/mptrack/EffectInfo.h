@@ -17,16 +17,16 @@
 
 OPENMPT_NAMESPACE_BEGIN
 
-class CSoundFile;
+class CTrackerSoundFile;
 
 class EffectInfo
 {
 protected:
-	const CSoundFile &sndFile;
+	const CTrackerSoundFile &sndFile;
 
 public:
 
-	EffectInfo(const CSoundFile &sf) : sndFile(sf) {};
+	EffectInfo(const CTrackerSoundFile &sf) : sndFile(sf) {};
 
 	// Effects Description
 	

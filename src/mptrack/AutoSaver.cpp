@@ -21,7 +21,6 @@
 #include "resource.h"
 #include "TrackerSettings.h"
 #include "../soundlib/mod_specifications.h"
-#include "mpt/fs/fs.hpp"
 
 #include <algorithm>
 #include <filesystem>
@@ -62,9 +61,9 @@ std::chrono::minutes CAutoSaver::GetSaveInterval() const
 }
 
 
-mpt::chrono::days CAutoSaver::GetRetentionTime() const
+std::chrono::days CAutoSaver::GetRetentionTime() const
 {
-	return mpt::chrono::days{TrackerSettings::Instance().AutosaveRetentionTimeDays.Get()};
+	return std::chrono::days{TrackerSettings::Instance().AutosaveRetentionTimeDays.Get()};
 }
 
 
@@ -136,7 +135,7 @@ mpt::PathString CAutoSaver::GetBasePath(const CModDoc &modDoc, bool createPath) 
 	std::error_code ec;
 	if(createPath)
 		std::filesystem::create_directories(mpt::support_long_path(path.AsNative()), ec);
-	if(!mpt::native_fs{}.is_directory(path))
+	if(!FileSystem::IsDirectory(path))
 		path = theApp.GetConfigPath();
 
 	return path.WithTrailingSlash();
@@ -200,7 +199,7 @@ void CAutoSaver::CleanUpAutosaves() const
 	if(GetUseOriginalPath() || !GetRetentionTime().count())
 		return;
 	auto path = GetPath();
-	if(!mpt::native_fs{}.is_directory(path))
+	if(!FileSystem::IsDirectory(path))
 		return;
 	const std::chrono::seconds maxAge = GetRetentionTime();
 	const bool deletePermanently = TrackerSettings::Instance().AutosaveDeletePermanently;

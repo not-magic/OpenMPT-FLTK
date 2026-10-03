@@ -27,7 +27,7 @@ OPENMPT_NAMESPACE_END
 
 int main(int argc, char **argv)
 {
-	ui::AppBase &app = OPENMPT_NAMESPACE::theApp;
+	OPENMPT_NAMESPACE::ui::AppBase &app = OPENMPT_NAMESPACE::theApp;
 	app.SetCommandLine(argc, argv);
 	// Enables Fl::awake, which delivers messages posted during initialization
 	Fl::lock();

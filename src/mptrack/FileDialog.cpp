@@ -15,7 +15,6 @@
 #include "Mainfrm.h"
 #include "Mptrack.h"
 #include "TrackerSettings.h"
-#include "mpt/fs/fs.hpp"
 
 #include <FL/Fl_Native_File_Chooser.H>
 

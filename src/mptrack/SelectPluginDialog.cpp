@@ -28,6 +28,8 @@
 #include "../soundlib/plugins/PluginManager.h"
 #include "../soundlib/plugins/PlugInterface.h"
 #include "mpt/string/utility.hpp"
+#include "PluginUi.h"
+#include "openmpt_ext/sndlib/TrackerCriticalSection.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -147,7 +149,7 @@ void CSelectPluginDlg::OnOK()
 		// Plugin selected
 		if ((!pCurrentPlugin) || &pCurrentPlugin->GetPluginFactory() != pFactory)
 		{
-			CriticalSection cs;
+			TrackerCriticalSection cs;
 
 			// Destroy old plugin, if there was one.
 			const auto oldOutput = m_pPlugin->GetOutputPlugin();
@@ -184,11 +186,11 @@ void CSelectPluginDlg::OnOK()
 			// Now, create the new plugin
 			if(pManager && m_pModDoc)
 			{
-				pManager->CreateMixPlugin(*m_pPlugin, m_pModDoc->GetSoundFile());
+				CallLocked([&] { return pManager->CreateMixPlugin(*m_pPlugin, m_pModDoc->GetSoundFile()); });
 				if (m_pPlugin->pMixPlugin)
 				{
 					IMixPlugin *p = m_pPlugin->pMixPlugin;
-					const mpt::ustring name = p->GetDefaultEffectName();
+					const mpt::ustring name = PluginUi(*p).GetDefaultEffectName();
 					if(!name.empty())
 					{
 						m_pPlugin->Info.szName = mpt::ToCharset(mpt::Charset::Locale, name);
@@ -382,7 +384,7 @@ void CSelectPluginDlg::UpdatePluginsList(const VSTPluginLib *forceSelect)
 				// Search in plugin tags
 				if(!matches)
 				{
-					mpt::ustring tags = mpt::ToLowerCaseLocale(plug.tags);
+					mpt::ustring tags = mpt::ToLowerCaseLocale(PluginUi::GetLibraryTags(plug));
 					for(const auto &tag : currentTags)
 					{
 						if(!tag.empty() && tags.find(tag, 0) != tags.npos)
@@ -395,7 +397,7 @@ void CSelectPluginDlg::UpdatePluginsList(const VSTPluginLib *forceSelect)
 				// Search in plugin vendors
 				if(!matches)
 				{
-					mpt::ustring vendor = mpt::ToUnicode(mpt::ToLowerCaseLocale(plug.vendor));
+					mpt::ustring vendor = mpt::ToLowerCaseLocale(PluginUi::GetLibraryVendor(plug));
 					if(vendor.find(m_nameFilter, 0) != vendor.npos)
 					{
 						matches = true;
@@ -526,15 +528,15 @@ void CSelectPluginDlg::OnSelChanged(NotifyHeader *, LResult *result)
 	bool enableRemoveButton = false;
 	if (pManager != nullptr && pManager->IsValidPlugin(pPlug))
 	{
-		if(pPlug->vendor.empty())
+		if(const mpt::ustring vendor = PluginUi::GetLibraryVendor(*pPlug); vendor.empty())
 			SetDlgItemText(IDC_VENDOR, UL_(""));
 		else
-			SetDlgItemText(IDC_VENDOR, UL_("Vendor: ") + pPlug->vendor);
+			SetDlgItemText(IDC_VENDOR, UL_("Vendor: ") + vendor);
 		if(pPlug->dllPath.empty())
 			SetDlgItemText(IDC_TEXT_CURRENT_VSTPLUG, UL_("Built-in plugin"));
 		else
 			SetDlgItemText(IDC_TEXT_CURRENT_VSTPLUG, pPlug->dllPath.ToUnicode());
-		SetDlgItemText(IDC_PLUGINTAGS, mpt::ToUnicode(pPlug->tags));
+		SetDlgItemText(IDC_PLUGINTAGS, PluginUi::GetLibraryTags(*pPlug));
 		enableRemoveButton = pPlug->isBuiltIn ? false : true;
 #ifdef MPT_WITH_VST
 		if(pPlug->pluginId1 == Vst::kEffectMagic && !pPlug->isBuiltIn)
@@ -798,7 +800,7 @@ void CSelectPluginDlg::ReloadMissingPlugins(const VSTPluginLib &lib) const
 	auto docs = theApp.GetOpenDocuments();
 	for(auto &modDoc : docs)
 	{
-		CSoundFile &sndFile = modDoc->GetSoundFile();
+		CTrackerSoundFile &sndFile = modDoc->GetSoundFile();
 		bool updateDoc = false;
 		for(auto &plugin : sndFile.m_MixPlugins)
 		{
@@ -808,7 +810,7 @@ void CSelectPluginDlg::ReloadMissingPlugins(const VSTPluginLib &lib) const
 				&& plugin.Info.shellPluginID == lib.shellPluginID)
 			{
 				updateDoc = true;
-				plugManager->CreateMixPlugin(plugin, sndFile);
+				CallLocked([&] { return plugManager->CreateMixPlugin(plugin, sndFile); });
 				if(plugin.pMixPlugin)
 				{
 					plugin.pMixPlugin->RestoreAllParameters(plugin.defaultProgram);
@@ -865,7 +867,7 @@ void CSelectPluginDlg::OnPluginTagsChanged()
 	VSTPluginLib *plug = GetSelectedPlugin();
 	if (plug)
 	{
-		plug->tags = mpt::ToUnicode(GetWindowTextString(*GetDlgItem(IDC_PLUGINTAGS)));
+		PluginUi::SetLibraryTags(*plug, mpt::ToUnicode(GetWindowTextString(*GetDlgItem(IDC_PLUGINTAGS))));
 	}
 }
 

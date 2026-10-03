@@ -61,7 +61,7 @@ Document *CModDocTemplate::OpenTemplateFile(const mpt::PathString &filename, boo
 			CMainFrame::GetMainFrame()->UpdateTree(modDoc, GeneralHint().General());
 
 			// Reset edit history for template files
-			CSoundFile &sndFile = modDoc->GetSoundFile();
+			CTrackerSoundFile &sndFile = modDoc->GetSoundFile();
 			sndFile.GetFileHistory().clear();
 			sndFile.m_dwCreatedWithVersion = Version::Current();
 			sndFile.m_dwLastSavedWithVersion = Version();

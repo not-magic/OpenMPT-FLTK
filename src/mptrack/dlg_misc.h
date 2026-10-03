@@ -30,7 +30,7 @@ protected:
 	ComboBox m_TypeBox, m_ChannelsBox, m_TempoModeBox, m_PlugMixBox;
 	Button m_CheckBox1, m_CheckBox2, m_CheckBox3, m_CheckBox4, m_CheckBox5, m_CheckBoxPT1x, m_CheckBoxFt2VolRamp, m_CheckBoxAmigaLimits;
 
-	CSoundFile &sndFile;
+	CTrackerSoundFile &sndFile;
 public:
 	TempoSwing m_tempoSwing;
 	PlayBehaviourSet m_playBehaviour;
@@ -41,7 +41,7 @@ public:
 	bool m_initialized = false;
 
 public:
-	CModTypeDlg(CSoundFile &sf, Wnd *parent);
+	CModTypeDlg(CTrackerSoundFile &sf, Wnd *parent);
 	bool VerifyData();
 	void UpdateDialog();
 	void OnPTModeChanged();
@@ -92,14 +92,14 @@ protected:
 class CRemoveChannelsDlg : public DialogBase
 {
 public:
-	CSoundFile &sndFile;
+	CTrackerSoundFile &sndFile;
 	std::vector<bool> m_bKeepMask;
 	CHANNELINDEX m_nRemove;
 	ListBox m_RemChansList;
 	bool m_ShowCancel;
 
 public:
-	CRemoveChannelsDlg(CSoundFile &sf, CHANNELINDEX toRemove, bool showCancel = true, Wnd *parent = nullptr);
+	CRemoveChannelsDlg(CTrackerSoundFile &sf, CHANNELINDEX toRemove, bool showCancel = true, Wnd *parent = nullptr);
 
 protected:
 	void DoDataExchange(DataExchange *pDX) override;
@@ -216,7 +216,7 @@ protected:
 
 	std::vector<SampleRegion> m_regions;
 
-	CSoundFile &m_sndFile;
+	CTrackerSoundFile &m_sndFile;
 	const INSTRUMENTINDEX m_nInstrument;
 	std::array<SAMPLEINDEX, NOTE_MAX - NOTE_MIN + 1> KeyboardMap;
 	MouseAction m_mouseAction = MouseAction::Unknown;
@@ -224,7 +224,7 @@ protected:
 	const ModCommand::NOTE m_minNote, m_maxNote;
 
 public:
-	CSampleMapDlg(CSoundFile &sf, INSTRUMENTINDEX instr, Wnd *parent = nullptr);
+	CSampleMapDlg(CTrackerSoundFile &sf, INSTRUMENTINDEX instr, Wnd *parent = nullptr);
 
 protected:
 	void DoDataExchange(DataExchange *pDX) override;

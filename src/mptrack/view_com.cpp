@@ -331,7 +331,7 @@ void CViewComments::UpdateView(UpdateHint hint, HintObject *)
 
 	if(!updateSamples && !updateInstr && !updateAll) return;
 
-	const CSoundFile &sndFile = pModDoc->GetSoundFile();
+	const CTrackerSoundFile &sndFile = pModDoc->GetSoundFile();
 
 	m_ToolBar.SetButtonImage(IDC_LIST_INSTRUMENTS, sndFile.GetNumInstruments() ? IMAGE_INSTRUMENTS : IMAGE_INSTRMUTE);
 
@@ -578,7 +578,7 @@ void CViewComments::OnEndLabelEdit(NotifyHeader * pnmhdr, LResult *result)
 	if(labelEdit->text != nullptr && !labelEdit->column && pModDoc)
 	{
 		const uint32 iItem = labelEdit->item;
-		CSoundFile &sndFile = pModDoc->GetSoundFile();
+		CTrackerSoundFile &sndFile = pModDoc->GetSoundFile();
 
 		if(m_nListId == IDC_LIST_SAMPLES)
 		{
@@ -694,7 +694,7 @@ void CViewComments::OnRClickListItem(NotifyHeader *, LResult *)
 void CViewComments::OnCopyNames()
 {
 	mpt::ustring names;
-	const CSoundFile &sndFile = GetDocument()->GetSoundFile();
+	const CTrackerSoundFile &sndFile = GetDocument()->GetSoundFile();
 	if(m_nListId == IDC_LIST_SAMPLES)
 	{
 		for(SAMPLEINDEX i = 1; i <= sndFile.GetNumSamples(); i++)
@@ -727,7 +727,7 @@ void CViewComments::OnPasteNames()
 	whitespace.push_back(UC_('\0'));
 	const auto names = mpt::split(mpt::trim_right(mpt::transcode<mpt::ustring>(std::u16string{clipboard.GetWideString()}), whitespace), mpt::ustring{UL_("\n")});
 
-	CSoundFile &sndFile = GetDocument()->GetSoundFile();
+	CTrackerSoundFile &sndFile = GetDocument()->GetSoundFile();
 	const auto FormatName = [&](size_t index, size_t maxLength)
 	{
 		if(index >= names.size())
@@ -735,7 +735,7 @@ void CViewComments::OnPasteNames()
 		return mpt::replace(mpt::ToCharset(sndFile.GetCharsetInternal(), names[index]), std::string{"\t"}, std::string{" "}).substr(0, maxLength);
 	};
 
-	CriticalSection cs;
+	TrackerCriticalSection cs;
 	if(m_nListId == IDC_LIST_SAMPLES)
 	{
 		if(sndFile.GetNumSamples() < names.size())

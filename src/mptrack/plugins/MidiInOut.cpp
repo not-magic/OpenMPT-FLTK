@@ -10,6 +10,7 @@
 #include "stdafx.h"
 #include "../ui/Ui.h"
 #include "MidiInOut.h"
+#include "PluginUi.h"
 #include "MidiInOutEditor.h"
 #include "../../common/FileReader.h"
 #include "../../soundlib/MIDIMacroParser.h"
@@ -96,7 +97,7 @@ void MidiInOut::RestoreAllParameters(int32 /*program*/)
 	OpenDevice(m_inputDevice.index, true);
 	OpenDevice(m_outputDevice.index, false);
 	// Update selection in editor
-	MidiInOutEditor *editor = dynamic_cast<MidiInOutEditor *>(GetEditor());
+	MidiInOutEditor *editor = dynamic_cast<MidiInOutEditor *>(PluginUi(*this).GetEditor());
 	if(editor != nullptr)
 	{
 		editor->SetCurrentDevice(true, m_inputDevice.index);
@@ -306,7 +307,7 @@ void MidiInOut::SetInitialMidiDump(std::vector<uint8> dump)
 {
 	mpt::lock_guard<mpt::mutex> lock(m_mutex);
 	m_initialMidiDump = std::move(dump);
-	SetModified();
+	PluginUi(*this).SetModified();
 }
 
 
@@ -320,7 +321,7 @@ void MidiInOut::SetMacro(size_t index, std::string macro)
 		m_parameterMacros.resize(index + 1);
 	m_parameterMacroScratchSpace.reserve(macro.size() + 1);
 	m_parameterMacros[index].first = std::move(macro);
-	SetModified();
+	PluginUi(*this).SetModified();
 }
 
 
@@ -340,7 +341,7 @@ void MidiInOut::SetParameter(PlugParamIndex index, PlugParamValue value, PlaySta
 		// Enough memory should have already been allocated when the macro string was set
 		m_parameterMacroScratchSpace.resize(m_parameterMacros[index - kMacroParamMin].first.size() + 1);
 		m_parameterMacros[index - kMacroParamMin].second = value;
-		MIDIMacroParser parser{GetSoundFile(), playState, chn, false, mpt::as_span(m_parameterMacros[index - kMacroParamMin].first), mpt::as_span(m_parameterMacroScratchSpace), mpt::saturate_round<uint8>(value * 127.0f), static_cast<PLUGINDEX>(GetSlot() + 1)};
+		MIDIMacroParser parser{GetSoundFile(), playState, chn, false, mpt::as_span(m_parameterMacros[index - kMacroParamMin].first), mpt::as_span(m_parameterMacroScratchSpace), mpt::saturate_round<uint8>(value * 127.0f), static_cast<PLUGINDEX>(m_nSlot + 1)};
 		m_mutex.unlock();
 		mpt::span<uint8> midiMsg;
 		while(parser.NextMessage(midiMsg))
@@ -360,7 +361,7 @@ float MidiInOut::GetParameter(PlugParamIndex index)
 
 
 
-mpt::ustring MidiInOut::GetParamName(PlugParamIndex param)
+mpt::ustring MidiInOut::GetParamName(PlugParamIndex param) const
 {
 	if(param >= kMacroParamMin && (param - kMacroParamMin) < m_parameterMacros.size())
 		return mpt::ToUnicode(mpt::Charset::ASCII, m_parameterMacros[param - kMacroParamMin].first);
@@ -696,7 +697,7 @@ void MidiInOut::OpenDevice(MidiDevice::ID newDevice, bool asInputDevice, bool up
 		} catch(RtMidiError &error)
 		{
 			device.name = "Unavailable";
-			MidiInOutEditor *editor = dynamic_cast<MidiInOutEditor *>(GetEditor());
+			MidiInOutEditor *editor = dynamic_cast<MidiInOutEditor *>(PluginUi(*this).GetEditor());
 			if(editor != nullptr)
 			{
 				Reporting::Error("MIDI device cannot be opened. Is it open in another application?\n\n" + error.getMessage(), "MIDI Input / Output", editor);

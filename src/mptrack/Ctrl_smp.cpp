@@ -15,7 +15,7 @@
 #include "Autotune.h"
 #include "Childfrm.h"
 #include "dlg_misc.h"
-#include "Dlsbank.h"
+#include "DlsBankExt.h"
 #include "FileDialog.h"
 #include "Globals.h"
 #include "ImageLists.h"
@@ -45,6 +45,7 @@
 #include "mpt/parse/parse.hpp"
 #include "mpt/string/utility.hpp"
 #include "openmpt/soundbase/Copy.hpp"
+#include "openmpt_ext/sndlib/TrackerCriticalSection.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -253,7 +254,7 @@ bool CCtrlSamples::OnInitDialog()
 	m_CbnBaseNote.SetRedraw(false);
 	for(ModCommand::NOTE i = BASENOTE_MIN; i <= BASENOTE_MAX; i++)
 	{
-		mpt::ustring noteName = mpt::ToUnicode(CSoundFile::GetDefaultNoteName(i % 12)) + mpt::ufmt::val(i / 12);
+		mpt::ustring noteName = mpt::ToUnicode(CTrackerSoundFile::GetDefaultNoteName(i % 12)) + mpt::ufmt::val(i / 12);
 		m_CbnBaseNote.SetItemData(m_CbnBaseNote.AddString(noteName), i - (NOTE_MIDDLEC - NOTE_MIN));
 	}
 	m_CbnBaseNote.SetRedraw(true);
@@ -462,7 +463,7 @@ LResult CCtrlSamples::OnModCtrlMsg(WParam wParam, LParam lParam)
 }
 
 
-static mpt::ustring EffectiveSampleVolume(double value, double valueAtZeroDB, double effectiveFactor, const CSoundFile &sndFile)
+static mpt::ustring EffectiveSampleVolume(double value, double valueAtZeroDB, double effectiveFactor, const CTrackerSoundFile &sndFile)
 {
 	mpt::ustring s = CModDoc::LinearToDecibelsString(value, valueAtZeroDB);
 	if(value == 0)
@@ -477,7 +478,7 @@ static mpt::ustring EffectiveSampleVolume(double value, double valueAtZeroDB, do
 }
 
 
-static mpt::ustring EffectiveOPLVolume(double value, double effectiveFactor, const CSoundFile &sndFile)
+static mpt::ustring EffectiveOPLVolume(double value, double effectiveFactor, const CTrackerSoundFile &sndFile)
 {
 	const double dB = (value - 64.0) * 0.75;
 	const double effectiveDB = (effectiveFactor - 64.0) * 0.75;
@@ -1031,7 +1032,7 @@ bool CCtrlSamples::OpenSample(const mpt::PathString &fileName, FlagSet<OpenSampl
 }
 
 
-bool CCtrlSamples::OpenSample(const CSoundFile &sndFile, SAMPLEINDEX nSample)
+bool CCtrlSamples::OpenSample(const CTrackerSoundFile &sndFile, SAMPLEINDEX nSample)
 {
 	if(!nSample || nSample > sndFile.GetNumSamples()) return false;
 
@@ -1150,7 +1151,7 @@ bool CCtrlSamples::OnDragonDrop(bool doDrop, const DRAGONDROP &dropInfo)
 				{
 					if(!insertNew || InsertSample(false))
 					{
-						CriticalSection cs;
+						TrackerCriticalSection cs;
 						m_modDoc.GetSampleUndo().PrepareUndo(m_nSample, sundo_replace, "Replace");
 						canDrop = modified = dlsbank.ExtractSample(m_sndFile, m_nSample, nIns, nRgn, transpose);
 					}
@@ -1185,7 +1186,7 @@ bool CCtrlSamples::OnDragonDrop(bool doDrop, const DRAGONDROP &dropInfo)
 		}
 		if(!insertNew || InsertSample(false))
 		{
-			CriticalSection cs;
+			TrackerCriticalSection cs;
 			m_modDoc.GetSampleUndo().PrepareUndo(m_nSample, sundo_replace, "Replace");
 			canDrop = modified = dlsBank.ExtractSample(m_sndFile, m_nSample, nIns, nRgn, transpose);
 		}
@@ -1284,7 +1285,7 @@ bool CCtrlSamples::InsertSample(bool duplicate, int8 *confirm)
 	if(smp != SAMPLEINDEX_INVALID)
 	{
 		const SAMPLEINDEX oldSmp = m_nSample;
-		CSoundFile &sndFile = m_modDoc.GetSoundFile();
+		CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 		SetCurrentSample(smp);
 
 		if(duplicate && oldSmp >= 1 && oldSmp <= sndFile.GetNumSamples())
@@ -1894,7 +1895,7 @@ void CCtrlSamples::ApplyResample(SAMPLEINDEX smp, uint32 newRate, ResamplingMode
 	{
 		m_modDoc.PrepareUndoForAllPatterns(false, "Resample (Adjust Offsets)");
 	};
-	SmpLength newSelEnd = SampleEdit::Resample(sample, selection.start, selection.end, channelSel, newRate, mode, m_sndFile, updatePatternCommands, updatePatternNotes, prepareSampleUndoFunc, preparePatternUndoFunc);
+	SmpLength newSelEnd = CallLocked([&] { return SampleEdit::Resample(sample, selection.start, selection.end, channelSel, newRate, mode, m_sndFile, updatePatternCommands, updatePatternNotes, prepareSampleUndoFunc, preparePatternUndoFunc); });
 	if(!newSelEnd)
 	{
 		ui::Beep();
@@ -1948,7 +1949,7 @@ public:
 		const auto updateFunc = [this](SmpLength current, SmpLength maximum) { return UpdateProgress(current, maximum); };
 		const auto prepareUndo = [&parent]() { return parent.PrepareUndo("Pitch Shift / Time Stretch", sundo_replace); };
 
-		CSoundFile &sndFile = modDoc.GetSoundFile();
+		CTrackerSoundFile &sndFile = modDoc.GetSoundFile();
 		if(loFi)
 			m_instance = std::make_unique<TimeStretchPitchShift::LoFi>(updateFunc, prepareUndo, sndFile, sample, pitch, stretchRatio, start, end, channelSel, grainSize);
 		else
@@ -1964,7 +1965,7 @@ private:
 		SetRange(0, 100);
 
 		BeginWaitCursor();
-		m_result = m_instance->Process();
+		m_result = CallLocked([&] { return m_instance->Process(); });
 		EndWaitCursor();
 
 		EndDialog((m_result == TimeStretchPitchShift::Result::OK) ? IDOK : IDCANCEL);
@@ -3043,7 +3044,7 @@ void CCtrlSamples::OnInitOPLInstrument()
 {
 	if(m_sndFile.SupportsOPL())
 	{
-		CriticalSection cs;
+		TrackerCriticalSection cs;
 		PrepareUndo("Initialize OPL Instrument", sundo_replace);
 		m_sndFile.DestroySample(m_nSample);
 		m_sndFile.InitOPL();

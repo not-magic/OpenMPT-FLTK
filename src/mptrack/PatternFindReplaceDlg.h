@@ -29,7 +29,7 @@ protected:
 	ComboBox m_cbnNote, m_cbnVolCmd, m_cbnVolume, m_cbnCommand, m_cbnParam, m_cbnPCParam;
 	PluginComboBox m_cbnInstr;
 
-	const CSoundFile &m_sndFile;
+	const CTrackerSoundFile &m_sndFile;
 	FindReplace &m_settings;
 	EffectInfo m_effectInfo;
 	ModCommand m_initialValues;
@@ -56,7 +56,7 @@ protected:
 	};
 
 public:
-	CFindReplaceTab(uint32 dlgID, bool isReplaceTab, const CSoundFile &sf, FindReplace &settings, const ModCommand &initialValues)
+	CFindReplaceTab(uint32 dlgID, bool isReplaceTab, const CTrackerSoundFile &sf, FindReplace &settings, const ModCommand &initialValues)
 		: PropertyPage{dlgID}
 		, m_sndFile{sf}
 		, m_settings{settings}

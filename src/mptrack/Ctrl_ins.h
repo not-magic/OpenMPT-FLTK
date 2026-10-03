@@ -123,7 +123,7 @@ public:
 	bool SetCurrentInstrument(uint32 nIns, bool bUpdNum=true);
 	bool InsertInstrument(bool duplicate);
 	bool OpenInstrument(const mpt::PathString &fileName);
-	bool OpenInstrument(const CSoundFile &sndFile, INSTRUMENTINDEX nInstr);
+	bool OpenInstrument(const CTrackerSoundFile &sndFile, INSTRUMENTINDEX nInstr);
 	void SaveInstrument(bool doBatchSave);
 	bool EditSample(uint32 nSample);
 	void UpdateFilterText();

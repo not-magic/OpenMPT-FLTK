@@ -99,7 +99,7 @@ UI_MESSAGE_MAP_END()
 
 int CTempoSwingDlg::m_groupSize = 1;
 
-CTempoSwingDlg::CTempoSwingDlg(Wnd *parent, const TempoSwing &currentTempoSwing, CSoundFile &sndFile, PATTERNINDEX pattern)
+CTempoSwingDlg::CTempoSwingDlg(Wnd *parent, const TempoSwing &currentTempoSwing, CTrackerSoundFile &sndFile, PATTERNINDEX pattern)
 	: DialogBase(IDD_TEMPO_SWING, parent)
 	, m_container(*this)
 	, m_scrollPos(0)

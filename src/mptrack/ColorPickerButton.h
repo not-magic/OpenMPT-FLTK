@@ -16,13 +16,13 @@
 
 OPENMPT_NAMESPACE_BEGIN
 
-class CSoundFile;
+class CTrackerSoundFile;
 
 class ColorPickerButton : public Button
 {
 public:
 	void SetColor(ColorRef color);
-	std::optional<ColorRef> PickChannelColor(const CSoundFile &sndFile, CHANNELINDEX chn);
+	std::optional<ColorRef> PickChannelColor(const CTrackerSoundFile &sndFile, CHANNELINDEX chn);
 	std::optional<ColorRef> PickPatternColor(const mpt::span<ColorRef> patternColors, PATTERNINDEX pat);
 
 protected:

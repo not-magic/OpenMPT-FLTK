@@ -18,7 +18,7 @@
 OPENMPT_NAMESPACE_BEGIN
 
 
-CPSRatioCalc::CPSRatioCalc(const CSoundFile &sndFile, SAMPLEINDEX sample, double ratio, Wnd *parent)
+CPSRatioCalc::CPSRatioCalc(const CTrackerSoundFile &sndFile, SAMPLEINDEX sample, double ratio, Wnd *parent)
 	: DialogBase{IDD_PITCHSHIFT, parent}
 	, m_ratio{ratio}
 	, m_sndFile{sndFile}

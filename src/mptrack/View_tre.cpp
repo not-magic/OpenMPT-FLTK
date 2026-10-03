@@ -15,7 +15,7 @@
 #include "ui/Ui.h"
 #include "View_tre.h"
 #include "dlg_misc.h"
-#include "Dlsbank.h"
+#include "DlsBankExt.h"
 #include "ExternalSamples.h"
 #include "FileDialog.h"
 #include "FolderScanner.h"
@@ -36,7 +36,6 @@
 #include "../soundlib/MIDIEvents.h"
 #include "../soundlib/mod_specifications.h"
 #include "../soundlib/plugins/PlugInterface.h"
-#include "mpt/fs/fs.hpp"
 #include "mpt/io_file/inputfile.hpp"
 #include "mpt/io_file_read/inputfile_filecursor.hpp"
 #include "mpt/parse/parse.hpp"
@@ -46,13 +45,13 @@
 OPENMPT_NAMESPACE_BEGIN
 
 
-CSoundFile *CModTree::m_SongFile = nullptr;
+CTrackerSoundFile *CModTree::m_SongFile = nullptr;
 CModTree::LibrarySortOrder CModTree::m_librarySort = LibrarySortOrder::Name;
 
 ModTreeDocInfo::ModTreeDocInfo(CModDoc &modDoc)
     : modDoc(modDoc)
 {
-	const CSoundFile &sndFile = modDoc.GetSoundFile();
+	const CTrackerSoundFile &sndFile = modDoc.GetSoundFile();
 	tiPatterns.resize(sndFile.Patterns.Size(), nullptr);
 	tiOrders.resize(sndFile.Order.GetNumSequences());
 	tiSequences.resize(sndFile.Order.GetNumSequences(), nullptr);
@@ -150,7 +149,6 @@ CModTree::~CModTree()
 void CModTree::Init()
 {
 	m_modExtensions = CSoundFile::GetSupportedExtensions(false);
-	m_MediaFoundationExtensions = FileType(CSoundFile::GetMediaFoundationFileTypes()).GetExtensions();
 
 	uint32 dwRemove = ui::TreeStyleSingleExpand;
 	uint32 dwAdd = ui::TreeStyleEditLabels | ui::TreeStyleHasLines | ui::TreeStyleLinesAtRoot | ui::TreeStyleHasButtons | ui::TreeStyleShowSelectionAlways;
@@ -297,7 +295,7 @@ bool CModTree::InsLibSetFullPath(const mpt::PathString &libPath, const mpt::Path
 					m_SongFile->Destroy();
 				} else
 				{
-					m_SongFile = new(std::nothrow) CSoundFile;
+					m_SongFile = new(std::nothrow) CTrackerSoundFile;
 				}
 				if(m_SongFile != nullptr)
 				{
@@ -333,10 +331,10 @@ bool CModTree::InsLibSetFullPath(const mpt::PathString &libPath, const mpt::Path
 
 bool CModTree::SetSoundFile(FileReader &file)
 {
-	std::unique_ptr<CSoundFile> sndFile;
+	std::unique_ptr<CTrackerSoundFile> sndFile;
 	try
 	{
-		sndFile = std::make_unique<CSoundFile>();
+		sndFile = std::make_unique<CTrackerSoundFile>();
 		if(!sndFile->Create(file, CSoundFile::loadNoPatternOrPluginData))
 		{
 			return false;
@@ -508,7 +506,7 @@ void CModTree::RefreshMidiLibrary()
 	for(uint32 iPerc = 24; iPerc <= 84; iPerc++)
 	{
 		int image = IMAGE_NOSAMPLE;
-		s = mpt::ToUnicode(CSoundFile::GetNoteName((ModCommand::NOTE)(iPerc + NOTE_MIN), CSoundFile::GetDefaultNoteNames()))
+		s = mpt::ToUnicode(CTrackerSoundFile::GetNoteName((ModCommand::NOTE)(iPerc + NOTE_MIN), CTrackerSoundFile::GetDefaultNoteNames()))
 		    + UL_(": ") + mpt::ToUnicode(mpt::Charset::ASCII, szMidiPercussionNames[iPerc - 24]);
 		const LParam param = (MODITEM_MIDIPERCUSSION << MIDILIB_SHIFT) | iPerc;
 		if(midiLib[iPerc | 0x80] && !midiLib[iPerc | 0x80]->empty())
@@ -625,15 +623,15 @@ void CModTree::RefreshDlsBanks()
 					if(keymin >= keymax)
 					{
 						wsprintf(szName, UL_("%s%u: %s"),
-							mpt::ToUnicode(CSoundFile::GetDefaultNoteName(keymin % 12)).c_str(),
+							mpt::ToUnicode(CTrackerSoundFile::GetDefaultNoteName(keymin % 12)).c_str(),
 							keymin / 12,
 							regionNameStr.c_str());
 					} else
 					{
 						wsprintf(szName, UL_("%s%u-%s%u: %s"),
-							mpt::ToUnicode(CSoundFile::GetDefaultNoteName(keymin % 12)).c_str(),
+							mpt::ToUnicode(CTrackerSoundFile::GetDefaultNoteName(keymin % 12)).c_str(),
 							keymin / 12,
-							mpt::ToUnicode(CSoundFile::GetDefaultNoteName(keymax % 12)).c_str(),
+							mpt::ToUnicode(CTrackerSoundFile::GetDefaultNoteName(keymax % 12)).c_str(),
 							keymax / 12,
 							regionNameStr.c_str());
 					}
@@ -704,7 +702,7 @@ void CModTree::UpdateView(ModTreeDocInfo &info, UpdateHint hint)
 		return;
 
 	const CModDoc &modDoc = info.modDoc;
-	const CSoundFile &sndFile = modDoc.GetSoundFile();
+	const CTrackerSoundFile &sndFile = modDoc.GetSoundFile();
 
 	// Create headers
 	const GeneralHint generalHint = hint.ToType<GeneralHint>();
@@ -1582,7 +1580,7 @@ void CModTree::DeleteTreeItem(TreeItemHandle hItem, const bool permanently)
 	uint32 modItemID = modItem.val1;
 
 	CModDoc *modDoc = m_docInfo.count(m_selectedDoc) ? m_selectedDoc : nullptr;
-	CSoundFile *sndFile = modDoc ? &modDoc->GetSoundFile() : nullptr;
+	CTrackerSoundFile *sndFile = modDoc ? &modDoc->GetSoundFile() : nullptr;
 	if(modItem.IsSongItem() && modDoc == nullptr)
 	{
 		return;
@@ -1741,19 +1739,16 @@ bool CModTree::OpenTreeItem(TreeItemHandle hItem)
 
 bool CModTree::OpenMidiInstrument(uint32 dwItem)
 {
-	std::vector<FileType> mediaFoundationTypes = CSoundFile::GetMediaFoundationFileTypes();
 	FileDialog dlg = OpenFileDialog()
 		.EnableAudioPreview()
 		.ExtensionFilter(
-			"All Instruments and Banks (*.xi,*.pat,*.iti,*.sfz,*.dls,*.sf2,...)|*.xi;*.pat;*.iti;*.sfz;*.wav;*.w64;*.caf;*.aif;*.aiff;*.sbk;*.sf2;*.sf3;*.sf4;*.dls;*.mss;*.flac;*.opus;*.ogg;*.oga;*.mp1;*.mp2;*.mp3" + ToFilterOnlyString(mediaFoundationTypes, true).ToLocale() + "|"
+			"All Instruments and Banks (*.xi,*.pat,*.iti,*.sfz,*.dls,*.sf2,...)|*.xi;*.pat;*.iti;*.sfz;*.wav;*.w64;*.caf;*.aif;*.aiff;*.sbk;*.sf2;*.sf3;*.sf4;*.dls;*.mss;*.flac;*.opus;*.ogg;*.oga;*.mp1;*.mp2;*.mp3|"
 			"FastTracker II Instruments (*.xi)|*.xi|"
 			"GF1 Patches (*.pat)|*.pat|"
 			"Wave Files (*.wav)|*.wav|"
 			"Wave64 Files (*.w64)|*.w64|"
 			"CAF Files (*.caf)|*.caf|"
-	#ifdef MPT_WITH_FLAC
 			"FLAC Files (*.flac,*.oga)|*.flac;*.oga|"
-	#endif // MPT_WITH_FLAC
 	#if defined(MPT_WITH_OPUSFILE)
 			"Opus Files (*.opus,*.oga)|*.opus;*.oga|"
 	#endif // MPT_WITH_OPUSFILE
@@ -1885,10 +1880,6 @@ void CModTree::FillInstrumentLibrary(const mpt::ustring &selectedItem)
 			{
 				if(showDirs || m_showAllFiles)
 					return IMAGE_FOLDERSONG;
-			} else if(!extPS.empty() && mpt::contains(m_MediaFoundationExtensions, extPS))
-			{
-				if(showInstrs)
-					return IMAGE_SAMPLES;
 			} else
 			{
 				if(showDirs)
@@ -2166,11 +2157,11 @@ void CModTree::MonitorInstrumentLibrary()
 
 void CModTree::SetFullInstrumentLibraryPath(mpt::PathString path)
 {
-	if(mpt::native_fs{}.is_directory(path))
+	if(FileSystem::IsDirectory(path))
 	{
 		path = path.WithTrailingSlash();
 		InstrumentLibraryChDir(path, false);
-	} else if(mpt::native_fs{}.is_file(path))
+	} else if(FileSystem::IsFile(path))
 	{
 		// Browse module contents
 		CModTree *dirBrowser = CMainFrame::GetMainFrame()->GetUpperTreeview();
@@ -2245,7 +2236,7 @@ void CModTree::InstrumentLibraryChDir(mpt::PathString dir, bool isSong)
 
 				FolderScanner scan(dir, FolderScanner::kFilesAndDirectories);
 				mpt::PathString name;
-				if(scan.Next(name) && !scan.Next(name) && mpt::native_fs{}.is_directory(name))
+				if(scan.Next(name) && !scan.Next(name) && FileSystem::IsDirectory(name))
 				{
 					// There is only one directory and nothing else in the path,
 					// so skip this directory and automatically descend further down into the tree.
@@ -2256,7 +2247,7 @@ void CModTree::InstrumentLibraryChDir(mpt::PathString dir, bool isSong)
 			} while(false);
 		}
 
-		if(mpt::native_fs{}.is_directory(dir))
+		if(FileSystem::IsDirectory(dir))
 		{
 			m_SongFileName = P_("");
 			delete m_SongFile;
@@ -2380,7 +2371,7 @@ bool CModTree::CanDrop(TreeItemHandle hItem, bool doDrop)
 	const ModTreeDocInfo *infoDrag = dragIter != m_docInfo.end() ? &dragIter->second : nullptr;
 	const ModTreeDocInfo *infoDrop = selIter != m_docInfo.end() ? &selIter->second : nullptr;
 	CModDoc *modDoc = infoDrop ? &infoDrop->modDoc : nullptr;
-	CSoundFile *sndFile = modDoc ? &modDoc->GetSoundFile() : nullptr;
+	CTrackerSoundFile *sndFile = modDoc ? &modDoc->GetSoundFile() : nullptr;
 	const bool sameModDoc = infoDrag && (modDoc == &infoDrag->modDoc);
 	const bool sameItem = modItemDrop == m_itemDrag && sameModDoc;
 
@@ -2451,7 +2442,7 @@ bool CModTree::CanDrop(TreeItemHandle hItem, bool doDrop)
 			if(doDrop && infoDrag != nullptr)
 			{
 				// copy mod sequence over.
-				CSoundFile &dragSndFile = infoDrag->modDoc.GetSoundFile();
+				CTrackerSoundFile &dragSndFile = infoDrag->modDoc.GetSoundFile();
 				const SEQUENCEINDEX origSeqId = static_cast<SEQUENCEINDEX>(modItemDragID);
 				const ModSequence &origSeq = dragSndFile.Order(origSeqId);
 				SEQUENCEINDEX sequenceHint = SEQUENCEINDEX_INVALID;
@@ -2582,7 +2573,7 @@ void CModTree::UpdatePlayPos(CModDoc &modDoc, Notification *pNotify)
 	if(info == nullptr)
 		return;
 
-	const CSoundFile &sndFile = modDoc.GetSoundFile();
+	const CTrackerSoundFile &sndFile = modDoc.GetSoundFile();
 	ORDERINDEX nNewOrd = (pNotify) ? pNotify->order : ORDERINDEX_INVALID;
 	SEQUENCEINDEX nNewSeq = sndFile.Order.GetCurrentSequenceIndex();
 	if(nNewOrd != info->ordSel || nNewSeq != info->seqSel)
@@ -2820,12 +2811,12 @@ void CModTree::OnItemRightClick(TreeItemHandle hItem, Point pt)
 			m_hDropWnd = NULL;
 			OnEndDrag(TREESTATUS_DRAGGING);
 		}
-		HMENU hMenu = ::CreatePopupMenu(), hSubMenu = nullptr;
+		HMENU hMenu = ui::CreatePopupMenu(), hSubMenu = nullptr;
 		if(!hMenu)
 			return;
 
 		const CModDoc *modDoc = GetDocumentFromItem(hItem);
-		const CSoundFile *sndFile = modDoc != nullptr ? &modDoc->GetSoundFile() : nullptr;
+		const CTrackerSoundFile *sndFile = modDoc != nullptr ? &modDoc->GetSoundFile() : nullptr;
 		const CInputHandler *ih = CMainFrame::GetInputHandler();
 
 		uint32 defaultID = 0;
@@ -3107,7 +3098,7 @@ HMENU CModTree::AddLibraryFindAndSortMenus(HMENU hMenu) const
 	const CInputHandler *ih = CMainFrame::GetInputHandler();
 	AppendMenu(hMenu, ui::MenuItemString, ID_OPEN_LIBRARY_FILTER, ih->GetKeyTextFromCommand(kcTreeViewFind, UL_("&Find...")));
 
-	HMENU hSubMenu = ::CreatePopupMenu();
+	HMENU hSubMenu = ui::CreatePopupMenu();
 	AppendMenu(hSubMenu, ui::MenuItemString | (m_librarySort == LibrarySortOrder::Name ? ui::MenuItemChecked : 0), ID_MODTREE_SORT_BY_NAME, ih->GetKeyTextFromCommand(kcTreeViewSortByName, UL_("&Name")));
 	AppendMenu(hSubMenu, ui::MenuItemString | (m_librarySort == LibrarySortOrder::Date ? ui::MenuItemChecked : 0), ID_MODTREE_SORT_BY_DATE, ih->GetKeyTextFromCommand(kcTreeViewSortByDate, UL_("&Date")));
 	AppendMenu(hSubMenu, ui::MenuItemString | (m_librarySort == LibrarySortOrder::Size ? ui::MenuItemChecked : 0), ID_MODTREE_SORT_BY_SIZE, ih->GetKeyTextFromCommand(kcTreeViewSortBySize, UL_("&Size")));
@@ -3269,7 +3260,7 @@ void CModTree::OnXButtonUp(uint32 nFlags, uint32 nButton, Point point)
 		} else if(nButton == XBUTTON2)
 		{
 			const auto &previousPath = CMainFrame::GetMainFrame()->GetUpperTreeview()->m_previousPath;
-			InstrumentLibraryChDir(previousPath, mpt::native_fs{}.is_file(m_InstrLibPath + previousPath));
+			InstrumentLibraryChDir(previousPath, FileSystem::IsFile(m_InstrLibPath + previousPath));
 		}
 	}
 	TreeCtrl::OnXButtonUp(nFlags, nButton, point);
@@ -3525,7 +3516,7 @@ void CModTree::OnUnmuteAllTreeItem()
 }
 
 
-bool CModTree::HasEffectPlugins(const CSoundFile &sndFile)
+bool CModTree::HasEffectPlugins(const CTrackerSoundFile &sndFile)
 {
 	for(const auto &plugin : sndFile.m_MixPlugins)
 	{
@@ -3539,7 +3530,7 @@ bool CModTree::HasEffectPlugins(const CSoundFile &sndFile)
 }
 
 
-bool CModTree::AllPluginsBypassed(const CSoundFile &sndFile, bool onlyEffects)
+bool CModTree::AllPluginsBypassed(const CTrackerSoundFile &sndFile, bool onlyEffects)
 {
 	for(const auto &plugin : sndFile.m_MixPlugins)
 	{
@@ -3554,7 +3545,7 @@ bool CModTree::AllPluginsBypassed(const CSoundFile &sndFile, bool onlyEffects)
 }
 
 
-void CModTree::BypassAllPlugins(CSoundFile &sndFile, bool bypass, bool onlyEffects)
+void CModTree::BypassAllPlugins(CTrackerSoundFile &sndFile, bool bypass, bool onlyEffects)
 {
 	bool modified = false;
 	for(auto &plugin : sndFile.m_MixPlugins)
@@ -3596,7 +3587,7 @@ void CModTree::InsertOrDupItem(bool insert)
 	if(info)
 	{
 		CModDoc &modDoc = info->modDoc;
-		CSoundFile &sndFile = modDoc.GetSoundFile();
+		CTrackerSoundFile &sndFile = modDoc.GetSoundFile();
 		if(modItem.type == MODITEM_SEQUENCE || modItem.type == MODITEM_HDR_ORDERS)
 		{
 			// Duplicate / insert sequence
@@ -3675,7 +3666,7 @@ void CModTree::MoveTreeItem(TreeItemHandle hItem, bool moveUp)
 	const uint32 modItemID = modItem.val1;
 
 	CModDoc &modDoc = info->modDoc;
-	CSoundFile &sndFile = modDoc.GetSoundFile();
+	CTrackerSoundFile &sndFile = modDoc.GetSoundFile();
 	TreeItemHandle newSelection = nullptr;
 
 	switch(modItem.type)
@@ -3845,7 +3836,7 @@ void CModTree::OnReloadItem()
 	if(pModDoc && modItem.val1)
 	{
 		SAMPLEINDEX smpID = static_cast<SAMPLEINDEX>(modItem.val1);
-		CSoundFile &sndFile = pModDoc->GetSoundFile();
+		CTrackerSoundFile &sndFile = pModDoc->GetSoundFile();
 		pModDoc->GetSampleUndo().PrepareUndo(smpID, sundo_replace, "Replace");
 		if(!sndFile.LoadExternalSample(smpID, sndFile.GetSamplePath(smpID)))
 		{
@@ -3870,7 +3861,7 @@ void CModTree::OnReloadAll()
 	CModDoc *pModDoc = GetDocumentFromItem(GetSelectedItem());
 	if(pModDoc != nullptr)
 	{
-		CSoundFile &sndFile = pModDoc->GetSoundFile();
+		CTrackerSoundFile &sndFile = pModDoc->GetSoundFile();
 		bool anyMissing = false;
 		for(SAMPLEINDEX smp = 1; smp <= sndFile.GetNumSamples(); smp++)
 		{
@@ -4299,7 +4290,7 @@ void CModTree::OnBeginLabelEdit(NotifyHeader *nmhdr, LResult *result)
 
 	if(modDoc != nullptr)
 	{
-		const CSoundFile &sndFile = modDoc->GetSoundFile();
+		const CTrackerSoundFile &sndFile = modDoc->GetSoundFile();
 		const CModSpecifications &modSpecs = sndFile.GetModSpecifications();
 
 		switch(modItem.type)
@@ -4398,7 +4389,7 @@ void CModTree::OnEndLabelEdit(NotifyHeader *nmhdr, LResult *result)
 
 	if(modDoc != nullptr)
 	{
-		CSoundFile &sndFile = modDoc->GetSoundFile();
+		CTrackerSoundFile &sndFile = modDoc->GetSoundFile();
 		const CModSpecifications &modSpecs = sndFile.GetModSpecifications();
 
 		const mpt::ustring itemText = *notification->text;

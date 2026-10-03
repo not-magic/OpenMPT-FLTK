@@ -31,20 +31,19 @@
 #include "SettingsIni.h"
 #include "TrackerSettings.h"
 #include "WelcomeDialog.h"
-#include "../common/ComponentManager.h"
+#include "mpt/random/crand.hpp"
 #include "../common/mptStringBuffer.h"
 #include "../common/version.h"
 #include "../misc/mptOS.h"
-#include "../soundlib/Dlsbank.h"
+#include "DlsBankExt.h"
 #include "../soundlib/plugins/PluginManager.h"
 #include "../test/test.h"
 #include "mpt/arch/arch.hpp"
-#include "mpt/fs/common_directories.hpp"
-#include "mpt/fs/fs.hpp"
 #include "mpt/io_file/outputfile.hpp"
 #include "mpt/random/seed.hpp"
 #include "mpt/string/utility.hpp"
 #include "openmpt/sounddevice/SoundDeviceManager.hpp"
+#include "PluginUi.h"
 
 #include <filesystem>
 #include <thread>
@@ -620,34 +619,6 @@ mpt::recursive_mutex_with_lock_count & GetGlobalMutexRef()
 } // namespace Tracker
 
 
-class ComponentManagerSettings
-	: public IComponentManagerSettings
-{
-private:
-	TrackerSettings &conf;
-	mpt::PathString configPath;
-public:
-	ComponentManagerSettings(TrackerSettings &conf, const mpt::PathString &configPath)
-		: conf(conf)
-		, configPath(configPath)
-	{
-		return;
-	}
-	bool LoadOnStartup() const override
-	{
-		return conf.ComponentsLoadOnStartup;
-	}
-	bool KeepLoaded() const override
-	{
-		return conf.ComponentsKeepLoaded;
-	}
-	bool IsBlocked(const std::string &key) const override
-	{
-		return conf.IsComponentBlocked(key);
-	}
-};
-
-
 SettingsContainer &CTrackApp::GetPluginState()
 {
 	MPT_ASSERT(m_pPluginState);
@@ -687,7 +658,7 @@ bool CTrackApp::MoveConfigFile(const mpt::PathString &fileName, mpt::PathString 
 	else
 		newPath += fileName;
 
-	if(!mpt::native_fs{}.is_file(newPath) && mpt::native_fs{}.is_file(oldPath))
+	if(!FileSystem::IsFile(newPath) && FileSystem::IsFile(oldPath))
 	{
 		return Util::MoveFile(oldPath, newPath) != 0;
 	}
@@ -698,28 +669,27 @@ bool CTrackApp::MoveConfigFile(const mpt::PathString &fileName, mpt::PathString 
 // Set up paths were configuration data is written to. Set overridePortable to true if application's own directory should always be used.
 void CTrackApp::SetupPaths(bool overridePortable)
 {
-	std::error_code ec;
-	std::filesystem::path exeDir = std::filesystem::canonical("/proc/self/exe", ec).parent_path();
-	const mpt::PathString exePath = mpt::PathString::FromUTF8(exeDir.string()).WithTrailingSlash();
+	const mpt::PathString exePath = FileSystem::FindApplicationDirectory();
 
-	// Check if we are running from the source tree, which provides the package template next to the sources.
+	// When running from the build directory, the package template is in the openmpt submodule
 	bool modeSourceProject = false;
-	std::filesystem::path sourceRoot = exeDir;
+	std::error_code ec;
+	std::filesystem::path sourceRoot = FileSystem::ToFilesystemPath(exePath);
 	for(int level = 0; level < 8 && sourceRoot.has_parent_path() && sourceRoot != sourceRoot.parent_path(); ++level)
 	{
-		if(std::filesystem::is_directory(sourceRoot / "packageTemplate", ec))
+		sourceRoot = sourceRoot.parent_path();
+		if(std::filesystem::is_directory(sourceRoot / "openmpt" / "packageTemplate", ec))
 		{
 			modeSourceProject = true;
 			break;
 		}
-		sourceRoot = sourceRoot.parent_path();
 	}
 	if(modeSourceProject)
 	{
-		m_InstallPath = mpt::PathString::FromUTF8(sourceRoot.string()).WithTrailingSlash();
+		m_InstallPath = FileSystem::FromFilesystemPath(sourceRoot).WithTrailingSlash();
 		m_InstallBinPath = exePath;
 		m_InstallBinArchPath = exePath;
-		m_InstallPkgPath = mpt::PathString::FromUTF8((sourceRoot / "packageTemplate").string()).WithTrailingSlash();
+		m_InstallPkgPath = FileSystem::FromFilesystemPath(sourceRoot / "openmpt" / "packageTemplate").WithTrailingSlash();
 	} else
 	{
 		m_InstallPath = exePath;
@@ -730,18 +700,11 @@ void CTrackApp::SetupPaths(bool overridePortable)
 
 	// Determine paths and portable mode.
 	const mpt::PathString configPathPortable = modeSourceProject ? exePath : m_InstallPath;
-	mpt::PathString configPathUser;
-	{
-		const char *configHome = std::getenv("XDG_CONFIG_HOME");
-		const char *home = std::getenv("HOME");
-		if(configHome && *configHome)
-			configPathUser = mpt::PathString::FromUTF8(configHome).WithTrailingSlash() + P_("OpenMPT/");
-		else if(home && *home)
-			configPathUser = mpt::PathString::FromUTF8(home).WithTrailingSlash() + P_(".config/OpenMPT/");
-	}
+	const mpt::PathString configDir = FileSystem::FindConfigDirectory();
+	const mpt::PathString configPathUser = configDir.empty() ? mpt::PathString() : (configDir + P_("OpenMPT")).WithTrailingSlash();
 
 	// Check if the user has configured portable mode.
-	const bool configPortableFlag = mpt::native_fs{}.is_file(configPathPortable + P_("OpenMPT.portable"));
+	const bool configPortableFlag = FileSystem::IsFile(configPathPortable + P_("OpenMPT.portable"));
 	const bool portableMode = overridePortable || configPortableFlag || configPathUser.empty();
 
 	m_ConfigPath = portableMode ? configPathPortable : configPathUser;
@@ -760,7 +723,7 @@ void CTrackApp::SetupPaths(bool overridePortable)
 void CTrackApp::CreatePaths()
 {
 	// Create missing directories
-	if(!mpt::native_fs{}.is_directory(m_ConfigPath))
+	if(!FileSystem::IsDirectory(m_ConfigPath))
 	{
 		Util::CreateDirectory(m_ConfigPath);
 	}
@@ -803,20 +766,12 @@ bool CTrackApp::InitInstanceImpl(CMPTCommandLineInfo &cmdInfo)
 
 	// create the tracker-global random device
 	m_RD = std::make_unique<mpt::random_device>();
-	// make the device available to non-tracker-only code
-	mpt::set_global_random_device(m_RD.get());
 	// create and seed the traker-global best PRNG with the random device
 	m_PRNG = std::make_unique<mpt::thread_safe_prng<mpt::default_prng> >(mpt::make_prng<mpt::default_prng>(RandomDevice()));
-	// make the best PRNG available to non-tracker-only code
-	mpt::set_global_prng(m_PRNG.get());
 	// additionally, seed the C rand() PRNG, just in case any third party library calls rand()
 	mpt::crand::reseed(RandomDevice());
 
 	#ifdef MPT_ENABLE_ARCH_INTRINSICS
-		if(!cmdInfo.m_noAssembly)
-		{
-			CPU::EnableAvailableFeatures();
-		}
 	#endif // MPT_ENABLE_ARCH_INTRINSICS
 
 	// Create paths to store configuration in
@@ -836,8 +791,6 @@ bool CTrackApp::InitInstanceImpl(CMPTCommandLineInfo &cmdInfo)
 
 	m_pPluginState = std::make_unique<IniFileSettingsContainer>(m_PluginStateFileName);
 	m_pPluginCache = std::make_unique<IniFileSettingsContainer>(m_szPluginCacheFileName);
-
-	m_pComponentManagerSettings = std::make_unique<ComponentManagerSettings>(TrackerSettings::Instance(), GetConfigPath());
 
 	// create main frame window
 	CMainFrame *pMainFrame = new CMainFrame();
@@ -859,12 +812,6 @@ bool CTrackApp::InitInstanceImpl(CMPTCommandLineInfo &cmdInfo)
 		StartSplashScreen();
 	}
 
-	// create component manager
-	ComponentManager::Init(*m_pComponentManagerSettings);
-
-	// load components
-	ComponentManager::Instance()->Startup();
-
 	// Register document templates
 	{
 		auto modTemplate = std::make_unique<CModDocTemplate>(
@@ -884,14 +831,13 @@ bool CTrackApp::InitInstanceImpl(CMPTCommandLineInfo &cmdInfo)
 	appInfo.BoostedThreadRealtimePosix = TrackerSettings::Instance().SoundBoostedThreadRealtimePosix;
 	appInfo.BoostedThreadNicenessPosix = TrackerSettings::Instance().SoundBoostedThreadNicenessPosix;
 	appInfo.BoostedThreadRtprioPosix = TrackerSettings::Instance().SoundBoostedThreadRtprioPosix;
-	appInfo.MaskDriverCrashes = TrackerSettings::Instance().SoundMaskDriverCrashes;
 	appInfo.AllowDeferredProcessing = TrackerSettings::Instance().SoundAllowDeferredProcessing;
 	std::vector<std::shared_ptr<SoundDevice::IDevicesEnumerator>> deviceEnumerators = SoundDevice::Manager::GetEnabledEnumerators(*m_pAllSoundDeviceComponents);
 	m_pSoundDevicesManager = std::make_unique<SoundDevice::Manager>(m_GlobalLogger, sysInfo, appInfo, std::move(deviceEnumerators));
 	m_pTrackerSettings->MigrateOldSoundDeviceSettings(*m_pSoundDevicesManager);
 
 	// Set default note names
-	CSoundFile::SetDefaultNoteNames();
+	CTrackerSoundFile::SetDefaultNoteNames();
 
 	// Load Soundfonts and default MIDI Library
 	if(!cmdInfo.m_noDls)
@@ -993,10 +939,6 @@ int CTrackApp::ExitInstanceImpl()
 	m_pSoundDevicesManager.reset();
 	m_pAllSoundDeviceComponents.reset();
 
-	ComponentManager::Release();
-
-	m_pComponentManagerSettings.reset();
-
 	m_pPluginCache.reset();
 	m_pPluginState.reset();
 
@@ -1008,9 +950,7 @@ int CTrackApp::ExitInstanceImpl()
 	m_pSettings.reset();
 	m_pSettingsIniFile.reset();
 
-	mpt::set_global_prng(nullptr);
 	m_PRNG.reset();
-	mpt::set_global_random_device(nullptr);
 	m_RD.reset();
 
 #ifdef USE_PROFILER
@@ -1038,7 +978,7 @@ CModDoc *CTrackApp::NewDocument(MODTYPE newType)
 			const mpt::PathString dirs[] = { GetUserTemplatesPath(), GetInstallPkgPath() + P_("TemplateModules/"), mpt::PathString() };
 			for(const auto &dir : dirs)
 			{
-				if(mpt::native_fs{}.is_file(dir + templateFile))
+				if(FileSystem::IsFile(dir + templateFile))
 				{
 					if(CModDoc *modDoc = static_cast<CModDoc *>(m_pModTemplate->OpenTemplateFile(dir + templateFile)))
 					{
@@ -1263,6 +1203,12 @@ bool CTrackApp::OnIdle(int32 lCount)
 		if (curTime - m_dwLastPluginIdleCall > 20 || curTime < m_dwLastPluginIdleCall)
 		{
 			m_pPluginManager->OnIdle();
+			// Each module has its own plugin manager in libopenmpt
+			for(CModDoc *modDoc : GetOpenDocuments())
+			{
+				if(const auto &pluginManager = modDoc->GetSoundFile().m_PluginManager)
+					pluginManager->OnIdle();
+			}
 			m_dwLastPluginIdleCall = curTime;
 		}
 	}
@@ -1600,6 +1546,7 @@ static const auto PLUGFORMAT_SHELLID = MPT_UFORMAT("Plugin{}.ShellPluginID");
 void CTrackApp::InitializeDXPlugins()
 {
 	m_pPluginManager = new CVstPluginManager;
+	PluginUi::RegisterTrackerPlugins(*m_pPluginManager);
 	const size_t numPlugins = GetSettings().Read<int32>(UL_("VST Plugins"), UL_("NumPlugins"), 0);
 
 	bool maskCrashes = TrackerSettings::Instance().BrokenPluginsWorkaroundVSTMaskAllCrashes;
@@ -1615,7 +1562,7 @@ void CTrackApp::InitializeDXPlugins()
 	// Read tags for built-in plugins
 	for(auto &plug : *m_pPluginManager)
 	{
-		plug->tags = GetSettings().Read<mpt::ustring>(UL_("VST Plugins"), PLUGFORMAT_TAGS_BUILTIN(mpt::ufmt::HEX0<8>(plug->pluginId1), mpt::ufmt::HEX0<8>(plug->pluginId2)));
+		PluginUi::SetLibraryTags(*plug, GetSettings().Read<mpt::ustring>(UL_("VST Plugins"), PLUGFORMAT_TAGS_BUILTIN(mpt::ufmt::HEX0<8>(plug->pluginId1), mpt::ufmt::HEX0<8>(plug->pluginId2))));
 	}
 
 	// Restructured plugin cache
@@ -1677,7 +1624,7 @@ void CTrackApp::InitializeDXPlugins()
 			if(shellPluginID && lib->shellPluginID != shellPluginID)
 				continue;
 
-			lib->tags = GetSettings().Read<mpt::ustring>(UL_("VST Plugins"), PLUGFORMAT_TAGS(plug));
+			PluginUi::SetLibraryTags(*lib, GetSettings().Read<mpt::ustring>(UL_("VST Plugins"), PLUGFORMAT_TAGS(plug)));
 			if(shellPluginID != 0)
 			{
 				if(mpt::PathString libName = GetSettings().Read<mpt::PathString>(UL_("VST Plugins"), PLUGFORMAT_LIBNAME(plug)); !libName.empty())
@@ -1725,12 +1672,12 @@ void CTrackApp::UninitializeDXPlugins()
 			}
 
 			theApp.GetSettings().Write<mpt::PathString>(UL_("VST Plugins"), PLUGFORMAT_FILENAME(plugIndex), plugPath);
-			theApp.GetSettings().Write(UL_("VST Plugins"), PLUGFORMAT_TAGS(plugIndex), plug->tags);
+			theApp.GetSettings().Write(UL_("VST Plugins"), PLUGFORMAT_TAGS(plugIndex), PluginUi::GetLibraryTags(*plug));
 
 			plugIndex++;
 		} else
 		{
-			theApp.GetSettings().Write(UL_("VST Plugins"), PLUGFORMAT_TAGS_BUILTIN(mpt::ufmt::HEX0<8>(plug->pluginId1), mpt::ufmt::HEX0<8>(plug->pluginId2)), plug->tags);
+			theApp.GetSettings().Write(UL_("VST Plugins"), PLUGFORMAT_TAGS_BUILTIN(mpt::ufmt::HEX0<8>(plug->pluginId1), mpt::ufmt::HEX0<8>(plug->pluginId2)), PluginUi::GetLibraryTags(*plug));
 		}
 	}
 	theApp.GetSettings().Write(UL_("VST Plugins"), UL_("NumPlugins"), static_cast<uint32>(plugIndex));
@@ -1771,7 +1718,7 @@ bool CTrackApp::OpenURL(const mpt::PathString &lpszURL)
 
 bool CTrackApp::OpenDirectory(const mpt::PathString &directory)
 {
-	if(mpt::native_fs{}.is_file(directory))
+	if(FileSystem::IsFile(directory))
 		return OpenURL(directory.GetDirectoryWithDrive());
 	else
 		return OpenURL(directory);
@@ -1911,9 +1858,7 @@ bool ValidateMacroString(Edit &wnd, const std::string_view prevMacro, bool isPar
 static constexpr std::pair<const mpt::uchar*, const mpt::uchar*> SampleFormats[]
 {
 	{ UL_("Wave Files (*.wav)"), UL_("*.wav") },
-#ifdef MPT_WITH_FLAC
 	{ UL_("FLAC Files (*.flac,*.oga)"), UL_("*.flac;*.oga") },
-#endif  // MPT_WITH_FLAC
 #if defined(MPT_WITH_OPUSFILE)
 	{ UL_("Opus Files (*.opus,*.oga)"), UL_("*.opus;*.oga") },
 #endif  // MPT_WITH_OPUSFILE

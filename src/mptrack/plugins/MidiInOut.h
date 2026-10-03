@@ -14,7 +14,7 @@
 #include "../ui/Ui.h"
 
 #include "mpt/mutex/mutex.hpp"
-#include "../../misc/mptClock.h"
+#include "openmpt_ext/misc/mptClockExt.h"
 #include "../../soundlib/plugins/PlugInterface.h"
 #include <rtmidi/RtMidi.h>
 #include <array>
@@ -191,19 +191,15 @@ public:
 	// If false is returned, mixing this plugin can be skipped if its input are currently completely silent.
 	bool ShouldProcessSilence() final { return true; }
 
-	mpt::ustring GetDefaultEffectName() final { return UL_("MIDI Input / Output"); }
-
-	mpt::ustring GetParamName(PlugParamIndex param) final;
-	mpt::ustring GetParamLabel(PlugParamIndex) final{ return mpt::ustring(); }
-	mpt::ustring GetParamDisplay(PlugParamIndex param) final;
-	mpt::ustring GetCurrentProgramName() final { return m_programName; }
-	void SetCurrentProgramName(const mpt::ustring &name) final { m_programName = name; }
-	mpt::ustring GetProgramName(int32) final { return m_programName; }
-	mpt::ustring GetPluginVendor() { return UL_("OpenMPT Project"); }
-
-	bool HasEditor() const final { return true; }
-protected:
-	CAbstractVstEditor *OpenEditor() final;
+	// Plugin UI, which libopenmpt's IMixPlugin does not declare. Accessed through PluginUi.
+	mpt::ustring GetDefaultEffectName() const { return UL_("MIDI Input / Output"); }
+	mpt::ustring GetParamName(PlugParamIndex param) const;
+	mpt::ustring GetParamDisplay(PlugParamIndex param);
+	mpt::ustring GetCurrentProgramName() const { return m_programName; }
+	void SetCurrentProgramName(const mpt::ustring &name) { m_programName = name; }
+	mpt::ustring GetProgramName(int32) const { return m_programName; }
+	mpt::ustring GetPluginVendor() const { return UL_("OpenMPT Project"); }
+	CAbstractVstEditor *OpenEditor();
 
 public:
 	int GetNumInputChannels() const final { return 0; }

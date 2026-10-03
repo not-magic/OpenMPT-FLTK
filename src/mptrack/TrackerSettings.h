@@ -21,8 +21,7 @@
 #include "openmpt/soundbase/SampleFormat.hpp"
 #include "../soundlib/MixerSettings.h"
 #include "../soundlib/Resampler.h"
-#include "../sounddsp/EQ.h"
-#include "../sounddsp/DSP.h"
+#include "openmpt_ext/sounddsp/SoundDspExt.h"
 #include "../sounddsp/Reverb.h"
 #include "mpt/format/join.hpp"
 #include "mpt/parse/parse.hpp"
@@ -166,7 +165,6 @@ enum class MidiSetup : int32
 DECLARE_FLAGSET(MidiSetup)
 
 
-#ifndef NO_EQ
 
 // EQ
 
@@ -205,7 +203,6 @@ template<> inline EQPreset FromSettingValue(const SettingValue &val)
 	return valresult;
 }
 
-#endif // !NO_EQ
 
 
 template<> inline SettingValue ToSettingValue(const mpt::UUID &val) { return SettingValue(val.ToUString()); }
@@ -672,6 +669,8 @@ private:
 
 #if !defined(MPT_LOG_IS_DISABLED)
 	Setting<int> DebugLogLevel;
+#endif
+#if defined(MODPLUG_TRACKER) && !defined(MPT_LOG_IS_DISABLED)
 	Setting<std::string> DebugLogFacilitySolo;
 	Setting<std::string> DebugLogFacilityBlocked;
 	Setting<bool> DebugLogFileEnable;
@@ -831,7 +830,6 @@ public:
 	Setting<bool> SoundBoostedThreadRealtimePosix;
 	Setting<int> SoundBoostedThreadNicenessPosix;
 	Setting<int> SoundBoostedThreadRtprioPosix;
-	Setting<bool> SoundMaskDriverCrashes;
 	Setting<bool> SoundAllowDeferredProcessing;
 
 	// MIDI Settings
@@ -909,28 +907,17 @@ public:
 
 	// Components
 
-	Setting<bool> ComponentsLoadOnStartup;
-	Setting<bool> ComponentsKeepLoaded;
-	bool IsComponentBlocked(const std::string &name);
 
 	// Effects
 
 #ifndef NO_REVERB
 	CReverbSettings m_ReverbSettings;
 #endif
-#ifndef NO_DSP
 	CSurroundSettings m_SurroundSettings;
-#endif
-#ifndef NO_DSP
 	CMegaBassSettings m_MegaBassSettings;
-#endif
-#ifndef NO_EQ
 	EQPreset m_EqSettings;
 	EQPreset m_EqUserPresets[4];
-#endif
-#ifndef NO_DSP
 	BitCrushSettings m_BitCrushSettings;
-#endif
 
 	// Display (Colors)
 
@@ -1037,11 +1024,9 @@ protected:
 
 	static std::vector<uint32> GetDefaultSampleRates();
 
-#ifndef NO_EQ
 
 	void FixupEQ(EQPreset &eqSettings);
 
-#endif // !NO_EQ
 
 	void LoadChords(MPTChords &chords);
 	void SaveChords(MPTChords &chords);

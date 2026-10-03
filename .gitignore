@@ -1,7 +1,1 @@
 /build/
-*.o
-*.d
-/src/bin/
-/src/build/ninja-linux/
-/src/build/fltk-linux/
-/src/include/premake/

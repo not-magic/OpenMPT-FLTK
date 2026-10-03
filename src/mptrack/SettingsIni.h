@@ -18,7 +18,7 @@
 
 #include "mpt/base/integer.hpp"
 #include "mpt/base/span.hpp"
-#include "mpt/io_file_atomic/atomic_file.hpp"
+#include "openmpt_ext/common/AtomicFileExt.h"
 #include "mpt/string/types.hpp"
 
 #include <list>
@@ -91,7 +91,7 @@ class IniFileBase
 {
 protected:
 	const mpt::PathString filename;
-	mpt::IO::atomic_shared_file_ref file;
+	AtomicSharedFile file;
 	std::optional<Caching> sync_default;
 protected:
 	IniFileBase(mpt::PathString filename_, std::optional<Caching> sync_hint);

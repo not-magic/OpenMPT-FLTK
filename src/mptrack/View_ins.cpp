@@ -500,7 +500,7 @@ bool CViewInstrument::EnvSetSustainStart(int nPoint)
 		return false;
 
 	// We won't do any security checks here as GetEnvelopePtr() does that for us.
-	CSoundFile &sndFile = GetDocument()->GetSoundFile();
+	CTrackerSoundFile &sndFile = GetDocument()->GetSoundFile();
 
 	if(nPoint != envelope->nSustainStart)
 	{
@@ -524,7 +524,7 @@ bool CViewInstrument::EnvSetSustainEnd(int nPoint)
 		return false;
 
 	// We won't do any security checks here as GetEnvelopePtr() does that for us.
-	CSoundFile &sndFile = GetDocument()->GetSoundFile();
+	CTrackerSoundFile &sndFile = GetDocument()->GetSoundFile();
 
 	if(nPoint != envelope->nSustainEnd)
 	{
@@ -582,7 +582,7 @@ bool CViewInstrument::EnvSetFlag(EnvelopeFlags flag, bool enable)
 }
 
 
-bool CViewInstrument::EnvToggleEnv(EnvelopeType envelope, CSoundFile &sndFile, ModInstrument &ins, bool enable, EnvelopeNode::value_t defaultValue, EnvelopeFlags extraFlags)
+bool CViewInstrument::EnvToggleEnv(EnvelopeType envelope, CTrackerSoundFile &sndFile, ModInstrument &ins, bool enable, EnvelopeNode::value_t defaultValue, EnvelopeFlags extraFlags)
 {
 	InstrumentEnvelope &env = ins.GetEnvelope(envelope);
 
@@ -597,7 +597,7 @@ bool CViewInstrument::EnvToggleEnv(EnvelopeType envelope, CSoundFile &sndFile, M
 		InvalidateRect(NULL, false);
 	}
 
-	CriticalSection cs;
+	TrackerCriticalSection cs;
 
 	// Update mixing flags...
 	for(auto &chn : sndFile.m_PlayState.Chn)
@@ -779,7 +779,7 @@ void CViewInstrument::UpdateNcButtonState()
 	CModDoc *pModDoc = GetDocument();
 	if(!pModDoc)
 		return;
-	CSoundFile &sndFile = pModDoc->GetSoundFile();
+	CTrackerSoundFile &sndFile = pModDoc->GetSoundFile();
 
 	ui::Painter *pDC = NULL;
 	for (uint32 i=0; i<ENV_LEFTBAR_BUTTONS; i++) if (cLeftBarButtons[i] != ID_SEPARATOR)
@@ -1615,7 +1615,7 @@ void CViewInstrument::OnRButtonUp(uint32 flags, Point pt)
 	const CModDoc *pModDoc = GetDocument();
 	if(!pModDoc)
 		return;
-	const CSoundFile &sndFile = GetDocument()->GetSoundFile();
+	const CTrackerSoundFile &sndFile = GetDocument()->GetSoundFile();
 
 	if(m_dwStatus & INSSTATUS_DRAGGING)
 		return;
@@ -1884,7 +1884,7 @@ void CViewInstrument::PlayNote(ModCommand::NOTE note)
 	{
 		if(m_nInstrument && !m_baPlayingNote[note])
 		{
-			CSoundFile &sndFile = pModDoc->GetSoundFile();
+			CTrackerSoundFile &sndFile = pModDoc->GetSoundFile();
 			ModInstrument *pIns = sndFile.Instruments[m_nInstrument];
 			if((!pIns) || (!pIns->Keyboard[note - NOTE_MIN] && !pIns->nMixPlug))
 				return;
@@ -1977,7 +1977,7 @@ LResult CViewInstrument::OnCustomKeyMsg(WParam wParam, LParam)
 	CModDoc *pModDoc = GetDocument();
 	if(!pModDoc)
 		return kcNull;
-	CSoundFile &sndFile = pModDoc->GetSoundFile();
+	CTrackerSoundFile &sndFile = pModDoc->GetSoundFile();
 
 	switch(wParam)
 	{
@@ -2067,7 +2067,7 @@ void CViewInstrument::OnEnvelopeScalePoints()
 	CModDoc *pModDoc = GetDocument();
 	if(pModDoc == nullptr)
 		return;
-	const CSoundFile &sndFile = pModDoc->GetSoundFile();
+	const CTrackerSoundFile &sndFile = pModDoc->GetSoundFile();
 
 	if(m_nInstrument >= 1
 	   && m_nInstrument <= sndFile.GetNumInstruments()

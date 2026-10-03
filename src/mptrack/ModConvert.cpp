@@ -47,6 +47,7 @@
 #include "../soundlib/mod_specifications.h"
 #include "../soundlib/modsmp_ctrl.h"
 #include "../tracklib/SampleEdit.h"
+#include "ModSequenceExt.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -123,7 +124,7 @@ bool CModDoc::ChangeModType(MODTYPE nNewType)
 			"and resize all patterns to 64 rows.\n"
 			"Do you want to continue?", "Warning") != cnfYes) return false;
 		BeginWaitCursor();
-		CriticalSection cs;
+		TrackerCriticalSection cs;
 
 		// Converting instruments to samples
 		if(m_SndFile.GetNumInstruments())
@@ -494,7 +495,7 @@ bool CModDoc::ChangeModType(MODTYPE nNewType)
 		if(m_SndFile.Order(seq).GetRestartPos() > 0 && !specs.hasRestartPos)
 		{
 			// Try to fix it by placing a pattern jump command in the pattern.
-			if(!m_SndFile.Order.WriteGlobalsToPattern(seq, true, false))
+			if(!WriteGlobalsToPattern(m_SndFile, seq, true, false))
 			{
 				// Couldn't fix it! :(
 				warnings.set(wRestartPos);
@@ -548,7 +549,7 @@ bool CModDoc::ChangeModType(MODTYPE nNewType)
 		warnings.set(wVolRamp);
 	}
 
-	CriticalSection cs;
+	TrackerCriticalSection cs;
 	m_SndFile.ChangeModTypeTo(nNewType);
 
 	// In case we need to update IT bidi loop handling pre-computation or loops got changed...

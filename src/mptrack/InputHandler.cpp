@@ -18,7 +18,6 @@
 #include "TrackerSettings.h"
 #include "WindowMessages.h"
 #include "../soundlib/MIDIEvents.h"
-#include "mpt/fs/fs.hpp"
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -47,7 +46,7 @@ CInputHandler::CInputHandler(Wnd *mainframe)
 
 	if(noExistingKbdFileSetting || !m_activeCommandSet->LoadFile(TrackerSettings::Instance().m_szKbdFile))
 	{
-		if(!mpt::native_fs{}.is_file(defaultPath) || !m_activeCommandSet->LoadFile(defaultPath))
+		if(!FileSystem::IsFile(defaultPath) || !m_activeCommandSet->LoadFile(defaultPath))
 		{
 			// Load keybindings from resources.
 			MPT_LOG_GLOBAL(LogDebug, "InputHandler", UL_("Loading keybindings from resources\n"));

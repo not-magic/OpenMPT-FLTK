@@ -39,7 +39,7 @@
 #include "TempoSwingDialog.h"
 #include "WindowMessages.h"
 #include "../common/mptStringBuffer.h"
-#include "../common/mptFileTemporary.h"
+#include "openmpt_ext/common/mptFileTemporaryExt.h"
 #include "../common/mptFileIO.h"
 #include "../common/version.h"
 #include "../common/FileReader.h"
@@ -53,12 +53,13 @@
 
 #include "mpt/binary/hex.hpp"
 #include "mpt/base/numbers.hpp"
-#include "mpt/fs/fs.hpp"
 #include "mpt/io_file/inputfile.hpp"
 #include "mpt/io_file_read/inputfile_filecursor.hpp"
 #include "mpt/io_file/outputfile.hpp"
 #include "mpt/io/io.hpp"
 #include "mpt/io/io_stdstream.hpp"
+#include "PluginUi.h"
+#include "MIDIMacrosExt.h"
 
 #include <sstream>
 
@@ -73,7 +74,7 @@ const mpt::uchar FileFilterIT[]	= UL_("Impulse Tracker Modules (*.it)|*.it||");
 const mpt::uchar FileFilterMPT[] = UL_("OpenMPT Modules (*.mptm)|*.mptm||");
 const mpt::uchar FileFilterNone[] = UL_("");
 
-const mpt::ustring ModTypeToFilter(const CSoundFile& sndFile)
+const mpt::ustring ModTypeToFilter(const CTrackerSoundFile& sndFile)
 {
 	const MODTYPE modtype = sndFile.GetType();
 	switch(modtype)
@@ -237,9 +238,11 @@ bool CModDoc::OnOpenDocument(const mpt::PathString &filename)
 	if((GetModType() == MOD_TYPE_NONE) || (!m_SndFile.GetNumChannels()))
 		return false;
 
-	const bool noColors = std::find_if(std::begin(m_SndFile.ChnSettings), std::begin(m_SndFile.ChnSettings) + GetNumChannels(), [](const auto &settings) {
-		return settings.color != ModChannelSettings::INVALID_COLOR;
-	}) == std::begin(m_SndFile.ChnSettings) + GetNumChannels();
+	bool noColors = true;
+	for(CHANNELINDEX chn = 0; chn < GetNumChannels(); ++chn)
+	{
+		noColors = noColors && !m_SndFile.HasChannelColor(chn);
+	}
 	if(noColors)
 	{
 		SetDefaultChannelColors();
@@ -539,10 +542,10 @@ bool CModDoc::DoSave(const mpt::PathString &filename, bool setPath)
 	if((TrackerSettings::Instance().CreateBackupFiles)
 		&& (IsModified()) && (!mpt::PathCompareNoCase(saveFileName, docFileName)))
 	{
-		if(mpt::native_fs{}.is_file(saveFileName))
+		if(FileSystem::IsFile(saveFileName))
 		{
 			mpt::PathString backupFileName = saveFileName.ReplaceExtension(P_(".bak"));
-			if(mpt::native_fs{}.is_file(backupFileName))
+			if(FileSystem::IsFile(backupFileName))
 			{
 				Util::DeleteFile(backupFileName);
 			}
@@ -574,7 +577,7 @@ void CModDoc::OnAppendModule()
 	ScopedLogCapturer logcapture(*this, UL_("Append Failures"));
 	try
 	{
-		auto source = std::make_unique<CSoundFile>();
+		auto source = std::make_unique<CTrackerSoundFile>();
 		for(const auto &file : files)
 		{
 			mpt::IO::InputFile f(file, TrackerSettings::Instance().MiscCacheCompleteFileBeforeLoading);
@@ -698,7 +701,7 @@ void CModDoc::InitChannel(CHANNELINDEX chn)
 		return;
 
 	SetChannelRecordGroup(chn, RecordGroup::NoGroup);
-	m_SndFile.m_PlayState.Chn[chn].Reset(ModChannel::resetTotal, m_SndFile, chn, CSoundFile::GetChannelMuteFlag());
+	m_SndFile.m_PlayState.Chn[chn].Reset(ModChannel::resetTotal, m_SndFile, chn, CTrackerSoundFile::GetChannelMuteFlag());
 	m_SndFile.m_bChannelMuteTogglePending[chn] = false;
 }
 
@@ -734,9 +737,9 @@ bool CModDoc::SetDefaultChannelColors(CHANNELINDEX minChannel, CHANNELINDEX maxC
 			const double g = brightness * (1 + saturation * (std::cos(hue - 2.09439) - 1.0));
 			const double b = brightness * (1 + saturation * (std::cos(hue + 2.09439) - 1.0));
 			const auto color = RGB(mpt::saturate_round<uint8>(r * 255), mpt::saturate_round<uint8>(g * 255), mpt::saturate_round<uint8>(b * 255));
-			if(m_SndFile.ChnSettings[i].color != color)
+			if(m_SndFile.GetChannelColor(i) != color)
 			{
-				m_SndFile.ChnSettings[i].color = color;
+				m_SndFile.SetChannelColor(i, color);
 				modified = true;
 			}
 		}
@@ -744,9 +747,9 @@ bool CModDoc::SetDefaultChannelColors(CHANNELINDEX minChannel, CHANNELINDEX maxC
 	{
 		for(CHANNELINDEX i = minChannel; i < maxChannel; i++)
 		{
-			if(m_SndFile.ChnSettings[i].color != ModChannelSettings::INVALID_COLOR)
+			if(m_SndFile.HasChannelColor(i))
 			{
-				m_SndFile.ChnSettings[i].color = ModChannelSettings::INVALID_COLOR;
+				m_SndFile.SetChannelColor(i, CTrackerSoundFile::INVALID_CHANNEL_COLOR);
 				modified = true;
 			}
 		}
@@ -1050,7 +1053,7 @@ CHANNELINDEX CModDoc::PlayNote(PlayNoteParam &params, NoteToChannelMap *noteChan
 			pMainFrm->PlayMod(this);
 		}
 
-		CriticalSection cs;
+		TrackerCriticalSection cs;
 
 		if(params.m_notesPlaying)
 			CheckNNA(note, params.m_instr, *params.m_notesPlaying);
@@ -1166,7 +1169,7 @@ CHANNELINDEX CModDoc::PlayNote(PlayNoteParam &params, NoteToChannelMap *noteChan
 		}
 	} else
 	{
-		CriticalSection cs;
+		TrackerCriticalSection cs;
 		// Apply note cut / off / fade (also on preview channels)
 		m_SndFile.NoteChange(m_SndFile.m_PlayState.Chn[channel], note);
 		for(ModChannel &chn : m_SndFile.m_PlayState.BackgroundChannels(m_SndFile))
@@ -1183,7 +1186,7 @@ CHANNELINDEX CModDoc::PlayNote(PlayNoteParam &params, NoteToChannelMap *noteChan
 
 bool CModDoc::NoteOff(uint32 note, bool fade, INSTRUMENTINDEX ins, CHANNELINDEX currentChn)
 {
-	CriticalSection cs;
+	TrackerCriticalSection cs;
 
 	const ModInstrument *pIns = nullptr;
 	IMixPlugin *pPlugin = nullptr;
@@ -1322,7 +1325,7 @@ bool CModDoc::MuteChannel(CHANNELINDEX nChn, bool doMute)
 
 bool CModDoc::UpdateChannelMuteStatus(CHANNELINDEX nChn)
 {
-	const ChannelFlags muteType = CSoundFile::GetChannelMuteFlag();
+	const ChannelFlags muteType = CTrackerSoundFile::GetChannelMuteFlag();
 
 	if(nChn >= m_SndFile.GetNumChannels())
 		return false;
@@ -1639,9 +1642,9 @@ void CModDoc::UpdateAllViews(View *pSender, UpdateHint hint, HintObject *pHint)
 		for(auto &plug : m_SndFile.m_MixPlugins)
 		{
 			auto mixPlug = plug.pMixPlugin;
-			if(mixPlug != nullptr && mixPlug->GetEditor() && mixPlug->GetEditor() != pHint)
+			if(mixPlug != nullptr && PluginUi(*mixPlug).GetEditor() && PluginUi(*mixPlug).GetEditor() != pHint)
 			{
-				mixPlug->GetEditor()->UpdateView(hint);
+				PluginUi(*mixPlug).GetEditor()->UpdateView(hint);
 			}
 		}
 	}
@@ -2114,7 +2117,7 @@ void CModDoc::OnPlayerPlay()
 			return;
 		}
 
-		CriticalSection cs;
+		TrackerCriticalSection cs;
 
 		// Kill editor voices
 		for(ModChannel &chn : m_SndFile.m_PlayState.BackgroundChannels(m_SndFile))
@@ -2157,7 +2160,7 @@ void CModDoc::OnPlayerPause()
 
 			if ((isLooping) && (nPat < m_SndFile.Patterns.Size()))
 			{
-				CriticalSection cs;
+				TrackerCriticalSection cs;
 
 				if ((m_SndFile.m_PlayState.m_nCurrentOrder < m_SndFile.Order().GetLength()) && (m_SndFile.Order()[m_SndFile.m_PlayState.m_nCurrentOrder] == nPat))
 				{
@@ -2209,7 +2212,7 @@ void CModDoc::OnPlayerPlayFromStart()
 		}
 
 		pMainFrm->PauseMod();
-		CriticalSection cs;
+		TrackerCriticalSection cs;
 		m_SndFile.m_PlayState.m_flags.reset(SONG_STEP | SONG_PATTERNLOOP);
 		m_SndFile.ResetPlayPos();
 		//m_SndFile.visitedSongRows.Initialize(true);
@@ -2507,7 +2510,7 @@ void CModDoc::OnPatternRestart(bool loop)
 		GetEditPosition(nRow, nPat, nOrd);
 		CModDoc *pModPlaying = pMainFrm->GetModPlaying();
 
-		CriticalSection cs;
+		TrackerCriticalSection cs;
 
 		// Cut instruments/samples
 		for(auto &chn : m_SndFile.m_PlayState.Chn)
@@ -2563,7 +2566,7 @@ void CModDoc::OnPatternPlay()
 		GetEditPosition(nRow, nPat, nOrd);
 		CModDoc *pModPlaying = pMainFrm->GetModPlaying();
 
-		CriticalSection cs;
+		TrackerCriticalSection cs;
 
 		// Cut instruments/samples
 		for(ModChannel &chn : m_SndFile.m_PlayState.BackgroundChannels(m_SndFile))
@@ -2614,7 +2617,7 @@ void CModDoc::OnPatternPlayNoLoop()
 		GetEditPosition(nRow, nPat, nOrd);
 		CModDoc *pModPlaying = pMainFrm->GetModPlaying();
 
-		CriticalSection cs;
+		TrackerCriticalSection cs;
 		// Cut instruments/samples
 		for(ModChannel &chn : m_SndFile.m_PlayState.BackgroundChannels(m_SndFile))
 		{
@@ -2790,9 +2793,9 @@ void CModDoc::TogglePluginEditor(uint32 plugin, bool onlyThisEditor)
 				for(PLUGINDEX i = 0; i < MAX_MIXPLUGINS; i++)
 				{
 					SNDMIXPLUGIN &otherPlug = m_SndFile.m_MixPlugins[i];
-					if(i != plugin && otherPlug.pMixPlugin != nullptr && otherPlug.pMixPlugin->GetEditor() != nullptr)
+					if(i != plugin && otherPlug.pMixPlugin != nullptr && PluginUi(*otherPlug.pMixPlugin).GetEditor() != nullptr)
 					{
-						otherPlug.pMixPlugin->CloseEditor();
+						PluginUi(*otherPlug.pMixPlugin).CloseEditor();
 						if(otherPlug.editorX != int32_min)
 						{
 							posX = otherPlug.editorX;
@@ -2807,7 +2810,7 @@ void CModDoc::TogglePluginEditor(uint32 plugin, bool onlyThisEditor)
 				}
 			}
 
-			pPlugin->ToggleEditor();
+			PluginUi(*pPlugin).ToggleEditor();
 		}
 	}
 }
@@ -2880,7 +2883,7 @@ void CModDoc::LearnMacro(int macroToSet, PlugParamIndex paramToUse)
 	}
 
 	// If macro already exists for this param, inform user and return
-	if(auto macro = m_SndFile.m_MidiCfg.FindMacroForParam(paramToUse); macro >= 0)
+	if(auto macro = FindMacroForParam(m_SndFile.m_MidiCfg, paramToUse); macro >= 0)
 	{
 		mpt::ustring message;
 		message = ui::Format(UL_("Parameter %i can already be controlled with macro %X."), static_cast<int>(paramToUse), macro);
@@ -3077,7 +3080,7 @@ void CModDoc::SafeFileClose()
 // "Panic button". This resets all VSTi, OPL and sample notes.
 void CModDoc::OnPanic()
 {
-	CriticalSection cs;
+	TrackerCriticalSection cs;
 	m_SndFile.ResetChannels();
 	m_SndFile.StopAllVsti();
 }
@@ -3102,7 +3105,7 @@ void CModDoc::OnSaveTemplateModule()
 {
 	// Create template folder if doesn't exist already.
 	const mpt::PathString templateFolder = theApp.GetUserTemplatesPath();
-	if (!mpt::native_fs{}.is_directory(templateFolder))
+	if (!FileSystem::IsDirectory(templateFolder))
 	{
 		if (!Util::CreateDirectory(templateFolder))
 		{
@@ -3117,7 +3120,7 @@ void CModDoc::OnSaveTemplateModule()
 	{
 		sName += P_("newTemplate") + mpt::PathString::FromUnicode(mpt::ufmt::val(i));
 		sName += P_(".") + mpt::PathString::FromUnicode(m_SndFile.GetModSpecifications().GetFileExtension());
-		if (!mpt::native_fs{}.exists(templateFolder + sName))
+		if (!FileSystem::Exists(templateFolder + sName))
 			break;
 	}
 
@@ -3212,7 +3215,7 @@ void CModDoc::UpdateOPLInstrument(SAMPLEINDEX smp)
 	if(!sample.uFlags[CHN_ADLIB] || !m_SndFile.m_opl || CMainFrame::GetMainFrame()->GetModPlaying() != this)
 		return;
 
-	CriticalSection cs;
+	TrackerCriticalSection cs;
 	const auto &patch = sample.adlib;
 	for(CHANNELINDEX chn = 0; chn < MAX_CHANNELS; chn++)
 	{

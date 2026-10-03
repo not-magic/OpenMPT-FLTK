@@ -50,7 +50,7 @@ protected:
 #define MIN_BASEOCTAVE		0
 #define MAX_BASEOCTAVE		8
 
-class CSoundFile;
+class CTrackerSoundFile;
 class CModDoc;
 class CModTree;
 class CMainFrame;
@@ -79,7 +79,7 @@ public:
 	void Init(CMainFrame *);
 	uint32 GetBaseOctave() const;
 	void SetBaseOctave(uint32 nOctave);
-	void SetCurrentSong(CSoundFile *pModDoc);
+	void SetCurrentSong(CTrackerSoundFile *pModDoc);
 
 	bool ToggleVisibility(MainToolBarItem item);
 

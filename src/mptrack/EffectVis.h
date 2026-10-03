@@ -20,7 +20,7 @@ OPENMPT_NAMESPACE_BEGIN
 
 class CViewPattern;
 class CModDoc;
-class CSoundFile;
+class CTrackerSoundFile;
 
 // EffectVis dialog
 class CEffectVis : public DialogBase
@@ -91,7 +91,7 @@ protected:
 
 protected:
 	CModDoc &m_ModDoc;
-	CSoundFile &m_SndFile;
+	CTrackerSoundFile &m_SndFile;
 	CViewPattern *m_pViewPattern = nullptr;
 	Rect m_rcDraw;
 	Rect m_rcFullWin;

@@ -69,7 +69,7 @@ protected:
 	bool SetCurrentSample(SAMPLEINDEX nSmp, int32 lZoom = -1, bool bUpdNum = true);
 	bool InsertSample(bool duplicate, int8 *confirm = nullptr);
 	bool OpenSample(const mpt::PathString &fileName, FlagSet<OpenSampleTypes> types = OpenSampleKnown | OpenSampleRaw);
-	bool OpenSample(const CSoundFile &sndFile, SAMPLEINDEX nSample);
+	bool OpenSample(const CTrackerSoundFile &sndFile, SAMPLEINDEX nSample);
 	void OpenSamples(const std::vector<mpt::PathString> &files, FlagSet<OpenSampleTypes> types);
 	void SaveSample(bool doBatchSave);
 

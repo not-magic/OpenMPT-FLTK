@@ -20,13 +20,13 @@
 OPENMPT_NAMESPACE_BEGIN
 
 class CModDoc;
-class CSoundFile;
+class CTrackerSoundFile;
 
 class MissingExternalSamplesDlg : public ResizableDialog
 {
 protected:
 	CModDoc &m_modDoc;
-	CSoundFile &m_sndFile;
+	CTrackerSoundFile &m_sndFile;
 	CListCtrlEx m_List;
 	bool m_isScanning = false;
 
@@ -51,7 +51,7 @@ class ModifiedExternalSamplesDlg : public ResizableDialog
 {
 protected:
 	CModDoc &m_modDoc;
-	CSoundFile &m_sndFile;
+	CTrackerSoundFile &m_sndFile;
 	CListCtrlEx m_List;
 
 public:

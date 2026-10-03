@@ -19,7 +19,6 @@
 #include "resource.h"
 #include "TrackerSettings.h"
 #include "UpdateHints.h"
-#include "mpt/fs/fs.hpp"
 
 OPENMPT_NAMESPACE_BEGIN
 
@@ -267,7 +266,7 @@ void ModifiedExternalSamplesDlg::GenerateList()
 			status = UL_("modified");
 		else if(!m_sndFile.GetSample(smp).HasSampleData())
 			continue;  // Sample was already missing when the file was loaded, nothing we can do here
-		else if(!mpt::native_fs{}.is_file(m_sndFile.GetSamplePath(smp)))
+		else if(!FileSystem::IsFile(m_sndFile.GetSamplePath(smp)))
 			status = UL_("missing");
 		else
 			continue;

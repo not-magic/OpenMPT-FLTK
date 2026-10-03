@@ -20,7 +20,7 @@ OPENMPT_NAMESPACE_BEGIN
 
 // CPatternGotoDialog dialog
 
-CPatternGotoDialog::CPatternGotoDialog(Wnd *pParent, ROWINDEX row, CHANNELINDEX chan, PATTERNINDEX pat, ORDERINDEX ord, CSoundFile &sndFile)
+CPatternGotoDialog::CPatternGotoDialog(Wnd *pParent, ROWINDEX row, CHANNELINDEX chan, PATTERNINDEX pat, ORDERINDEX ord, CTrackerSoundFile &sndFile)
 	: DialogBase(IDD_EDIT_GOTO, pParent)
 	, m_SndFile(sndFile)
 	, m_nRow(row)

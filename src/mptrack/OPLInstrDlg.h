@@ -16,7 +16,7 @@
 
 OPENMPT_NAMESPACE_BEGIN
 
-class CSoundFile;
+class CTrackerSoundFile;
 
 class OPLInstrDlg : public DialogBase
 {
@@ -26,11 +26,11 @@ class OPLInstrDlg : public DialogBase
 	Size m_windowSize;
 	Wnd &m_parent;
 	WindowHandle m_lastFocusItem = nullptr;
-	const CSoundFile &m_sndFile;
+	const CTrackerSoundFile &m_sndFile;
 	OPLPatch *m_patch;
 
 public:
-	OPLInstrDlg(Wnd &parent, const CSoundFile &sndFile);
+	OPLInstrDlg(Wnd &parent, const CTrackerSoundFile &sndFile);
 	~OPLInstrDlg();
 	void SetEnabled(bool enabled);
 	void SetPatch(OPLPatch &patch);

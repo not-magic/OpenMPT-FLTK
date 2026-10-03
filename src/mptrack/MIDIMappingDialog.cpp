@@ -22,12 +22,13 @@
 #include "../soundlib/MIDIEvents.h"
 #include "../soundlib/mod_specifications.h"
 #include "../soundlib/plugins/PlugInterface.h"
+#include "PluginUi.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
 
 
-CMIDIMappingDialog::CMIDIMappingDialog(Wnd *pParent, CSoundFile &sndfile)
+CMIDIMappingDialog::CMIDIMappingDialog(Wnd *pParent, CTrackerSoundFile &sndfile)
 	: ResizableDialog{IDD_MIDIPARAMCONTROL, pParent}
 	, m_sndFile{sndfile}
 	, m_rMIDIMapper{m_sndFile.GetMIDIMapper()}
@@ -203,7 +204,7 @@ int CMIDIMappingDialog::InsertItem(const CMIDIMappingDirective &m, int insertAt)
 		s += mpt::ToUnicode(plug.GetName());
 		m_List.SetItemText(insertAt, 2, s);
 		if(plug.pMixPlugin != nullptr)
-			s = plug.pMixPlugin->GetFormattedParamName(m.GetParamIndex());
+			s = PluginUi(*plug.pMixPlugin).GetFormattedParamName(m.GetParamIndex());
 		else
 			s.clear();
 		m_List.SetItemText(insertAt, 3, s);

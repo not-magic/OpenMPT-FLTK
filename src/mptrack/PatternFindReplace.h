@@ -15,6 +15,8 @@
 #include "PatternCursor.h"
 #include "../soundlib/modcommand.h"
 
+OPENMPT_NAMESPACE_BEGIN
+
 // Find/Replace data
 struct FindReplace
 {
@@ -75,3 +77,5 @@ struct FindReplace
 };
 
 DECLARE_FLAGSET(FindReplace::Flags);
+
+OPENMPT_NAMESPACE_END

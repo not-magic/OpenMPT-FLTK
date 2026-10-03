@@ -16,12 +16,15 @@
 #include "../soundlib/Sndfile.h"
 #include "../soundlib/plugins/PluginManager.h"
 #include "../soundlib/plugins/PlugInterface.h"
+#include "PluginUi.h"
+
+OPENMPT_NAMESPACE_BEGIN
 
 static constexpr auto PluginShiftBits = (sizeof(PLUGINDEX) * CHAR_BIT);
 static constexpr PLUGINDEX GetPluginIndex(uintptr_t x) { return static_cast<PLUGINDEX>(x & ((1 << PluginShiftBits) - 1)); }
 
 
-int PluginComboBox::Update(const Config config, const CSoundFile &sndFile)
+int PluginComboBox::Update(const Config config, const CTrackerSoundFile &sndFile)
 {
 	if(config.m_flags)
 		m_flags = *config.m_flags;
@@ -189,10 +192,9 @@ void AddPluginParameternamesToCombobox(ComboBox &CBox, SNDMIXPLUGIN &plug)
 void AddPluginParameternamesToCombobox(ComboBox &CBox, IMixPlugin &plug)
 {
 	const PlugParamIndex numParams = plug.GetNumVisibleParameters();
-	plug.CacheParameterNames(0, numParams);
 	for(PlugParamIndex i = 0; i < numParams; i++)
 	{
-		CBox.SetItemData(CBox.AddString(plug.GetFormattedParamName(i)), i);
+		CBox.SetItemData(CBox.AddString(PluginUi(plug).GetFormattedParamName(i)), i);
 	}
 }
 

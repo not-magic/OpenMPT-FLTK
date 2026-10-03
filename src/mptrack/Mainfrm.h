@@ -17,21 +17,22 @@
 #include "Notification.h"
 #include "openmpt/soundbase/Dither.hpp"
 #include "Settings.h"
-#include "../soundlib/AudioCriticalSection.h"
+#include "openmpt_ext/sndlib/TrackerCriticalSection.h"
 #include "../soundlib/AudioReadTarget.h"
 #include "../soundlib/Sndfile.h"
 #include "mpt/audio/span.hpp"
 #include "mpt/mutex/mutex.hpp"
 #include "openmpt/sounddevice/SoundDevice.hpp"
 #include "openmpt/sounddevice/SoundDeviceBuffer.hpp"
-#include "../misc/mptClock.h"
+#include "openmpt_ext/misc/mptClockExt.h"
 
 
 #include <functional>
 
+class RtMidiIn;
+
 OPENMPT_NAMESPACE_BEGIN
 
-class RtMidiIn;
 class CAutoSaver;
 class CDLSBank;
 class CInputHandler;
@@ -146,7 +147,7 @@ public:
 public:
 
 	// Low-Level Audio
-	CriticalSection m_SoundDeviceFillBufferCriticalSection;
+	TrackerCriticalSection m_SoundDeviceFillBufferCriticalSection;
 	Util::MultimediaClock m_SoundDeviceClock;
 	SoundDevice::IBase *gpSoundDevice = nullptr;
 	uintptr_t m_NotifyTimer = 0;
@@ -177,7 +178,7 @@ protected:
 	CModTreeBar m_wndTree;
 	ui::StatusBar m_wndStatusBar;
 	CMainToolBar m_wndToolBar;
-	CSoundFile *m_pSndFile = nullptr; // != NULL only when currently playing or rendering
+	CTrackerSoundFile *m_pSndFile = nullptr; // != NULL only when currently playing or rendering
 	WindowHandle m_hWndMidi = nullptr;
 	std::function<void(mpt::const_byte_span)> m_midiSysExCallback;
 	samplecount_t m_dwTimeSec = 0;
@@ -194,7 +195,7 @@ protected:
 	Util::fixed_size_queue<Notification, MAX_UPDATE_HISTORY> m_NotifyBuffer;
 
 	// Instrument preview in tree view
-	CSoundFile m_WaveFile;
+	CTrackerSoundFile m_WaveFile;
 	ModSample m_metronomeMeasure{}, m_metronomeBeat{};
 
 	mpt::ustring m_userText, m_infoText, m_xInfoText;
@@ -214,8 +215,8 @@ public:
 
 // Low-Level Audio
 public:
-	static void UpdateDspEffects(CSoundFile &sndFile, bool reset=false);
-	static void UpdateAudioParameters(CSoundFile &sndFile, bool reset=false);
+	static void UpdateDspEffects(CTrackerSoundFile &sndFile, bool reset=false);
+	static void UpdateAudioParameters(CTrackerSoundFile &sndFile, bool reset=false);
 
 	// from SoundDevice::IBufferHandler
 	uint64 SoundCallbackGetReferenceClockNowNanoseconds() const override;
@@ -313,9 +314,9 @@ public:
 	void StopPlayback();
 	bool RestartPlayback();
 	bool PausePlayback();
-	static bool IsValidSoundFile(CSoundFile &sndFile) { return sndFile.GetType() != MOD_TYPE_NONE; }
-	static bool IsValidSoundFile(CSoundFile *pSndFile) { return pSndFile && pSndFile->GetType(); }
-	void SetPlaybackSoundFile(CSoundFile *pSndFile);
+	static bool IsValidSoundFile(CTrackerSoundFile &sndFile) { return sndFile.GetType() != MOD_TYPE_NONE; }
+	static bool IsValidSoundFile(CTrackerSoundFile *pSndFile) { return pSndFile && pSndFile->GetType(); }
+	void SetPlaybackSoundFile(CTrackerSoundFile *pSndFile);
 	void UnsetPlaybackSoundFile();
 	void GenerateStopNotification();
 
@@ -323,10 +324,10 @@ public:
 	bool StopMod(CModDoc *pDoc = nullptr);
 	bool PauseMod(CModDoc *pDoc = nullptr);
 
-	bool StopSoundFile(CSoundFile *);
-	bool PlaySoundFile(CSoundFile *);
+	bool StopSoundFile(CTrackerSoundFile *);
+	bool PlaySoundFile(CTrackerSoundFile *);
 	bool PlaySoundFile(const mpt::PathString &filename, ModCommand::NOTE note, int volume = -1);
-	bool PlaySoundFile(CSoundFile &sndFile, INSTRUMENTINDEX nInstrument, SAMPLEINDEX nSample, ModCommand::NOTE note, int volume = -1);
+	bool PlaySoundFile(CTrackerSoundFile &sndFile, INSTRUMENTINDEX nInstrument, SAMPLEINDEX nSample, ModCommand::NOTE note, int volume = -1);
 	bool PlayDLSInstrument(const CDLSBank &bank, uint32 instr, uint32 region, ModCommand::NOTE note, int volume = -1);
 
 	void InitPreview();
@@ -338,9 +339,9 @@ public:
 	// Return currently playing module (nullptr if none is playing)
 	inline CModDoc *GetModPlaying() const { return m_pSndFile ? m_pSndFile->GetpModDoc() : nullptr; }
 	// Return currently playing module (nullptr if none is playing)
-	inline CSoundFile *GetSoundFilePlaying() const { return m_pSndFile; }
-	void InitRenderer(CSoundFile *);
-	void StopRenderer(CSoundFile *);
+	inline CTrackerSoundFile *GetSoundFilePlaying() const { return m_pSndFile; }
+	void InitRenderer(CTrackerSoundFile *);
+	void StopRenderer(CTrackerSoundFile *);
 	void SwitchToActiveView();
 
 	void IdleHandlerSounddevice();

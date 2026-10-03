@@ -22,7 +22,7 @@ OPENMPT_NAMESPACE_BEGIN
 
 class CModControlView;
 class CModDoc;
-class CSoundFile;
+class CTrackerSoundFile;
 struct DRAGONDROP;
 struct Notification;
 
@@ -51,7 +51,7 @@ class CModControlDlg : public DialogBase
 {
 protected:
 	CModDoc &m_modDoc;
-	CSoundFile &m_sndFile;
+	CTrackerSoundFile &m_sndFile;
 	CModControlView &m_parent;
 	WindowHandle m_hWndView = nullptr;
 	WindowHandle m_lastFocusItem = nullptr;

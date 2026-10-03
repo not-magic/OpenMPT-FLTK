@@ -24,6 +24,7 @@
 #include "WindowMessages.h"
 #include "../soundlib/mod_specifications.h"
 #include "../common/mptStringBuffer.h"
+#include "ModSequenceExt.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -299,7 +300,7 @@ void COrderList::SetSelection(ORDERINDEX firstOrd, ORDERINDEX lastOrd)
 bool COrderList::SetCurSel(ORDERINDEX sel, bool setPlayPos, bool shiftClick, bool ignoreCurSel)
 {
 	CMainFrame *pMainFrm = CMainFrame::GetMainFrame();
-	CSoundFile &sndFile = m_modDoc.GetSoundFile();
+	CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 	ORDERINDEX &ord = shiftClick ? m_nScrollPos2nd : m_nScrollPos;
 	const ORDERINDEX lastIndex = std::max(Order().GetLength(), sndFile.GetModSpecifications().ordersMax) - 1u;
 
@@ -348,7 +349,7 @@ bool COrderList::SetCurSel(ORDERINDEX sel, bool setPlayPos, bool shiftClick, boo
 			pMainFrm->ResetNotificationBuffer();
 
 			// Update channel parameters and play time
-			CriticalSection cs;
+			TrackerCriticalSection cs;
 			m_modDoc.SetElapsedTime(m_nScrollPos, 0, !sndFile.m_PlayState.m_flags[SONG_PAUSED | SONG_STEP]);
 
 			changedPos = true;
@@ -356,7 +357,7 @@ bool COrderList::SetCurSel(ORDERINDEX sel, bool setPlayPos, bool shiftClick, boo
 		{
 			FlagSet<PlayFlags> pausedFlags = sndFile.m_PlayState.m_flags & (SONG_PAUSED | SONG_STEP | SONG_PATTERNLOOP);
 			// Update channel parameters and play time
-			CriticalSection cs;
+			TrackerCriticalSection cs;
 			sndFile.SetCurrentOrder(m_nScrollPos);
 			m_modDoc.SetElapsedTime(m_nScrollPos, 0, !sndFile.m_PlayState.m_flags[SONG_PAUSED | SONG_STEP]);
 			sndFile.m_PlayState.m_flags.set(pausedFlags);
@@ -366,7 +367,7 @@ bool COrderList::SetCurSel(ORDERINDEX sel, bool setPlayPos, bool shiftClick, boo
 			changedPos = true;
 		}
 
-		if(changedPos && Order().IsPositionLocked(m_nScrollPos))
+		if(changedPos && m_modDoc.GetSoundFile().IsOrderPositionLocked(m_nScrollPos))
 		{
 			// Users wants to go somewhere else, so let them do that.
 			OnUnlockPlayback();
@@ -542,7 +543,7 @@ LResult COrderList::OnCustomKeyMsg(WParam wParam, LParam lParam)
 // Call with param 0...9 (enter digit), 10 (decrease) or 11 (increase).
 void COrderList::EnterPatternNum(int enterNum)
 {
-	CSoundFile &sndFile = m_modDoc.GetSoundFile();
+	CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 
 	if(!EnsureEditable(m_nScrollPos))
 		return;
@@ -653,7 +654,7 @@ void COrderList::UpdateInfoText()
 	if(Wnd::GetFocus() != this)
 		return;
 
-	CSoundFile &sndFile = m_modDoc.GetSoundFile();
+	CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 	const auto &order = Order();
 
 	const ORDERINDEX length = order.GetLengthTailTrimmed();
@@ -708,7 +709,7 @@ void COrderList::OnPaint(ui::Painter &dc)
 		const bool isFocussed = (Wnd::GetFocus() == this);
 
 		const auto &order = Order();
-		CSoundFile &sndFile = m_modDoc.GetSoundFile();
+		CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 		ORDERINDEX maxEntries = sndFile.GetModSpecifications().ordersMax;
 		if(order.size() > maxEntries)
 		{
@@ -730,7 +731,7 @@ void COrderList::OnPaint(ui::Painter &dc)
 			ColorRef background = windowColor;  // Normal, unselected item.
 			if(highLight)
 				background = highlightColor;  // Currently selected order item
-			else if(order.IsPositionLocked(ord))
+			else if(m_modDoc.GetSoundFile().IsOrderPositionLocked(ord))
 				background = faceColor;  // "Playback lock" indicator - grey out all order items which aren't played.
 			dc.FillSolidRect(rect, background);
 
@@ -941,7 +942,7 @@ void COrderList::OnMouseMove(uint32 nFlags, Point pt)
 		ORDERINDEX n = ORDERINDEX_INVALID;
 		if(rect.PtInRect(pt))
 		{
-			CSoundFile &sndFile = m_modDoc.GetSoundFile();
+			CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 			n = GetOrderFromPoint(pt);
 			if(n >= Order().size() && n >= sndFile.GetModSpecifications().ordersMax)
 				n = ORDERINDEX_INVALID;
@@ -991,11 +992,11 @@ void COrderList::OnRButtonUp(uint32 nFlags, Point pt)
 	if(!multiSelection)
 		SetCurSel(m_menuOrder, false, false, false);
 	SetFocus();
-	HMENU hMenu = ::CreatePopupMenu();
+	HMENU hMenu = ui::CreatePopupMenu();
 	if(!hMenu)
 		return;
 
-	CSoundFile &sndFile = m_modDoc.GetSoundFile();
+	CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 
 	// Check if at least one pattern in the current selection exists
 	bool patExists = false;
@@ -1050,7 +1051,7 @@ void COrderList::OnRButtonUp(uint32 nFlags, Point pt)
 		{
 			AppendMenu(hMenu, ui::MenuItemSeparator, NULL, UL_(""));
 
-			HMENU menuSequence = ::CreatePopupMenu();
+			HMENU menuSequence = ui::CreatePopupMenu();
 			AppendMenu(hMenu, ui::MenuItemPopup, (uintptr_t)menuSequence, UL_("&Sequences"));
 
 			const SEQUENCEINDEX numSequences = sndFile.Order.GetNumSequences();
@@ -1080,7 +1081,7 @@ void COrderList::OnRButtonUp(uint32 nFlags, Point pt)
 	AppendMenu(hMenu, (sndFile.m_lockOrderStart == ORDERINDEX_INVALID ? (ui::MenuItemString | ui::MenuItemGrayed) : ui::MenuItemString), ID_ORDERLIST_UNLOCKPLAYBACK, ih->GetKeyTextFromCommand(kcOrderlistUnlockPlayback, UL_("&Unlock Playback")));
 	if(!multiSelection)
 	{
-		HMENU menuQueue = ::CreatePopupMenu();
+		HMENU menuQueue = ui::CreatePopupMenu();
 		AppendMenu(menuQueue, ui::MenuItemString, ID_QUEUE_AT_PATTERN_END, ih->GetKeyTextFromCommand(kcOrderlistQueueAtPatternEnd, UL_("Transition at end of current &pattern")));
 		AppendMenu(menuQueue, ui::MenuItemString, ID_QUEUE_AT_MEASURE_END, ih->GetKeyTextFromCommand(kcOrderlistQueueAtMeasureEnd, UL_("Transition at end of current &measure")));
 		AppendMenu(menuQueue, ui::MenuItemString, ID_QUEUE_AT_BEAT_END, ih->GetKeyTextFromCommand(kcOrderlistQueueAtBeatEnd, UL_("Transition at end of current &beat")));
@@ -1092,8 +1093,8 @@ void COrderList::OnRButtonUp(uint32 nFlags, Point pt)
 	AppendMenu(hMenu, ui::MenuItemString | greyed, ID_ORDERLIST_RENDER, ih->GetKeyTextFromCommand(kcOrderlistStreamExport, UL_("Stream E&xport")));
 
 	ClientToScreen(&pt);
-	::TrackPopupMenu(hMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, 0, this, NULL);
-	::DestroyMenu(hMenu);
+	ui::TrackPopupMenu(hMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, pt.x, pt.y, 0, this, NULL);
+	ui::DestroyMenu(hMenu);
 }
 
 
@@ -1306,7 +1307,7 @@ void COrderList::OnPatternPaste()
 
 void COrderList::OnSetRestartPos()
 {
-	CSoundFile &sndFile = m_modDoc.GetSoundFile();
+	CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 	bool modified = false;
 	if(m_menuOrder == Order().GetRestartPos())
 	{
@@ -1387,21 +1388,21 @@ ORDERINDEX COrderList::SetMargins(int i)
 
 void COrderList::SelectSequence(const SEQUENCEINDEX seq)
 {
-	CriticalSection cs;
+	TrackerCriticalSection cs;
 
 	CMainFrame::GetMainFrame()->ResetNotificationBuffer();
-	CSoundFile &sndFile = m_modDoc.GetSoundFile();
+	CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 	const bool editSequence = seq >= sndFile.Order.GetNumSequences();
 	if(seq == kSplitSequence)
 	{
-		if(!sndFile.Order.CanSplitSubsongs())
+		if(!CanSplitSubsongs(sndFile))
 		{
 			Reporting::Information(UL_("No sub songs have been found in this sequence."));
 			return;
 		}
 		if(Reporting::Confirm(UL_("The order list contains separator items.\nDo you want to split the sequence at the separators into multiple song sequences?")) != cnfYes)
 			return;
-		if(!sndFile.Order.SplitSubsongsToMultipleSequences())
+		if(!SplitSubsongsToMultipleSequences(sndFile))
 			return;
 	} else if(seq == kDeleteSequence)
 	{
@@ -1451,7 +1452,7 @@ void COrderList::SelectSequence(const SEQUENCEINDEX seq)
 
 void COrderList::QueuePattern(ORDERINDEX order, OrderTransitionMode transitionMode)
 {
-	CSoundFile &sndFile = m_modDoc.GetSoundFile();
+	CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 	const ORDERINDEX length = Order().GetLength();
 
 	// If this is not a playable order item, find the next valid item.
@@ -1462,14 +1463,14 @@ void COrderList::QueuePattern(ORDERINDEX order, OrderTransitionMode transitionMo
 
 	if(order < length)
 	{
-		CriticalSection cs;
+		TrackerCriticalSection cs;
 		if(sndFile.m_PlayState.m_nSeqOverride == order)
 		{
 			// This item is already queued: Dequeue it.
 			sndFile.m_PlayState.m_nSeqOverride = ORDERINDEX_INVALID;
 		} else
 		{
-			if(Order().IsPositionLocked(order))
+			if(m_modDoc.GetSoundFile().IsOrderPositionLocked(order))
 			{
 				// Users wants to go somewhere else, so let them do that.
 				OnUnlockPlayback();
@@ -1484,7 +1485,7 @@ void COrderList::QueuePattern(ORDERINDEX order, OrderTransitionMode transitionMo
 
 void COrderList::OnLockPlayback()
 {
-	CSoundFile &sndFile = m_modDoc.GetSoundFile();
+	CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 
 	OrdSelection selection = GetCurSel();
 	if(selection.firstOrd == sndFile.m_lockOrderStart && selection.lastOrd == sndFile.m_lockOrderEnd)
@@ -1501,7 +1502,7 @@ void COrderList::OnLockPlayback()
 
 void COrderList::OnUnlockPlayback()
 {
-	CSoundFile &sndFile = m_modDoc.GetSoundFile();
+	CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 	sndFile.m_lockOrderStart = sndFile.m_lockOrderEnd = ORDERINDEX_INVALID;
 	Invalidate(false);
 }
@@ -1535,7 +1536,7 @@ bool COrderList::FindToolTip(Point point, Rect &area, mpt::ustring &text) const
 {
 	const ORDERINDEX ord = GetOrderFromPoint(point);
 	area = GetRectFromOrder(ord);
-	const CSoundFile &sndFile = m_modDoc.GetSoundFile();
+	const CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 	const ModSequence &order = Order();
 	const ORDERINDEX ordLen = order.GetLengthTailTrimmed();
 	text = ui::Format(UL_("Position %u of %u [%02Xh of %02Xh]"), ord, ordLen, ord, ordLen);

@@ -14,12 +14,12 @@
 #include "ui/Ui.h"
 
 #include "TrackerSettings.h"
-#include "../sounddsp/EQ.h"
+#include "openmpt_ext/sounddsp/SoundDspExt.h"
 #include "openmpt/sounddevice/SoundDevice.hpp"
 
 OPENMPT_NAMESPACE_BEGIN
 
-class CSoundFile;
+class CTrackerSoundFile;
 class CMainFrame;
 
 #define NUM_CHANNELCOMBOBOXES	4
@@ -135,7 +135,6 @@ protected:
 };
 
 
-#ifndef NO_EQ
 
 class CEQSlider: public VSlider
 {
@@ -149,7 +148,6 @@ public:
 	bool PreTranslateMessage(int event);
 };
 
-#endif // !NO_EQ
 
 
 class COptionsPlayer: public PropertyPage
@@ -161,11 +159,9 @@ protected:
 	HSlider m_SbReverbDepth;
 	HSlider m_SbBitCrushBits;
 
-#ifndef NO_EQ
 	CEQSlider m_Sliders[MAX_EQ_BANDS];
 	EQPreset &m_EQPreset;
 	uint32 m_nSliderMenu;
-#endif // !NO_EQ
 
 public:
 	COptionsPlayer();
@@ -178,7 +174,6 @@ protected:
 	void OnHScroll(uint32, uint32, Wnd *) override;
 	void OnSettingsChanged() { SetModified(true); }
 
-#ifndef NO_EQ
 	void OnVScroll(uint32 nSBCode, uint32 nPos, Wnd * pScrollBar) override;
 	void OnEqUser1() { LoadEQPreset(TrackerSettings::Instance().m_EqUserPresets[0]); };
 	void OnEqUser2() { LoadEQPreset(TrackerSettings::Instance().m_EqUserPresets[1]); };
@@ -191,7 +186,6 @@ protected:
 	void UpdateDialog();
 	void UpdateEQ(bool bReset);
 	void LoadEQPreset(const EQPreset &preset);
-#endif // !NO_EQ
 
 	UI_DECLARE_MESSAGE_MAP()
 };

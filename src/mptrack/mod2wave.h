@@ -24,7 +24,7 @@
 OPENMPT_NAMESPACE_BEGIN
 
 class CModDoc;
-class CSoundFile;
+class CTrackerSoundFile;
 struct SubSong;
 
 struct CWaveConvertSettings
@@ -60,7 +60,7 @@ class CWaveConvert : public DialogBase
 {
 public:
 	CWaveConvertSettings m_Settings;
-	CSoundFile &m_SndFile;
+	CTrackerSoundFile &m_SndFile;
 	uint64 m_dwSongLimit = 0;
 	std::vector<SubSong> m_subSongs;
 
@@ -129,7 +129,7 @@ public:
 	bool m_bGivePlugsIdleTime = false;
 
 public:
-	CDoWaveConvert(CSoundFile &sndFile, std::ostream &f, const mpt::ustring &caption, const CWaveConvertSettings &settings, const SubSong &subSong, Wnd *parent = nullptr)
+	CDoWaveConvert(CTrackerSoundFile &sndFile, std::ostream &f, const mpt::ustring &caption, const CWaveConvertSettings &settings, const SubSong &subSong, Wnd *parent = nullptr)
 		: CProgressDialog(parent)
 		, m_Settings(settings)
 		, m_SndFile(sndFile)
@@ -142,7 +142,7 @@ public:
 
 private:
 	const CWaveConvertSettings &m_Settings;
-	CSoundFile &m_SndFile;
+	CTrackerSoundFile &m_SndFile;
 	std::ostream &fileStream;
 	const mpt::ustring &caption;
 	const SubSong &m_subSong;

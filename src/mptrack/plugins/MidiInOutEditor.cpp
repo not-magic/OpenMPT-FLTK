@@ -19,6 +19,7 @@
 #include "../UpdateHints.h"
 #include "../../soundlib/MIDIEvents.h"
 #include "../../soundlib/MIDIMacroParser.h"
+#include "PluginUi.h"
 #include <rtmidi/RtMidi.h>
 
 
@@ -91,7 +92,7 @@ void MidiInOutEditor::UpdateView(UpdateHint hint)
 {
 	CAbstractVstEditor::UpdateView(hint);
 	PluginHint pluginHint = hint.ToType<PluginHint>();
-	if(pluginHint.GetType()[HINT_MODTYPE | HINT_PLUGINNAMES] || pluginHint.GetPlugin() == (m_VstPlugin.GetSlot() + 1))
+	if(pluginHint.GetType()[HINT_MODTYPE | HINT_PLUGINNAMES] || pluginHint.GetPlugin() == (PluginUi(m_VstPlugin).GetSlot() + 1))
 		UpdateOutputPlugin();
 }
 
@@ -164,7 +165,7 @@ void MidiInOutEditor::UpdateOutputPlugin()
 	const int sel = m_outputCombo.GetCurSel();
 	mpt::ustring outputPlugin;
 	if(std::vector<IMixPlugin *> plug; m_VstPlugin.GetOutputPlugList(plug) && plug.front() != nullptr)
-		outputPlugin = MPT_UFORMAT("FX{}: {}")(mpt::ufmt::dec0<2>(plug.front()->GetSlot() + 1), mpt::ToUnicode(m_VstPlugin.GetSoundFile().m_MixPlugins[plug.front()->GetSlot()].GetName()));
+		outputPlugin = MPT_UFORMAT("FX{}: {}")(mpt::ufmt::dec0<2>(PluginUi(*plug.front()).GetSlot() + 1), mpt::ToUnicode(m_VstPlugin.GetSoundFile().m_MixPlugins[PluginUi(*plug.front()).GetSlot()].GetName()));
 	else
 		outputPlugin = UL_("No Plugin");
 	m_outputCombo.DeleteString(1);
@@ -208,7 +209,7 @@ void MidiInOutEditor::OnLatencyChanged()
 	if(!m_locked)
 	{
 		plugin.m_latency = m_latencySpin.GetValue() * (1.0 / 1000.0);
-		plugin.SetModified();
+		PluginUi(plugin).SetModified();
 	}
 }
 
@@ -219,7 +220,7 @@ void MidiInOutEditor::OnTimingMessagesChanged()
 	{
 		MidiInOut &plugin = static_cast<MidiInOut &>(m_VstPlugin);
 		plugin.m_sendTimingInfo = IsDlgButtonChecked(IDC_CHECK1) != ui::CheckOff;
-		plugin.SetModified();
+		PluginUi(plugin).SetModified();
 	}
 }
 
@@ -267,7 +268,7 @@ void MidiInOutEditor::OnAlwaysSendDumpChanged()
 {
 	MidiInOut &plugin = static_cast<MidiInOut &>(m_VstPlugin);
 	plugin.m_alwaysSendInitialDump = IsDlgButtonChecked(IDC_CHECK2) == ui::CheckOff;
-	plugin.SetModified();
+	PluginUi(plugin).SetModified();
 }
 
 

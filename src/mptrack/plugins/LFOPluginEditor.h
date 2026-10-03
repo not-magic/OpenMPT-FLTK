@@ -36,6 +36,12 @@ public:
 
 	LFOPluginEditor(LFOPlugin &plugin);
 
+	// LFOPlugin befriends this class; upstream implements these in LFOPlugin for the tracker build only
+	static std::pair<PlugParamValue, PlugParamValue> FindParamUIRange(const LFOPlugin &plugin, PlugParamIndex param);
+	static mpt::ustring FindParamName(const LFOPlugin &plugin, PlugParamIndex param);
+	static mpt::ustring FindParamLabel(const LFOPlugin &plugin, PlugParamIndex param);
+	static mpt::ustring FindParamDisplay(LFOPlugin &plugin, PlugParamIndex param);
+
 	bool OpenEditor(Wnd *parent) override;
 	bool IsResizable() const override { return false; }
 	bool SetSize(int, int) override { return false; }
@@ -63,7 +69,6 @@ protected:
 	void OnParameterChanged();
 	void OnOutputPlugChanged();
 	void OnPluginEditor();
-	LResult OnUpdateParam(WParam wParam, LParam lParam);
 
 	UI_DECLARE_MESSAGE_MAP()
 };

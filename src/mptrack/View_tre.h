@@ -30,7 +30,7 @@ OPENMPT_NAMESPACE_BEGIN
 
 class CModDoc;
 class CModTree;
-class CSoundFile;
+class CTrackerSoundFile;
 class CDLSBank;
 
 struct ModTreeDocInfo
@@ -146,7 +146,7 @@ protected:
 		static LParam ToLPARAM(uint16 instr, uint16 region, bool isPerc) noexcept { return (instr & DLS_INSTRMASK) | ((region << DLS_REGIONSHIFT) & DLS_REGIONMASK) | (isPerc ? DLS_TYPEPERC : 0); }
 	};
 
-	static CSoundFile *m_SongFile;  // For browsing samples and instruments inside modules on disk
+	static CTrackerSoundFile *m_SongFile;  // For browsing samples and instruments inside modules on disk
 	CModTree *m_pDataTree = nullptr;  // Pointer to instrument browser (lower part of tree view) - if it's a nullptr, this object is the instrument browser itself.
 	WindowHandle m_hDropWnd = nullptr;
 	std::mutex m_WatchDirMutex;
@@ -176,7 +176,6 @@ protected:
 	mpt::PathString m_previousPath;           // The folder from which we came from when navigating one folder up
 	
 	std::vector<const char*> m_modExtensions;                  // Cached in order to avoid querying too often when changing browsed folder
-	std::vector<mpt::PathString> m_MediaFoundationExtensions;  // Cached in order to avoid querying too often when changing browsed folder
 
 	struct FileBrowserEntry
 	{
@@ -269,9 +268,9 @@ protected:
 	void MoveTreeItem(TreeItemHandle hItem, bool moveUp);
 	void OnItemRightClick(TreeItemHandle hItem, Point pt);
 
-	static bool HasEffectPlugins(const CSoundFile &sndFile);
-	static bool AllPluginsBypassed(const CSoundFile &sndFile, bool onlyEffects);
-	static void BypassAllPlugins(CSoundFile &sndFile, bool bypass, bool onlyEffects);
+	static bool HasEffectPlugins(const CTrackerSoundFile &sndFile);
+	static bool AllPluginsBypassed(const CTrackerSoundFile &sndFile, bool onlyEffects);
+	static void BypassAllPlugins(CTrackerSoundFile &sndFile, bool bypass, bool onlyEffects);
 
 	void FillInstrumentLibrary(const mpt::ustring &selectedItem = {});
 	void FilterInstrumentLibrary(mpt::ustring filter, const mpt::ustring &selectedItem = {});

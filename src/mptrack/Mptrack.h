@@ -39,7 +39,6 @@ template <typename Backend> class FileSettingsContainer;
 using IniFileSettingsBackend = CachedIniFileSettingsBackend;
 using IniFileSettingsContainer = FileSettingsContainer<CachedIniFileSettingsBackend>;
 class SettingsContainer;
-class ComponentManagerSettings;
 namespace mpt
 {
 namespace Wine
@@ -95,7 +94,7 @@ struct DRAGONDROP
 		InsertNew
 	};
 
-	const CSoundFile *sndFile = nullptr;
+	const CTrackerSoundFile *sndFile = nullptr;
 	DragonDropType dropType = DRAGONDROP_NOTHING;
 	InsertType insertType = InsertType::Unspecified;
 	uint32 dropItem = 0;
@@ -165,7 +164,6 @@ protected:
 	std::unique_ptr<IniFileSettingsContainer> m_pPluginState;
 	std::unique_ptr<IniFileSettingsContainer> m_pPluginCache;
 
-	std::unique_ptr<ComponentManagerSettings> m_pComponentManagerSettings;
 
 	CModDocTemplate *m_pModTemplate = nullptr;  // owned by AppBase
 
@@ -412,7 +410,7 @@ void AppendNotesToControl(ComboBox &combobox, ModCommand::NOTE noteStart, ModCom
 // If nInstr is given, instrument-specific note names are used instead of default note names.
 // A custom note range may also be specified using the noteStart and noteEnd parameters.
 // If they are left out, only notes that are available in the module type, plus any supported "special notes" are added.
-void AppendNotesToControlEx(ComboBox &combobox, const CSoundFile &sndFile, INSTRUMENTINDEX nInstr = MAX_INSTRUMENTS, ModCommand::NOTE noteStart = 0, ModCommand::NOTE noteEnd = 0);
+void AppendNotesToControlEx(ComboBox &combobox, const CTrackerSoundFile &sndFile, INSTRUMENTINDEX nInstr = MAX_INSTRUMENTS, ModCommand::NOTE noteStart = 0, ModCommand::NOTE noteEnd = 0);
 
 // Get window text (e.g. edit box content) as a mpt::ustring
 mpt::ustring GetWindowTextString(const Wnd &wnd);

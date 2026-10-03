@@ -31,7 +31,7 @@ public:
 	mpt::PathString GetPath() const;
 	uint32 GetHistoryDepth() const;
 	std::chrono::minutes GetSaveInterval() const;
-	mpt::chrono::days GetRetentionTime() const;
+	std::chrono::days GetRetentionTime() const;
 
 private:
 	bool SaveSingleFile(CModDoc &modDoc);

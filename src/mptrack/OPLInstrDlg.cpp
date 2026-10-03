@@ -60,7 +60,7 @@ void OPLInstrDlg::DoDataExchange(DataExchange *pDX)
 }
 
 
-OPLInstrDlg::OPLInstrDlg(Wnd &parent, const CSoundFile &sndFile)
+OPLInstrDlg::OPLInstrDlg(Wnd &parent, const CTrackerSoundFile &sndFile)
 	: m_parent(parent)
 	, m_sndFile(sndFile)
 {

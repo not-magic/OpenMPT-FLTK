@@ -14,6 +14,7 @@
 #include "resource.h"
 #include "../soundlib/Sndfile.h"
 #include "../soundlib/plugins/PlugInterface.h"
+#include "PluginUi.h"
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -260,7 +261,6 @@ void CDefaultVstEditor::UpdateControls(bool updateParamNames)
 		updateParamNames = true;
 	}
 
-	m_VstPlugin.CacheParameterNames(paramOffset, std::min(paramOffset + NUM_PLUGINEDITOR_PARAMETERS, numParams));
 	for(PlugParamIndex i = 0; i < NUM_PLUGINEDITOR_PARAMETERS; i++)
 	{
 		const PlugParamIndex param = paramOffset + i;
@@ -278,7 +278,7 @@ void CDefaultVstEditor::UpdateControls(bool updateParamNames)
 		if(updateParamNames)
 		{
 			// Update param name
-			controls[i]->SetParamName(m_VstPlugin.GetFormattedParamName(param));
+			controls[i]->SetParamName(PluginUi(m_VstPlugin).GetFormattedParamName(param));
 		}
 
 		UpdateParamDisplay(param);
@@ -453,13 +453,13 @@ void CDefaultVstEditor::SetParam(PlugParamIndex param, int value)
 		return;
 	}
 
-	m_VstPlugin.SetScaledUIParam(param, static_cast<PlugParamValue>(value) / static_cast<PlugParamValue>(PARAM_RESOLUTION));
+	PluginUi(m_VstPlugin).SetScaledUIParam(param, static_cast<PlugParamValue>(value) / static_cast<PlugParamValue>(PARAM_RESOLUTION));
 
 	// Update other GUI controls
 	UpdateParamDisplay(param);
 
 	// Act as if an automation message has been sent by the plugin (record param changes, set document modified, etc...)
-	m_VstPlugin.AutomateParameter(param);
+	PluginUi(m_VstPlugin).AutomateParameter(param);
 
 }
 
@@ -474,14 +474,14 @@ void CDefaultVstEditor::UpdateParamDisplay(PlugParamIndex param)
 	}
 
 	// Get the actual parameter value from the plugin
-	const int val = static_cast<int>(m_VstPlugin.GetScaledUIParam(param) * static_cast<float>(PARAM_RESOLUTION) + 0.5f);
+	const int val = static_cast<int>(PluginUi(m_VstPlugin).GetScaledUIParam(param) * static_cast<float>(PARAM_RESOLUTION) + 0.5f);
 
 	// Update the GUI controls
 
 	// Set lock to indicate that the changes to the GUI are internal - no need to notify the plug and re-update GUI.
 	m_nControlLock++;
 
-	controls[param - paramOffset]->SetParamValue(val, m_VstPlugin.GetFormattedParamValue(param));
+	controls[param - paramOffset]->SetParamValue(val, PluginUi(m_VstPlugin).GetFormattedParamValue(param));
 
 	// Unset lock - done with internal GUI updates.
 	m_nControlLock--;

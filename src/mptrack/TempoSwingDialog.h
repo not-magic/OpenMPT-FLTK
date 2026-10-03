@@ -18,7 +18,7 @@
 
 OPENMPT_NAMESPACE_BEGIN
 
-class CSoundFile;
+class CTrackerSoundFile;
 
 class CTempoSwingDlg : public DialogBase
 {
@@ -57,11 +57,11 @@ protected:
 public:
 	TempoSwing m_tempoSwing;
 	const TempoSwing m_origTempoSwing;
-	CSoundFile &m_sndFile;
+	CTrackerSoundFile &m_sndFile;
 	PATTERNINDEX m_pattern;
 
 public:
-	CTempoSwingDlg(Wnd *parent, const TempoSwing &currentTempoSwing, CSoundFile &sndFile, PATTERNINDEX pattern = PATTERNINDEX_INVALID);
+	CTempoSwingDlg(Wnd *parent, const TempoSwing &currentTempoSwing, CTrackerSoundFile &sndFile, PATTERNINDEX pattern = PATTERNINDEX_INVALID);
 
 protected:
 	void DoDataExchange(DataExchange* pDX) override;

@@ -39,6 +39,8 @@ public:
 	IMixPlugin &m_VstPlugin;
 
 	CAbstractVstEditor(IMixPlugin &plugin);
+	// IMixPlugin befriends this class, which makes it the only GUI class allowed to move a plugin
+	static void SetPluginSlot(IMixPlugin &plugin, PLUGINDEX slot);
 	virtual ~CAbstractVstEditor();
 
 	void SetupMenu(bool force = false);

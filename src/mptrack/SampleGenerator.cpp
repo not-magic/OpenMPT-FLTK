@@ -109,7 +109,7 @@ bool CSampleGenerator::CanRenderSample() const
 
 
 // Actual render loop.
-bool CSampleGenerator::RenderSample(CSoundFile *pSndFile, SAMPLEINDEX nSample)
+bool CSampleGenerator::RenderSample(CTrackerSoundFile *pSndFile, SAMPLEINDEX nSample)
 {
 	if(!CanRenderSample() || !TestExpression() || (pSndFile == nullptr) || (nSample < 1) || (nSample > pSndFile->GetNumSamples())) return false;
 
@@ -412,7 +412,7 @@ void CSmpGenDialog::OnSampleFreqChanged()
 // Show all expressions that can be input
 void CSmpGenDialog::OnShowExpressions()
 {
-	HMENU hMenu = ::CreatePopupMenu(), hSubMenu = NULL;
+	HMENU hMenu = ui::CreatePopupMenu(), hSubMenu = NULL;
 	if(!hMenu) return;
 
 	for(int i = 0; i < MAX_SAMPLEGEN_EXPRESSIONS; i++)
@@ -420,8 +420,8 @@ void CSmpGenDialog::OnShowExpressions()
 		if(menu_descriptions[i].expression == "")
 		{
 			// add sub menu
-			if(hSubMenu != NULL) ::DestroyMenu(hSubMenu);
-			hSubMenu = ::CreatePopupMenu();
+			if(hSubMenu != NULL) ui::DestroyMenu(hSubMenu);
+			hSubMenu = ui::CreatePopupMenu();
 
 			AppendMenu(hMenu, ui::MenuItemPopup, (uintptr_t)hSubMenu, menu_descriptions[i].description.c_str());
 		} else
@@ -434,16 +434,16 @@ void CSmpGenDialog::OnShowExpressions()
 	// place popup menu below button
 	RECT button;
 	GetDlgItem(IDC_BUTTON_SHOW_EXPRESSIONS)->GetWindowRect(&button);
-	::TrackPopupMenu(hMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, button.left, button.bottom, 0, this, NULL);
-	::DestroyMenu(hMenu);
-	::DestroyMenu(hSubMenu);
+	ui::TrackPopupMenu(hMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, button.left, button.bottom, 0, this, NULL);
+	ui::DestroyMenu(hMenu);
+	ui::DestroyMenu(hSubMenu);
 }
 
 
 // Show all expression presets
 void CSmpGenDialog::OnShowPresets()
 {
-	HMENU hMenu = ::CreatePopupMenu();
+	HMENU hMenu = ui::CreatePopupMenu();
 	if(!hMenu) return;
 
 	bool prestsExist = false;
@@ -470,8 +470,8 @@ void CSmpGenDialog::OnShowPresets()
 	// place popup menu below button
 	RECT button;
 	GetDlgItem(IDC_BUTTON_SAMPLEGEN_PRESETS)->GetWindowRect(&button);
-	::TrackPopupMenu(hMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, button.left, button.bottom, 0, this, NULL);
-	::DestroyMenu(hMenu);
+	ui::TrackPopupMenu(hMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON, button.left, button.bottom, 0, this, NULL);
+	ui::DestroyMenu(hMenu);
 }
 
 

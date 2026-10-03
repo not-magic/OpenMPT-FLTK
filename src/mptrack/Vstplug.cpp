@@ -347,7 +347,7 @@ intptr_t VSTCALLBACK CVstPlugin::MasterCallBack(AEffect *effect, VstOpcodeToHost
 	};
 
 	CVstPlugin *pVstPlugin = nullptr;
-	CSoundFile *sndFile = nullptr;
+	CTrackerSoundFile *sndFile = nullptr;
 	if(effect != nullptr)
 	{
 		pVstPlugin = static_cast<CVstPlugin *>(effect->reservedForHost1);
@@ -522,7 +522,7 @@ intptr_t VSTCALLBACK CVstPlugin::MasterCallBack(AEffect *effect, VstOpcodeToHost
 	case audioMasterIOChanged:
 		if(pVstPlugin != nullptr)
 		{
-			CriticalSection cs;
+			TrackerCriticalSection cs;
 			return pVstPlugin->InitializeIOBuffers() ? 1 : 0;
 		}
 		break;
@@ -958,7 +958,7 @@ intptr_t CVstPlugin::VstFileSelector(bool destructor, VstFileSelect &fileSel)
 // CVstPlugin
 //
 
-CVstPlugin::CVstPlugin(bool maskCrashes, HMODULE hLibrary, VSTPluginLib &factory, SNDMIXPLUGIN &mixStruct, AEffect &effect, CSoundFile &sndFile)
+CVstPlugin::CVstPlugin(bool maskCrashes, HMODULE hLibrary, VSTPluginLib &factory, SNDMIXPLUGIN &mixStruct, AEffect &effect, CTrackerSoundFile &sndFile)
 	: IMidiPlugin(factory, sndFile, mixStruct)
 	, m_maskCrashes(maskCrashes)
 	, m_hLibrary(hLibrary)
@@ -1095,7 +1095,7 @@ bool CVstPlugin::InitializeIOBuffers()
 
 CVstPlugin::~CVstPlugin()
 {
-	CriticalSection cs;
+	TrackerCriticalSection cs;
 
 	CloseEditor();
 	if (m_isVst2)

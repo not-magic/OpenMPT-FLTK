@@ -13,7 +13,7 @@
 #include "dlg_misc.h"
 #include "MPTrackUtil.h"
 #include "Childfrm.h"
-#include "Dlsbank.h"
+#include "DlsBankExt.h"
 #include "Moddoc.h"
 #include "Mptrack.h"
 #include "Reporting.h"
@@ -26,12 +26,34 @@
 #include "../soundlib/mod_specifications.h"
 #include "../soundlib/plugins/PlugInterface.h"
 
+#include <ctime>
+
 #if MPT_WINNT_AT_LEAST(MPT_WIN_VISTA) && defined(UNICODE)
 #include <afxtaskdialog.h>
 #endif
 
 
 OPENMPT_NAMESPACE_BEGIN
+
+namespace
+{
+
+// libopenmpt has no local timezone, so dates stored in local time are converted here
+int64 FindUnixSecondsFromLocal(const mpt::Date::AnyGregorian &date)
+{
+	std::tm localTime{};
+	localTime.tm_year = date.year - 1900;
+	localTime.tm_mon = static_cast<int>(date.month) - 1;
+	localTime.tm_mday = static_cast<int>(date.day);
+	localTime.tm_hour = date.hours;
+	localTime.tm_min = date.minutes;
+	localTime.tm_sec = date.seconds;
+	localTime.tm_isdst = -1;
+	return static_cast<int64>(std::mktime(&localTime));
+}
+
+}  // namespace
+
 
 
 ///////////////////////////////////////////////////////////////////////
@@ -68,7 +90,7 @@ void CModTypeDlg::DoDataExchange(DataExchange* pDX)
 }
 
 
-CModTypeDlg::CModTypeDlg(CSoundFile &sf, Wnd *parent)
+CModTypeDlg::CModTypeDlg(CTrackerSoundFile &sf, Wnd *parent)
 	: DialogBase{IDD_MODDOC_MODTYPE, parent}
 	, sndFile{sf}
 {
@@ -777,7 +799,7 @@ UI_MESSAGE_MAP_BEGIN(CRemoveChannelsDlg, DialogBase)
 UI_MESSAGE_MAP_END()
 
 
-CRemoveChannelsDlg::CRemoveChannelsDlg(CSoundFile &sf, CHANNELINDEX toRemove, bool showCancel, Wnd *parent)
+CRemoveChannelsDlg::CRemoveChannelsDlg(CTrackerSoundFile &sf, CHANNELINDEX toRemove, bool showCancel, Wnd *parent)
 	: DialogBase{IDD_REMOVECHANNELS, parent}
 	, sndFile{sf}
 	, m_bKeepMask(sf.GetNumChannels(), true)
@@ -1146,7 +1168,7 @@ void CSampleMapDlg::DoDataExchange(DataExchange* pDX)
 }
 
 
-CSampleMapDlg::CSampleMapDlg(CSoundFile &sf, INSTRUMENTINDEX instr, Wnd *parent)
+CSampleMapDlg::CSampleMapDlg(CTrackerSoundFile &sf, INSTRUMENTINDEX instr, Wnd *parent)
 	: ResizableDialog{IDD_EDITSAMPLEMAP, parent}
 	, m_sndFile{sf}
 	, m_nInstrument{instr}
@@ -1507,11 +1529,10 @@ bool CEditHistoryDlg::OnInitDialog()
 		mpt::ustring sDate = mpt::ustring(UL_("<unknown date>"));
 		if(entry.HasValidDate())
 		{
-			const mpt::chrono::default_system_clock::time_point unixdate = ((m_modDoc.GetSoundFile().GetTimezoneInternal() == mpt::Date::LogicalTimezone::Local) || (m_modDoc.GetSoundFile().GetTimezoneInternal() == mpt::Date::LogicalTimezone::Unspecified))
-				? mpt::Date::default_from_local(mpt::Date::interpret_as_timezone<mpt::Date::LogicalTimezone::Local>(entry.loadDate))
-				: mpt::Date::default_from_UTC(mpt::Date::interpret_as_timezone<mpt::Date::LogicalTimezone::UTC>(entry.loadDate));
-				;
-			sDate = Util::FormatLocalTime(mpt::chrono::default_system_clock::to_unix_seconds(unixdate), "%d %b %Y, %H:%M:%S");
+			const int64 unixSeconds = (m_modDoc.GetSoundFile().GetTimezoneInternal() == mpt::Date::LogicalTimezone::UTC)
+				? mpt::chrono::default_system_clock::to_unix_seconds(mpt::Date::default_from_UTC(mpt::Date::interpret_as_timezone<mpt::Date::LogicalTimezone::UTC>(entry.loadDate)))
+				: FindUnixSecondsFromLocal(entry.loadDate);
+			sDate = Util::FormatLocalTime(unixSeconds, "%d %b %Y, %H:%M:%S");
 		}
 		// Time + stuff
 		uint32 duration = mpt::saturate_round<uint32>(entry.openTime / HISTORY_TIMER_PRECISION);
@@ -1714,11 +1735,11 @@ void AppendNotesToControl(ComboBox& combobox, ModCommand::NOTE noteStart, ModCom
 {
 	const ModCommand::NOTE upperLimit = std::min(ModCommand::NOTE(NOTE_MAX), noteEnd);
 	for(ModCommand::NOTE note = noteStart; note <= upperLimit; note++)
-		combobox.SetItemData(combobox.AddString(mpt::ToUnicode(CSoundFile::GetNoteName(note, CSoundFile::GetDefaultNoteNames()))), note);
+		combobox.SetItemData(combobox.AddString(mpt::ToUnicode(CTrackerSoundFile::GetNoteName(note, CTrackerSoundFile::GetDefaultNoteNames()))), note);
 }
 
 
-void AppendNotesToControlEx(ComboBox& combobox, const CSoundFile &sndFile, INSTRUMENTINDEX nInstr, ModCommand::NOTE noteStart, ModCommand::NOTE noteEnd)
+void AppendNotesToControlEx(ComboBox& combobox, const CTrackerSoundFile &sndFile, INSTRUMENTINDEX nInstr, ModCommand::NOTE noteStart, ModCommand::NOTE noteEnd)
 {
 	bool addSpecial = noteStart == noteEnd;
 	if(noteStart == noteEnd)

@@ -243,7 +243,7 @@ void CChannelManagerDlg::OnApply()
 
 	BeginWaitCursor();
 
-	CriticalSection cs;
+	TrackerCriticalSection cs;
 	if(m_ModDoc->ReArrangeChannels(newChnOrder) != newChnOrder.size())
 	{
 		cs.Leave();
@@ -603,7 +603,7 @@ void CChannelManagerDlg::DrawChannels(ui::Painter &dc, const Rect &rcPaint)
 	const auto buttonFaceColor = ui::GetSystemColor(ui::SysColor::ButtonFace), windowColor = ui::GetSystemColor(ui::SysColor::Window);
 
 	uint32 col = 0, row = 0;
-	const CSoundFile &sndFile = m_ModDoc->GetSoundFile();
+	const CTrackerSoundFile &sndFile = m_ModDoc->GetSoundFile();
 	mpt::ustring s;
 	for(const auto &state : m_states)
 	{
@@ -638,10 +638,10 @@ void CChannelManagerDlg::DrawChannels(ui::Painter &dc, const Rect &rcPaint)
 		if(activate)
 			dc.FillSolidRect(btnAdjusted, windowColor);
 
-		if(chnSettings.color != ModChannelSettings::INVALID_COLOR)
+		if(sndFile.HasChannelColor(sourceChn))
 		{
 			// Channel color
-			const auto startColor = chnSettings.color;
+			const auto startColor = sndFile.GetChannelColor(sourceChn);
 			const auto endColor = activate ? windowColor : buttonFaceColor;
 			const auto width = btnAdjusted.Width() / 2;
 			auto rect = btnAdjusted;

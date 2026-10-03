@@ -20,7 +20,6 @@
 #include "TrackerSettings.h"
 #include "WindowMessages.h"
 #include "../common/mptStringBuffer.h"
-#include "mpt/fs/fs.hpp"
 #include "mpt/string/utility.hpp"
 
 
@@ -50,10 +49,10 @@ bool WelcomeDlg::OnInitDialog()
 	DialogBase::OnInitDialog();
 
 #ifdef MPT_WITH_VST
-	if(const char *vstPathEnv = std::getenv("VST_PATH"); vstPathEnv != nullptr && mpt::native_fs{}.is_directory(mpt::PathString::FromUTF8(vstPathEnv)))
+	if(const char *vstPathEnv = std::getenv("VST_PATH"); vstPathEnv != nullptr && FileSystem::IsDirectory(mpt::PathString::FromUTF8(vstPathEnv)))
 	{
 		m_vstPath = mpt::PathString::FromUTF8(vstPathEnv);
-	} else if(const mpt::PathString homeVstPath = mpt::common_directories::get_home_directory() + P_(".vst/"); mpt::native_fs{}.is_directory(homeVstPath))
+	} else if(const mpt::PathString homeVstPath = FileSystem::FindHomeDirectory() + P_(".vst/"); FileSystem::IsDirectory(homeVstPath))
 	{
 		m_vstPath = homeVstPath;
 	}
@@ -102,7 +101,7 @@ bool WelcomeDlg::OnInitDialog()
 	}
 	if(keyFile != nullptr)
 	{
-		if(mpt::native_fs{}.is_file(GetFullKeyPath(keyFile)))
+		if(FileSystem::IsFile(GetFullKeyPath(keyFile)))
 		{
 			int i = combo->AddString(UL_("OpenMPT / Chromatic (") + mpt::ustring(keyFileName) + UL_(")"));
 			combo->SetItemDataPtr(i, (void *)keyFile);

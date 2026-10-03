@@ -17,7 +17,6 @@
 #include "Reporting.h"
 #include "resource.h"
 #include "TrackerSettings.h"
-#include "mpt/fs/fs.hpp"
 
 OPENMPT_NAMESPACE_BEGIN
 

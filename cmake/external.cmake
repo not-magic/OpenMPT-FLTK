@@ -1,4 +1,4 @@
-set(OPENMPT_FLTK_INCLUDE ${OPENMPT_FLTK_SRC}/include)
+set(OPENMPT_FLTK_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/openmpt/include)
 
 add_library(mpt_ogg STATIC
 	${OPENMPT_FLTK_INCLUDE}/ogg/src/bitwise.c
@@ -40,14 +40,11 @@ add_library(mpt_pugixml STATIC ${OPENMPT_FLTK_INCLUDE}/pugixml/src/pugixml.cpp)
 target_include_directories(mpt_pugixml PUBLIC ${OPENMPT_FLTK_INCLUDE}/pugixml/src)
 target_compile_options(mpt_pugixml PRIVATE -w)
 
-find_package(ALSA REQUIRED)
 find_package(ZLIB REQUIRED)
 find_package(Threads REQUIRED)
-find_package(PkgConfig REQUIRED)
-pkg_check_modules(PULSE REQUIRED IMPORTED_TARGET libpulse libpulse-simple)
 
 add_library(mpt_rtmidi STATIC ${OPENMPT_FLTK_INCLUDE}/rtmidi/RtMidi.cpp)
 target_include_directories(mpt_rtmidi PUBLIC ${OPENMPT_FLTK_INCLUDE}/rtmidi)
-target_compile_definitions(mpt_rtmidi PUBLIC __LINUX_ALSA__)
-target_link_libraries(mpt_rtmidi PUBLIC ALSA::ALSA Threads::Threads)
+target_compile_definitions(mpt_rtmidi PUBLIC ${OPENMPT_RTMIDI_API})
+target_link_libraries(mpt_rtmidi PUBLIC ${OPENMPT_RTMIDI_LIBS} Threads::Threads)
 target_compile_options(mpt_rtmidi PRIVATE -w)

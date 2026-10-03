@@ -9,10 +9,10 @@
 
 
 #include "stdafx.h"
-#include "../common/mptFileTemporary.h"
+#include "openmpt_ext/common/mptFileTemporaryExt.h"
 #include "ui/Ui.h"
 #include "mod2wave.h"
-#include "Dlsbank.h"
+#include "DlsBankExt.h"
 #include "Mainfrm.h"
 #include "Moddoc.h"
 #include "Mpdlgs.h"
@@ -22,7 +22,7 @@
 #include "Sndfile.h"
 #include "WAVTools.h"
 #include "../common/mptFileIO.h"
-#include "../common/mptFileTemporary.h"
+#include "openmpt_ext/common/mptFileTemporaryExt.h"
 #include "../common/mptString.h"
 #include "../common/version.h"
 #include "../soundlib/AudioReadTarget.h"
@@ -45,12 +45,12 @@ extern const mpt::uchar *gszChnCfgNames[3];
 
 
 template <typename Tsample>
-static samplecount_t ReadInterleaved(CSoundFile &sndFile, Tsample *outputBuffer, std::size_t channels, samplecount_t count, DithersOpenMPT &dithers)
+static samplecount_t ReadInterleaved(CTrackerSoundFile &sndFile, Tsample *outputBuffer, std::size_t channels, samplecount_t count, DithersOpenMPT &dithers)
 {
 	sndFile.ResetMixStat();
 	MPT_ASSERT(sndFile.m_MixerSettings.gnChannels == channels);
 	AudioTargetBuffer<mpt::audio_span_interleaved<Tsample>, DithersOpenMPT> target(mpt::audio_span_interleaved<Tsample>(outputBuffer, channels, count), dithers);
-	return sndFile.Read(count, target);
+	return sndFile.Render(count, target);
 }
 
 
@@ -662,10 +662,8 @@ void CWaveConvert::OnPlayerOptions()
 	PropertySheet dlg(UL_("Mixer Settings"), this);
 	COptionsMixer mixerpage;
 	dlg.AddPage(&mixerpage);
-#if !defined(NO_REVERB) || !defined(NO_DSP) || !defined(NO_EQ) || !defined(NO_AGC)
 	COptionsPlayer dsppage;
 	dlg.AddPage(&dsppage);
-#endif
 	dlg.DoModal();
 }
 
@@ -993,9 +991,7 @@ void CDoWaveConvert::Run()
 	m_SndFile.m_PlayState.m_flags.reset(SONG_PAUSED | SONG_STEP);
 	if(m_Settings.normalize)
 	{
-#ifndef NO_AGC
 		mixersettings.DSPMask &= ~SNDDSP_AGC;
-#endif
 	}
 
 	DithersOpenMPT dithers(theApp.PRNG(), encSettings.Dither, encSettings.Channels);
@@ -1159,13 +1155,13 @@ void CDoWaveConvert::Run()
 		// Process cue points (add base offset), if there are any to process.
 		for(auto iter = patternCuePoints.rbegin(); iter != patternCuePoints.rend(); ++iter)
 		{
-			if(iter->processed)
+			if(iter->isProcessed)
 			{
 				// From this point, all cues have already been processed.
 				break;
 			}
 			iter->offset += ullSamples;
-			iter->processed = true;
+			iter->isProcessed = true;
 		}
 
 		if (m_bGivePlugsIdleTime)

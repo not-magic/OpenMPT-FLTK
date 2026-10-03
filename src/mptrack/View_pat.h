@@ -194,8 +194,8 @@ public:
 	~CViewPattern();
 
 public:
-	const CSoundFile *GetSoundFile() const;
-	CSoundFile *GetSoundFile();
+	const CTrackerSoundFile *GetSoundFile() const;
+	CTrackerSoundFile *GetSoundFile();
 
 	const ModSequence &Order() const;
 	ModSequence &Order();
@@ -473,9 +473,9 @@ private:
 	CHANNELINDEX FindGroupRecordChannel(RecordGroup recordGroup, bool forceFreeChannel, CHANNELINDEX startChannel = 0) const;
 
 	bool BuildChannelControlCtxMenu(HMENU hMenu, CInputHandler *ih) const;
-	bool BuildPluginCtxMenu(HMENU hMenu, uint32 nChn, const CSoundFile &sndFile) const;
+	bool BuildPluginCtxMenu(HMENU hMenu, uint32 nChn, const CTrackerSoundFile &sndFile) const;
 	bool BuildRecordCtxMenu(HMENU hMenu, CInputHandler *ih, CHANNELINDEX nChn) const;
-	bool BuildSoloMuteCtxMenu(HMENU hMenu, CInputHandler *ih, uint32 nChn, const CSoundFile &sndFile) const;
+	bool BuildSoloMuteCtxMenu(HMENU hMenu, CInputHandler *ih, uint32 nChn, const CTrackerSoundFile &sndFile) const;
 	bool BuildRowInsDelCtxMenu(HMENU hMenu, CInputHandler *ih) const;
 	bool BuildMiscCtxMenu(HMENU hMenu, CInputHandler *ih) const;
 	bool BuildSelectionCtxMenu(HMENU hMenu, CInputHandler *ih) const;
@@ -504,12 +504,12 @@ private:
 	bool IsLiveRecord() const;
 
 	// Returns edit position.
-	PatternEditPos GetEditPos(const CSoundFile &sndFile, const bool liveRecord) const;
+	PatternEditPos GetEditPos(const CTrackerSoundFile &sndFile, const bool liveRecord) const;
 
 	// Returns pointer to modcommand at given position.
 	// If the position is not valid, a pointer to a dummy command is returned.
 	ModCommand &GetModCommand(PatternCursor cursor);
-	ModCommand &GetModCommand(CSoundFile &sndFile, const PatternEditPos &pos);
+	ModCommand &GetModCommand(CTrackerSoundFile &sndFile, const PatternEditPos &pos);
 
 	// Returns true if pattern editing is enabled.
 	bool IsEditingEnabled() const { return m_Status[psRecordingEnabled]; }
@@ -549,6 +549,6 @@ public:
 
 DECLARE_FLAGSET(CViewPattern::PatternStatus);
 
-void getXParam(ModCommand::COMMAND command, PATTERNINDEX nPat, ROWINDEX nRow, CHANNELINDEX nChannel, const CSoundFile &sndFile, uint32 &xparam, uint32 &multiplier);
+void getXParam(ModCommand::COMMAND command, PATTERNINDEX nPat, ROWINDEX nRow, CHANNELINDEX nChannel, const CTrackerSoundFile &sndFile, uint32 &xparam, uint32 &multiplier);
 
 OPENMPT_NAMESPACE_END

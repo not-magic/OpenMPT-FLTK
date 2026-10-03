@@ -33,7 +33,7 @@ static constexpr EffectCommand ExtendedCommands[] = {CMD_OFFSET, CMD_PATTERNBREA
 
 // For a given pattern cell, check if it contains a command supported by the X-Param mechanism.
 // If so, calculate the multipler for this cell and the value of all the other cells belonging to this param.
-void getXParam(ModCommand::COMMAND command, PATTERNINDEX nPat, ROWINDEX nRow, CHANNELINDEX nChannel, const CSoundFile &sndFile, uint32 &xparam, uint32 &multiplier)
+void getXParam(ModCommand::COMMAND command, PATTERNINDEX nPat, ROWINDEX nRow, CHANNELINDEX nChannel, const CTrackerSoundFile &sndFile, uint32 &xparam, uint32 &multiplier)
 {
 	uint32 xp = 0, mult = 1;
 	int cmdRow = static_cast<int>(nRow);
@@ -162,7 +162,7 @@ bool CPatternPropertiesDlg::OnInitDialog()
 
 	m_numRows.SetEditNumberOnly(true);
 
-	const CSoundFile &sndFile = m_modDoc.GetSoundFile();
+	const CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 	const CModSpecifications &specs = sndFile.GetModSpecifications();
 	m_numRows.SetRedraw(false);
 	for(ROWINDEX irow = specs.patternRowsMin; irow <= specs.patternRowsMax; irow++)
@@ -191,7 +191,7 @@ void CPatternPropertiesDlg::SetCurrentPattern(PATTERNINDEX pat)
 {
 	if(m_locked)
 		return;
-	const CSoundFile &sndFile = m_modDoc.GetSoundFile();
+	const CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 	const bool validPat = sndFile.Patterns.IsValidPat(pat);
 
 	for(auto id : { IDC_EDIT2, IDC_COMBO1, IDC_BUTTON_HALF, IDC_BUTTON_DOUBLE, IDC_RADIO1, IDC_RADIO2, IDC_CHECK2, IDC_BUTTON1, IDC_ROWSPERBEAT, IDC_ROWSPERMEASURE })
@@ -266,7 +266,7 @@ bool CPatternPropertiesDlg::ValidatePatternProperties()
 {
 	StorePatternProperties();
 
-	CSoundFile &sndFile = m_modDoc.GetSoundFile();
+	CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 	auto &prop = GetPatternProperties();
 	// Check for valid time signatures
 	if((prop.rowsPerBeat != 0 || prop.rowsPerMeasure != 0) && !CPattern::IsValidSignature(prop.rowsPerBeat, prop.rowsPerMeasure))
@@ -350,7 +350,7 @@ CPatternPropertiesDlg::PatternProperties& CPatternPropertiesDlg::GetPatternPrope
 	if(auto p = m_properties.find(pat); p != m_properties.end())
 		return p->second;
 
-	const CSoundFile &sndFile = m_modDoc.GetSoundFile();
+	const CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 	PatternProperties prop;
 	if(sndFile.Patterns.IsValidPat(pat))
 	{
@@ -399,7 +399,7 @@ void CPatternPropertiesDlg::OnResetColor()
 
 void CPatternPropertiesDlg::OnHalfRowNumber()
 {
-	const CSoundFile &sndFile = m_modDoc.GetSoundFile();
+	const CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 
 	uint32 nRows = GetDlgItemInt(IDC_COMBO1, nullptr, false);
 	nRows /= 2;
@@ -411,7 +411,7 @@ void CPatternPropertiesDlg::OnHalfRowNumber()
 
 void CPatternPropertiesDlg::OnDoubleRowNumber()
 {
-	const CSoundFile &sndFile = m_modDoc.GetSoundFile();
+	const CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 
 	uint32 nRows = GetDlgItemInt(IDC_COMBO1, nullptr, false);
 	nRows *= 2;
@@ -457,7 +457,7 @@ void CPatternPropertiesDlg::OnOK()
 	if(!ValidatePatternProperties())
 		return;
 
-	CSoundFile &sndFile = m_modDoc.GetSoundFile();
+	CTrackerSoundFile &sndFile = m_modDoc.GetSoundFile();
 	bool modified = false;
 	for(const auto &[pat, prop] : m_properties)
 	{
@@ -576,7 +576,7 @@ void CEditCommand::DoDataExchange(DataExchange* pDX)
 }
 
 
-CEditCommand::CEditCommand(CSoundFile &sndFile)
+CEditCommand::CEditCommand(CTrackerSoundFile &sndFile)
     : sndFile(sndFile), effectInfo(sndFile)
 {
 	DialogBase::Create(IDD_PATTERN_EDITCOMMAND);
@@ -1177,7 +1177,7 @@ bool CChordEditor::OnInitDialog()
 			noteVal = MPTChord::noNote;
 		} else
 		{
-			s = mpt::ToUnicode(CSoundFile::GetDefaultNoteName(mpt::wrapping_modulo(note, 12)));
+			s = mpt::ToUnicode(CTrackerSoundFile::GetDefaultNoteName(mpt::wrapping_modulo(note, 12)));
 			const int octave = mpt::wrapping_divide(note, 12);
 			if(octave > 0)
 				s += ui::Format(UL_(" (+%d)"), octave);
@@ -1377,7 +1377,7 @@ void CSplitKeyboardSettings::DoDataExchange(DataExchange *pDX)
 }
 
 
-CSplitKeyboardSettings::CSplitKeyboardSettings(Wnd *parent, CSoundFile &sf, SplitKeyboardSettings &settings)
+CSplitKeyboardSettings::CSplitKeyboardSettings(Wnd *parent, CTrackerSoundFile &sf, SplitKeyboardSettings &settings)
 	: DialogBase{IDD_KEYBOARD_SPLIT, parent}
 	, sndFile{sf}
 	, m_Settings{settings}
@@ -1611,13 +1611,13 @@ void QuickChannelProperties::UpdateDisplay()
 
 	const bool isFirst = (m_channel <= 0), isLast = (m_channel >= m_document->GetNumChannels() - 1);
 
-	m_colorBtn.SetColor(settings.color);
+	m_colorBtn.SetColor(m_document->GetSoundFile().GetChannelColor(m_channel));
 	m_colorBtnPrev.EnableWindow(isFirst ? false : true);
 	if(!isFirst)
-		m_colorBtnPrev.SetColor(m_document->GetSoundFile().ChnSettings[m_channel - 1].color);
+		m_colorBtnPrev.SetColor(m_document->GetSoundFile().GetChannelColor(m_channel - 1));
 	m_colorBtnNext.EnableWindow(isLast ? false : true);
 	if(!isLast)
-		m_colorBtnNext.SetColor(m_document->GetSoundFile().ChnSettings[m_channel + 1].color);
+		m_colorBtnNext.SetColor(m_document->GetSoundFile().GetChannelColor(m_channel + 1));
 
 	m_settingsChanged = false;
 	m_visible = true;
@@ -1781,7 +1781,7 @@ void QuickChannelProperties::OnChangeColor()
 	if(auto color = m_colorBtn.PickChannelColor(m_document->GetSoundFile(), m_channel); color.has_value())
 	{
 		PrepareUndo();
-		m_document->GetSoundFile().ChnSettings[m_channel].color = *color;
+		m_document->GetSoundFile().SetChannelColor(m_channel, *color);
 		if(m_document->SupportsChannelColors())
 			m_document->SetModified();
 		m_document->UpdateAllViews(nullptr, GeneralHint(m_channel).Channels(), this);
@@ -1806,12 +1806,13 @@ void QuickChannelProperties::OnPickNextColor()
 
 void QuickChannelProperties::PickColorFromChannel(CHANNELINDEX channel)
 {
-	auto &channels = m_document->GetSoundFile().ChnSettings;
-	if(channels[channel].color != channels[m_channel].color)
+	auto &sndFile = m_document->GetSoundFile();
+	const uint32 color = sndFile.GetChannelColor(channel);
+	if(color != sndFile.GetChannelColor(m_channel))
 	{
 		PrepareUndo();
-		channels[m_channel].color = channels[channel].color;
-		m_colorBtn.SetColor(channels[m_channel].color);
+		sndFile.SetChannelColor(m_channel, color);
+		m_colorBtn.SetColor(color);
 		if(m_document->SupportsChannelColors())
 			m_document->SetModified();
 		m_document->UpdateAllViews(nullptr, GeneralHint(m_channel).Channels(), this);

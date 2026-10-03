@@ -116,7 +116,7 @@ protected:
 	bool EnvToggleReleaseNode(int nPoint);
 
 	// Set envelope status
-	bool EnvToggleEnv(EnvelopeType envelope, CSoundFile &sndFile, ModInstrument &ins, bool enable, EnvelopeNode::value_t defaultValue, EnvelopeFlags extraFlags = EnvelopeFlags(0));
+	bool EnvToggleEnv(EnvelopeType envelope, CTrackerSoundFile &sndFile, ModInstrument &ins, bool enable, EnvelopeNode::value_t defaultValue, EnvelopeFlags extraFlags = EnvelopeFlags(0));
 	bool EnvSetVolEnv(bool enable);
 	bool EnvSetPanEnv(bool enable);
 	bool EnvSetPitchEnv(bool enable);

@@ -21,7 +21,7 @@
 
 OPENMPT_NAMESPACE_BEGIN
 
-class CSoundFile;
+class CTrackerSoundFile;
 class CMIDIMapper;
 
 class CMIDIMappingDialog : public ResizableDialog
@@ -30,7 +30,7 @@ public:
 	CMIDIMappingDirective m_Setting;
 
 protected:
-	CSoundFile &m_sndFile;
+	CTrackerSoundFile &m_sndFile;
 	CMIDIMapper &m_rMIDIMapper;
 	WindowHandle oldMIDIRecondWnd;
 
@@ -46,7 +46,7 @@ protected:
 	uint8 m_lastCC = uint8_max;
 
 public:
-	CMIDIMappingDialog(Wnd *pParent, CSoundFile &rSndfile);
+	CMIDIMappingDialog(Wnd *pParent, CTrackerSoundFile &rSndfile);
 	~CMIDIMappingDialog();
 
 protected:

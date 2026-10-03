@@ -18,12 +18,12 @@
 
 OPENMPT_NAMESPACE_BEGIN
 
-class CSoundFile;
+class CTrackerSoundFile;
 
 class CPSRatioCalc : public DialogBase
 {
 public:
-	CPSRatioCalc(const CSoundFile &sndFile, SAMPLEINDEX sample, double ratio, Wnd *parent = nullptr);
+	CPSRatioCalc(const CTrackerSoundFile &sndFile, SAMPLEINDEX sample, double ratio, Wnd *parent = nullptr);
 
 	double m_ratio = 100.0;
 
@@ -49,7 +49,7 @@ protected:
 	CNumberEdit m_EditDurationOrig, m_EditDurationNew;
 	CNumberEdit m_EditRowsOrig, m_EditRowsNew;
 
-	const CSoundFile &m_sndFile;
+	const CTrackerSoundFile &m_sndFile;
 	SAMPLEINDEX m_sampleIndex = 0;
 
 	double m_durationOrig = 0, m_durationNew = 0;

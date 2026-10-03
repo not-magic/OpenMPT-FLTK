@@ -15,5 +15,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(OPENMPT_FLTK_SRC ${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 include(cmake/fltk.cmake)
+include(cmake/platform.cmake)
 include(cmake/external.cmake)
+include(cmake/libopenmpt.cmake)
 include(cmake/openmpt.cmake)

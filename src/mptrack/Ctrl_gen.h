@@ -17,7 +17,7 @@
 
 #include "CDecimalSupport.h"
 #include "Globals.h"
-#include "../misc/mptClock.h"
+#include "openmpt_ext/misc/mptClockExt.h"
 
 OPENMPT_NAMESPACE_BEGIN
 

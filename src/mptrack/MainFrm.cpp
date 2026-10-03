@@ -18,7 +18,7 @@
 #include "CloseMainDialog.h"
 #include "ColorConfigDlg.h"
 #include "dlg_misc.h"
-#include "Dlsbank.h"
+#include "DlsBankExt.h"
 #include "FileDialog.h"
 #include "FolderScanner.h"
 #include "GeneralConfigDlg.h"
@@ -55,7 +55,6 @@
 #include "../soundlib/PlaybackTest.h"
 #include "mpt/audio/span.hpp"
 #include "mpt/base/alloc.hpp"
-#include "mpt/fs/fs.hpp"
 #include "mpt/io_file/fstream.hpp"
 #include "mpt/io_file/inputfile.hpp"
 #include "mpt/io_file_read/inputfile_filecursor.hpp"
@@ -175,7 +174,7 @@ static constexpr uint32 StatusBarIndicators[] =
 // CMainFrame construction/destruction
 CMainFrame::CMainFrame()
 	: SoundDevice::CallbackBufferHandler<DithersOpenMPT>(theApp.PRNG())
-	, m_SoundDeviceFillBufferCriticalSection(CriticalSection::InitialState::Unlocked)
+	, m_SoundDeviceFillBufferCriticalSection(TrackerCriticalSection::InitialState::Unlocked)
 	, m_InputHandler{this}
 {
 	MemsetZero(gcolrefVuMeter);
@@ -390,7 +389,7 @@ void CMainFrame::OnDropFiles(const std::vector<mpt::PathString> &files)
 	{
 #ifdef MPT_BUILD_DEBUG
 		// Debug Hack: Quickly scan a folder containing module files (without running out of window handles ;)
-		if(scanAll && mpt::native_fs{}.is_directory(file))
+		if(scanAll && FileSystem::IsDirectory(file))
 		{
 			FolderScanner scanner(file, FolderScanner::kOnlyFiles | FolderScanner::kFindInSubDirectories);
 			mpt::PathString scanName;
@@ -401,7 +400,7 @@ void CMainFrame::OnDropFiles(const std::vector<mpt::PathString> &files)
 				if(!inputFile.IsValid())
 					continue;
 				SetHelpText(scanName.GetFilename().ToUnicode());
-				auto sndFile = std::make_unique<CSoundFile>();
+				auto sndFile = std::make_unique<CTrackerSoundFile>();
 				MPT_LOG_GLOBAL(LogDebug, "info", UL_("Loading ") + scanName.ToUnicode());
 				if(!sndFile->Create(GetFileReader(inputFile), CSoundFile::loadCompleteModule, nullptr))
 				{
@@ -418,7 +417,7 @@ void CMainFrame::OnDropFiles(const std::vector<mpt::PathString> &files)
 			mpt::IO::InputFile inputFile(file, TrackerSettings::Instance().MiscCacheCompleteFileBeforeLoading);
 			if(!inputFile.IsValid())
 				continue;
-			auto sndFile = std::make_unique<CSoundFile>();
+			auto sndFile = std::make_unique<CTrackerSoundFile>();
 			SetHelpText(file.GetFilename().ToUnicode());
 			MPT_LOG_GLOBAL(LogDebug, "info", UL_("Loading ") + file.ToUnicode());
 			if(!sndFile->Create(GetFileReader(inputFile), CSoundFile::loadCompleteModule, nullptr))
@@ -757,7 +756,7 @@ void CMainFrame::SoundCallbackLockedCallback(SoundDevice::CallbackBuffer<Dithers
 	MPT_ASSERT(buffer.GetNumFrames() <= std::numeric_limits<samplecount_t>::max());
 	samplecount_t framesToRender = static_cast<samplecount_t>(buffer.GetNumFrames());
 	MPT_ASSERT(framesToRender > 0);
-	samplecount_t renderedFrames = m_pSndFile->Read(framesToRender, target, source, std::ref(m_VUMeterOutput), std::ref(m_VUMeterInput));
+	samplecount_t renderedFrames = m_pSndFile->Render(framesToRender, target, source, std::ref(m_VUMeterOutput), std::ref(m_VUMeterInput));
 	MPT_ASSERT(renderedFrames <= framesToRender);
 	[[maybe_unused]] samplecount_t remainingFrames = framesToRender - renderedFrames;
 	MPT_ASSERT(remainingFrames >= 0); // remaining buffer is filled with silence automatically
@@ -1097,32 +1096,24 @@ bool CMainFrame::DoNotification(uint32 dwSamplesRead, int64 streamPosition)
 }
 
 
-void CMainFrame::UpdateDspEffects(CSoundFile &sndFile, bool reset)
+void CMainFrame::UpdateDspEffects(CTrackerSoundFile &sndFile, bool reset)
 {
-	CriticalSection cs;
+	TrackerCriticalSection cs;
 #ifndef NO_REVERB
 	sndFile.m_Reverb.m_Settings = TrackerSettings::Instance().m_ReverbSettings;
 #endif
-#ifndef NO_DSP
 	sndFile.m_Surround.m_Settings = TrackerSettings::Instance().m_SurroundSettings;
-#endif
-#ifndef NO_DSP
 	sndFile.m_MegaBass.m_Settings = TrackerSettings::Instance().m_MegaBassSettings;
-#endif
-#ifndef NO_EQ
 	sndFile.SetEQGains(TrackerSettings::Instance().m_EqSettings.Gains, TrackerSettings::Instance().m_EqSettings.Freqs, reset);
-#endif
-#ifndef NO_DSP
 	sndFile.m_BitCrush.m_Settings = TrackerSettings::Instance().m_BitCrushSettings;
-#endif
 	sndFile.SetDspEffects(TrackerSettings::Instance().MixerDSPMask);
 	sndFile.InitPlayer(reset);
 }
 
 
-void CMainFrame::UpdateAudioParameters(CSoundFile &sndFile, bool reset)
+void CMainFrame::UpdateAudioParameters(CTrackerSoundFile &sndFile, bool reset)
 {
-	CriticalSection cs;
+	TrackerCriticalSection cs;
 	if (TrackerSettings::Instance().patternSetup & PatternSetup::IgnoreMutedChannels)
 		TrackerSettings::Instance().MixerFlags |= SNDMIX_MUTECHNMODE;
 	else
@@ -1312,7 +1303,7 @@ void CMainFrame::UnsetPlaybackSoundFile()
 	MPT_ASSERT_ALWAYS(!gpSoundDevice || !gpSoundDevice->IsPlaying());
 	if(m_pSndFile)
 	{
-		CriticalSection cs;
+		TrackerCriticalSection cs;
 		m_pSndFile->SuspendPlugins();
 		m_pSndFile->m_PlayState.m_flags.reset(SONG_PAUSED);
 		if(m_pSndFile == &m_WaveFile)
@@ -1343,7 +1334,7 @@ void CMainFrame::UnsetPlaybackSoundFile()
 }
 
 
-void CMainFrame::SetPlaybackSoundFile(CSoundFile *pSndFile)
+void CMainFrame::SetPlaybackSoundFile(CTrackerSoundFile *pSndFile)
 {
 	MPT_ASSERT_ALWAYS(pSndFile);
 	m_pSndFile = pSndFile;
@@ -1354,7 +1345,7 @@ bool CMainFrame::PlayMod(CModDoc *pModDoc)
 {
 	MPT_ASSERT_ALWAYS(!theApp.GetGlobalMutexRef().IsLockedByCurrentThread());
 	if(!pModDoc) return false;
-	CSoundFile &sndFile = pModDoc->GetSoundFile();
+	CTrackerSoundFile &sndFile = pModDoc->GetSoundFile();
 	if(!IsValidSoundFile(sndFile)) return false;
 
 	// if something is playing, pause it
@@ -1436,7 +1427,7 @@ bool CMainFrame::StopMod(CModDoc *pModDoc)
 }
 
 
-bool CMainFrame::StopSoundFile(CSoundFile *pSndFile)
+bool CMainFrame::StopSoundFile(CTrackerSoundFile *pSndFile)
 {
 	MPT_ASSERT_ALWAYS(!theApp.GetGlobalMutexRef().IsLockedByCurrentThread());
 	if(!IsValidSoundFile(pSndFile)) return false;
@@ -1454,7 +1445,7 @@ bool CMainFrame::StopSoundFile(CSoundFile *pSndFile)
 }
 
 
-bool CMainFrame::PlaySoundFile(CSoundFile *pSndFile)
+bool CMainFrame::PlaySoundFile(CTrackerSoundFile *pSndFile)
 {
 	MPT_ASSERT_ALWAYS(!theApp.GetGlobalMutexRef().IsLockedByCurrentThread());
 	if(!IsValidSoundFile(pSndFile)) return false;
@@ -1494,7 +1485,7 @@ bool CMainFrame::PlayDLSInstrument(const CDLSBank &bank, uint32 instr, uint32 re
 	bool ok = false;
 	BeginWaitCursor();
 	{
-		CriticalSection cs;
+		TrackerCriticalSection cs;
 		if(ModCommand::IsNote(note))
 		{
 			InitPreview();
@@ -1530,7 +1521,7 @@ bool CMainFrame::PlaySoundFile(const mpt::PathString &filename, ModCommand::NOTE
 	bool ok = false;
 	BeginWaitCursor();
 	{
-		CriticalSection cs;
+		TrackerCriticalSection cs;
 		static mpt::PathString prevFile;
 		// Did we already load this file for previewing? Don't load it again if the preview is still running.
 		ok = (prevFile == filename && m_pSndFile == &m_WaveFile);
@@ -1582,12 +1573,12 @@ bool CMainFrame::PlaySoundFile(const mpt::PathString &filename, ModCommand::NOTE
 }
 
 
-bool CMainFrame::PlaySoundFile(CSoundFile &sndFile, INSTRUMENTINDEX nInstrument, SAMPLEINDEX nSample, ModCommand::NOTE note, int volume)
+bool CMainFrame::PlaySoundFile(CTrackerSoundFile &sndFile, INSTRUMENTINDEX nInstrument, SAMPLEINDEX nSample, ModCommand::NOTE note, int volume)
 {
 	bool ok = false;
 	BeginWaitCursor();
 	{
-		CriticalSection cs;
+		TrackerCriticalSection cs;
 		InitPreview();
 		m_WaveFile.ChangeModTypeTo(sndFile.GetType(), false);
 		m_WaveFile.m_playBehaviour = sndFile.m_playBehaviour;
@@ -1770,7 +1761,7 @@ void CMainFrame::SetupSoundCard(SoundDevice::Settings deviceSettings, SoundDevic
 	} else
 	{
 		// No need to restart playback
-		CriticalSection cs;
+		TrackerCriticalSection cs;
 		if(GetSoundFilePlaying()) UpdateAudioParameters(*GetSoundFilePlaying(), false);
 	}
 }
@@ -1778,7 +1769,7 @@ void CMainFrame::SetupSoundCard(SoundDevice::Settings deviceSettings, SoundDevic
 
 void CMainFrame::SetupPlayer()
 {
-	CriticalSection cs;
+	TrackerCriticalSection cs;
 	if(GetSoundFilePlaying()) UpdateAudioParameters(*GetSoundFilePlaying(), false);
 }
 
@@ -1791,7 +1782,7 @@ void CMainFrame::SetupMiscOptions()
 	else
 		TrackerSettings::Instance().MixerFlags &= ~SNDMIX_MUTECHNMODE;
 	{
-		CriticalSection cs;
+		TrackerCriticalSection cs;
 		if(GetSoundFilePlaying()) UpdateAudioParameters(*GetSoundFilePlaying());
 	}
 
@@ -1929,9 +1920,7 @@ void CMainFrame::OnViewOptions()
 		COptionsKeyboard keyboard;
 		COptionsColors colors;
 		COptionsMixer mixerdlg;
-#if !defined(NO_REVERB) || !defined(NO_DSP) || !defined(NO_EQ) || !defined(NO_AGC)
 		COptionsPlayer dspdlg;
-#endif
 		CMidiSetupDlg mididlg{TrackerSettings::Instance().midiSetup, TrackerSettings::Instance().GetCurrentMIDIDevice()};
 		PathConfigDlg pathsdlg;
 		COptionsAdvanced advanced;
@@ -1941,19 +1930,13 @@ void CMainFrame::OnViewOptions()
 	dlg.AddPage(&pages->general);
 	dlg.AddPage(&pages->sounddlg);
 	dlg.AddPage(&pages->mixerdlg);
-#if !defined(NO_REVERB) || !defined(NO_DSP) || !defined(NO_EQ) || !defined(NO_AGC)
 	dlg.AddPage(&pages->dspdlg);
-#endif
 	dlg.AddPage(&pages->smpeditor);
 	dlg.AddPage(&pages->keyboard);
 	dlg.AddPage(&pages->colors);
 	dlg.AddPage(&pages->mididlg);
 	dlg.AddPage(&pages->pathsdlg);
 	dlg.AddPage(&pages->advanced);
-	if(mpt::OS::Windows::IsWine())
-	{
-		dlg.AddPage(&pages->winedlg);
-	}
 	m_bOptionsLocked = true;
 	m_SoundCardOptionsDialog = &pages->sounddlg;
 
@@ -1972,7 +1955,7 @@ void CMainFrame::OnPluginManager()
 
 	if (pModDoc)
 	{
-		CSoundFile &sndFile = pModDoc->GetSoundFile();
+		CTrackerSoundFile &sndFile = pModDoc->GetSoundFile();
 		//Find empty plugin slot
 		for (PLUGINDEX nPlug = 0; nPlug < MAX_MIXPLUGINS; nPlug++)
 		{
@@ -2334,7 +2317,7 @@ void CMainFrame::OpenMenuItemFile(const uint32 nId, const bool isTemplateFile)
 	if (nIndex < vecFilePaths.size())
 	{
 		const mpt::PathString& sPath = vecFilePaths[nIndex];
-		const bool bExists = mpt::native_fs{}.is_file(sPath);
+		const bool bExists = FileSystem::IsFile(sPath);
 		Document *pDoc = nullptr;
 		if(bExists)
 		{
@@ -2700,7 +2683,7 @@ LResult CMainFrame::OnCustomKeyMsg(WParam wParam, LParam lParam)
 				&& wnd != nullptr
 				&& dynamic_cast<CViewPattern *>(wnd) == nullptr)
 			{
-				CriticalSection cs;
+				TrackerCriticalSection cs;
 
 				ORDERINDEX order = m_pSndFile->m_PlayState.m_nCurrentOrder;
 				if(cmd == kcPrevOrder || cmd == kcPrevOrderAtMeasureEnd || cmd == kcPrevOrderAtBeatEnd || cmd == kcPrevOrderAtRowEnd)
@@ -2746,18 +2729,18 @@ LResult CMainFrame::OnCustomKeyMsg(WParam wParam, LParam lParam)
 }
 
 
-void CMainFrame::InitRenderer(CSoundFile *pSndFile)
+void CMainFrame::InitRenderer(CTrackerSoundFile *pSndFile)
 {
-	CriticalSection cs;
+	TrackerCriticalSection cs;
 	pSndFile->m_bIsRendering = true;
 	pSndFile->SuspendPlugins();
 	pSndFile->ResumePlugins();
 }
 
 
-void CMainFrame::StopRenderer(CSoundFile *pSndFile)
+void CMainFrame::StopRenderer(CTrackerSoundFile *pSndFile)
 {
-	CriticalSection cs;
+	TrackerCriticalSection cs;
 	pSndFile->SuspendPlugins();
 	pSndFile->m_bIsRendering = false;
 }
@@ -2914,7 +2897,7 @@ void CMainFrame::LoadMetronomeSamples()
 		{TrackerSettings::Instance().metronomeSampleMeasure, m_metronomeMeasure, 4, 256},
 		{TrackerSettings::Instance().metronomeSampleBeat, m_metronomeBeat, 2, 192},
 	};
-	CriticalSection cs;
+	TrackerCriticalSection cs;
 	for(auto &[path, sample, speed, amp] : metronomeSamples)
 	{
 		sample.FreeSample();
@@ -2967,7 +2950,7 @@ void CMainFrame::UpdateMetronomeSamples()
 		measure = &m_metronomeMeasure;
 		beat = &m_metronomeBeat;
 	}
-	CriticalSection cs;
+	TrackerCriticalSection cs;
 	m_pSndFile->SetMetronomeSamples(measure, beat);
 }
 
@@ -2976,7 +2959,7 @@ void CMainFrame::UpdateMetronomeVolume()
 {
 	const float linear = CModDoc::DecibelsToLinear(TrackerSettings::Instance().metronomeVolume, 256.0f);
 	const uint16 volume = std::clamp(mpt::saturate_round<uint16>(linear), uint16(0), uint16(256));
-	CriticalSection cs;
+	TrackerCriticalSection cs;
 	m_metronomeBeat.nVolume = m_metronomeMeasure.nVolume = volume;
 }
 
@@ -2994,7 +2977,7 @@ Menu CMainFrame::CreateFileMenu(const size_t maxCount, std::vector<mpt::PathStri
 		mpt::PathString basePath;
 		basePath = (i == 0) ? theApp.GetInstallPath() : theApp.GetConfigPath();
 		basePath += folderName;
-		if(!mpt::native_fs{}.is_directory(basePath))
+		if(!FileSystem::IsDirectory(basePath))
 			continue;
 
 		FolderScanner scanner(basePath, FolderScanner::kOnlyFiles);
@@ -3176,7 +3159,7 @@ void CMainFrame::OnCreateMixerDump()
 	for(const auto &fileName : dlg.GetFilenames())
 	{
 		MPT_LOG_GLOBAL(LogDebug, "info", UL_("Loading ") + fileName.ToUnicode());
-		auto sndFile = std::make_unique<CSoundFile>();
+		auto sndFile = std::make_unique<CTrackerSoundFile>();
 		mpt::IO::InputFile f(fileName);
 		if(!f.IsValid())
 			continue;
@@ -3236,7 +3219,7 @@ void CMainFrame::OnVerifyMixerDump()
 			}
 
 			PlaybackTest playTest{testFileReader};
-			auto sndFile = std::make_unique<CSoundFile>();
+			auto sndFile = std::make_unique<CTrackerSoundFile>();
 			sndFile->Create(GetFileReader(modFile));
 
 			const auto result = PlaybackTest::Compare(playTest, sndFile->CreatePlaybackTest(playTest.GetSettings()));

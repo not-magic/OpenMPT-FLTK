@@ -295,7 +295,7 @@ void COptionsColors::OnOK()
 	CMainFrame::UpdateColors();
 	CMainFrame *pMainFrm = CMainFrame::GetMainFrame();
 	if (pMainFrm) pMainFrm->PostMessage(MSG_MOD_INVALIDATEPATTERNS, HINT_MPTOPTIONS);
-	CSoundFile::SetDefaultNoteNames();
+	CTrackerSoundFile::SetDefaultNoteNames();
 	PropertyPage::OnOK();
 }
 
