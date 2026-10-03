@@ -2347,7 +2347,9 @@ void CMainFrame::OnExampleSong(uint32 nId)
 
 void CMainFrame::OnOpenMRUItem(uint32 nId)
 {
-	theApp.OpenDocumentFile(TrackerSettings::Instance().mruFiles[nId - ID_MRU_LIST_FIRST]);
+	// Copy, since opening the file reorders mruFiles
+	const mpt::PathString path = TrackerSettings::Instance().mruFiles[nId - ID_MRU_LIST_FIRST];
+	theApp.OpenDocumentFile(path);
 }
 
 

@@ -564,8 +564,10 @@ Document *CTrackApp::OpenTemplateFile(const mpt::PathString &file) const
 
 void CTrackApp::AddToRecentFileList(const mpt::PathString &path)
 {
-	RemoveMruItem(path);
-	TrackerSettings::Instance().mruFiles.insert(TrackerSettings::Instance().mruFiles.begin(), path);
+	// path may refer to an mruFiles entry, which RemoveMruItem erases
+	const mpt::PathString pathCopy = path;
+	RemoveMruItem(pathCopy);
+	TrackerSettings::Instance().mruFiles.insert(TrackerSettings::Instance().mruFiles.begin(), pathCopy);
 	if(TrackerSettings::Instance().mruFiles.size() > TrackerSettings::Instance().mruListLength)
 	{
 		TrackerSettings::Instance().mruFiles.resize(TrackerSettings::Instance().mruListLength);
