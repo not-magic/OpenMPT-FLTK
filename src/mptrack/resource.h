@@ -1087,6 +1087,7 @@
 #define ID_PATTERNPASTE                 32875
 #define ID_NETLINK_MODPLUG              32876
 #define ID_NETLINK_TOP_PICKS            32877
+#define ID_NETLINK_FLTK_GITHUB          32873
 #define ID_SETRESTARTPOS                32878
 #define ID_SAMPLE_STEREOCONVERT         32879
 #define ID_SAMPLE_TRIM                  32880

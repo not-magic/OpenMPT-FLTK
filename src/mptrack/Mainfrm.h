@@ -418,7 +418,6 @@ protected:
 	void OnUpdateMRUItem(CmdUI *cmd);
 	LResult OnInvalidatePatterns(WParam, LParam);
 	LResult OnCustomKeyMsg(WParam, LParam);
-	void OnInternetUpdate();
 	void OnUpdateAvailable();
 	void OnShowSettingsFolder();
 	bool CanDropFiles(Point) const override { return true; }

@@ -3482,6 +3482,7 @@ const StringResource stringResources[] = {
 	{ID_PATTERN_SHRINK, "Shrink Pattern\nShrink Pattern"},
 	{ID_HELP_SEARCH, "Displays the help index\nHelp Index"},
 	{ID_NETLINK_MODPLUG, "Visit the OpenMPT website"},
+	{ID_NETLINK_FLTK_GITHUB, "Visit the OpenMPT-FLTK GitHub page"},
 	{ID_NETLINK_TOP_PICKS, "Visit our list of free web resources!"},
 	{IDD_TREEVIEW, "Show or hide the tree view"},
 	{ID_SAMPLE_TRIM, "Delete everything except the current selection\nTrim Sample"},
@@ -5308,15 +5309,6 @@ static const MenuEntry menu_IDR_MAINFRAME_5[] = {
 	{"&Find MPT Hacks in Song", ID_VIEW_MPTHACKS, 0, nullptr, 0},
 };
 static const MenuEntry menu_IDR_MAINFRAME_7[] = {
-	{"&New Window", ID_WINDOW_NEW, 0, nullptr, 0},
-	{nullptr, 0, 0, nullptr, 0},
-	{"&Cascade", ID_WINDOW_CASCADE, 0, nullptr, 0},
-	{"&Tile Horizontal", ID_WINDOW_TILE_HORZ, 0, nullptr, 0},
-	{"Tile &Vertical", ID_WINDOW_TILE_VERT, 0, nullptr, 0},
-	{"&Arrange Icons", ID_WINDOW_ARRANGE, 0, nullptr, 0},
-	{"S&plit", ID_WINDOW_SPLIT, 0, nullptr, 0},
-};
-static const MenuEntry menu_IDR_MAINFRAME_8[] = {
 	{"&Help...", ID_HELPSHOW, 0, nullptr, 0},
 	{"&Report a Bug", ID_REPORT_BUG, 0, nullptr, 0},
 	{nullptr, 0, 0, nullptr, 0},
@@ -5324,9 +5316,9 @@ static const MenuEntry menu_IDR_MAINFRAME_8[] = {
 	{"Show Settings Folder", ID_HELP_SHOWSETTINGSFOLDER, 0, nullptr, 0},
 	{nullptr, 0, 0, nullptr, 0},
 	{"&OpenMPT Website", ID_NETLINK_MODPLUG, 0, nullptr, 0},
+	{"OpenMPT-FLTK &GitHub", ID_NETLINK_FLTK_GITHUB, 0, nullptr, 0},
 	{"&Web Resources", ID_NETLINK_TOP_PICKS, 0, nullptr, 0},
 	{nullptr, 0, 0, nullptr, 0},
-	{"Check for &Updates...", ID_INTERNETUPDATE, 0, nullptr, 0},
 	{"&About OpenMPT", ID_APP_ABOUT, 0, nullptr, 0},
 };
 static const MenuEntry menu_IDR_MAINFRAME[] = {
@@ -5334,10 +5326,9 @@ static const MenuEntry menu_IDR_MAINFRAME[] = {
 	{"P&layer", 0, 0, menu_IDR_MAINFRAME_2, std::size(menu_IDR_MAINFRAME_2)},
 	{"&Edit", 0, 0, menu_IDR_MAINFRAME_3, std::size(menu_IDR_MAINFRAME_3)},
 	{"&View", 0, 0, menu_IDR_MAINFRAME_5, std::size(menu_IDR_MAINFRAME_5)},
-	{"&Window", 0, 0, menu_IDR_MAINFRAME_7, std::size(menu_IDR_MAINFRAME_7)},
-	{"&Help", 0, 0, menu_IDR_MAINFRAME_8, std::size(menu_IDR_MAINFRAME_8)},
+	{"&Help", 0, 0, menu_IDR_MAINFRAME_7, std::size(menu_IDR_MAINFRAME_7)},
 };
-static const MenuEntry menu_IDR_ENVELOPES_9[] = {
+static const MenuEntry menu_IDR_ENVELOPES_8[] = {
 	{"&Loop", ID_ENVELOPE_SETLOOP, 0, nullptr, 0},
 	{"&Sustain", ID_ENVELOPE_SUSTAIN, 0, nullptr, 0},
 	{"C&arry envelope", ID_ENVELOPE_CARRY, 0, nullptr, 0},
@@ -5351,9 +5342,9 @@ static const MenuEntry menu_IDR_ENVELOPES_9[] = {
 	{"Scale &Envelope Points...", ID_ENVELOPE_SCALEPOINTS, 0, nullptr, 0},
 };
 static const MenuEntry menu_IDR_ENVELOPES[] = {
-	{"&Envelope", 0, 0, menu_IDR_ENVELOPES_9, std::size(menu_IDR_ENVELOPES_9)},
+	{"&Envelope", 0, 0, menu_IDR_ENVELOPES_8, std::size(menu_IDR_ENVELOPES_8)},
 };
-static const MenuEntry menu_IDR_VSTMENU_10[] = {
+static const MenuEntry menu_IDR_VSTMENU_9[] = {
 	{"&Copy Preset", ID_EDIT_COPY, 0, nullptr, 0},
 	{"&Paste Preset", ID_EDIT_PASTE, 0, nullptr, 0},
 	{nullptr, 0, 0, nullptr, 0},
@@ -5365,19 +5356,19 @@ static const MenuEntry menu_IDR_VSTMENU_10[] = {
 	{nullptr, 0, 0, nullptr, 0},
 	{"Re&name Plugin", ID_RENAME_PLUGIN, 0, nullptr, 0},
 };
-static const MenuEntry menu_IDR_VSTMENU_11[] = {
+static const MenuEntry menu_IDR_VSTMENU_10[] = {
 	{"I&nputs", ID_INFO_INPUTS, 0, nullptr, 0},
 	{"Ou&tputs", ID_INFO_OUPUTS, 0, nullptr, 0},
 	{"&Macros", ID_INFO_MACROS, 0, nullptr, 0},
 };
-static const MenuEntry menu_IDR_VSTMENU_12[] = {
+static const MenuEntry menu_IDR_VSTMENU_11[] = {
 	{"&Bypass Plugin", ID_PLUG_BYPASS, 0, nullptr, 0},
 	{"Record &Parameter Changes", ID_PLUG_RECORDAUTOMATION, 0, nullptr, 0},
 };
 static const MenuEntry menu_IDR_VSTMENU[] = {
-	{"&File", 0, 0, menu_IDR_VSTMENU_10, std::size(menu_IDR_VSTMENU_10)},
-	{"&Info", 0, 0, menu_IDR_VSTMENU_11, std::size(menu_IDR_VSTMENU_11)},
-	{"&Options", 0, 0, menu_IDR_VSTMENU_12, std::size(menu_IDR_VSTMENU_12)},
+	{"&File", 0, 0, menu_IDR_VSTMENU_9, std::size(menu_IDR_VSTMENU_9)},
+	{"&Info", 0, 0, menu_IDR_VSTMENU_10, std::size(menu_IDR_VSTMENU_10)},
+	{"&Options", 0, 0, menu_IDR_VSTMENU_11, std::size(menu_IDR_VSTMENU_11)},
 };
 const MenuTemplate menuTemplates[] = {
 	{IDR_MAINFRAME, menu_IDR_MAINFRAME, std::size(menu_IDR_MAINFRAME)},

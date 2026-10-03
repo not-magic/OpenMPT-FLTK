@@ -95,6 +95,7 @@ UI_MESSAGE_MAP_BEGIN(CMainFrame, MainFrameBase)
 
 	UI_COMMAND(IDD_TREEVIEW,         &CMainFrame::OnBarCheck)
 	UI_COMMAND(ID_NETLINK_MODPLUG,   &CMainFrame::OnInternetLink)
+	UI_COMMAND(ID_NETLINK_FLTK_GITHUB, &CMainFrame::OnInternetLink)
 	UI_COMMAND(ID_NETLINK_TOP_PICKS, &CMainFrame::OnInternetLink)
 
 	UI_MESSAGE(MSG_MOD_UPDATEPOSITION,     &CMainFrame::OnUpdatePosition)
@@ -103,7 +104,6 @@ UI_MESSAGE_MAP_BEGIN(CMainFrame, MainFrameBase)
 	UI_MESSAGE(MSG_MOD_MIDIMAPPING,        &CMainFrame::OnViewMIDIMapping)
 	UI_MESSAGE(MSG_MOD_UPDATEVIEWS,        &CMainFrame::OnUpdateViews)
 	UI_MESSAGE(MSG_MOD_SETMODIFIED,        &CMainFrame::OnSetModified)
-	UI_COMMAND(ID_INTERNETUPDATE,   &CMainFrame::OnInternetUpdate)
 	UI_COMMAND(ID_UPDATE_AVAILABLE, &CMainFrame::OnUpdateAvailable)
 	UI_COMMAND(ID_HELP_SHOWSETTINGSFOLDER,   &CMainFrame::OnShowSettingsFolder)
 	UI_COMMAND(ID_HELPSHOW,                  &CMainFrame::OnHelp)
@@ -2490,7 +2490,7 @@ void CMainFrame::OnNextOctave()
 
 void CMainFrame::OnReportBug()
 {
-	CTrackApp::OpenURL(Build::GetURL(Build::Url::Bugtracker));
+	CTrackApp::OpenURL("https://github.com/not-magic/OpenMPT-FLTK/issues");
 }
 
 
@@ -2500,6 +2500,7 @@ bool CMainFrame::OnInternetLink(uint32 nID)
 	switch(nID)
 	{
 	case ID_NETLINK_MODPLUG:	url = Build::GetURL(Build::Url::Website); break;
+	case ID_NETLINK_FLTK_GITHUB:	url = UL_("https://github.com/not-magic/OpenMPT-FLTK"); break;
 	case ID_NETLINK_TOP_PICKS:	url = Build::GetURL(Build::Url::TopPicks); break;
 	}
 	if(!url.empty())
@@ -2771,11 +2772,6 @@ void CMainFrame::OnShowWindow(bool bShow, uint32 /*nStatus*/)
 		wpl = theApp.GetSettings().Read<WINDOWPLACEMENT>(UL_("Display"), UL_("WindowPlacement"), wpl);
 		SetWindowPlacement(&wpl);
 	}
-}
-
-
-void CMainFrame::OnInternetUpdate()
-{
 }
 
 
