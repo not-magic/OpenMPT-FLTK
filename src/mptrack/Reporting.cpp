@@ -5,6 +5,8 @@
 #include "Reporting.h"
 #include <FL/fl_ask.H>
 
+#include <algorithm>
+
 
 OPENMPT_NAMESPACE_BEGIN
 
@@ -70,7 +72,8 @@ mpt::ustring FillEmptyCaption(const mpt::ustring &caption)
 int ShowMessageImpl(const mpt::ustring &text, const mpt::ustring &caption, MessageKind kind)
 {
 	const std::string title = mpt::transcode<std::string>(mpt::common_encoding::utf8, caption.empty() ? GetTitle() : caption);
-	const std::string body = mpt::transcode<std::string>(mpt::common_encoding::utf8, text);
+	std::string body = mpt::transcode<std::string>(mpt::common_encoding::utf8, text);
+	body.erase(std::remove(body.begin(), body.end(), '\r'), body.end());
 	fl_message_title(title.c_str());
 	switch(kind)
 	{

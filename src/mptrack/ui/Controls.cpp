@@ -42,6 +42,14 @@ mpt::ustring FromUtf8(const std::string &text)
 	return mpt::transcode<mpt::ustring>(mpt::common_encoding::utf8, text);
 }
 
+// Ported code builds Win32 "\r\n" line breaks, which Fl_Input would draw as ^M
+std::string ToEditText(const mpt::ustring &text)
+{
+	std::string utf8 = ToUtf8(text);
+	utf8.erase(std::remove(utf8.begin(), utf8.end(), '\r'), utf8.end());
+	return utf8;
+}
+
 }  // namespace
 
 
@@ -446,14 +454,14 @@ void Edit::GetSel(int &start, int &end) const
 
 void Edit::ReplaceSel(const mpt::ustring &text)
 {
-	const std::string utf8 = ToUtf8(text);
+	const std::string utf8 = ToEditText(text);
 	replace(std::min(insert_position(), mark()), std::max(insert_position(), mark()), utf8.c_str(), static_cast<int>(utf8.size()));
 }
 
 
 void Edit::SetWindowText(const mpt::ustring &text)
 {
-	value(ToUtf8(text).c_str());
+	value(ToEditText(text).c_str());
 }
 
 
