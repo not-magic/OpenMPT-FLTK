@@ -1,11 +1,4 @@
-/*
- * AboutDialog.h
- * -------------
- * Purpose: About dialog with credits, system information and a fancy demo effect.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
+// FLTK port of openmpt/mptrack/AboutDialog.h
 
 #pragma once
 

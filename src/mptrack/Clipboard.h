@@ -1,11 +1,4 @@
-/*
-* Clipboard.h
-* -----------
-* Purpose: RAII wrapper around operating system clipboard
-* Notes  : (currently none)
-* Authors: OpenMPT Devs
-* The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
-*/
+// FLTK port of openmpt/mptrack/Clipboard.h
 
 #pragma once
 

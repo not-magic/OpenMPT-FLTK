@@ -1,12 +1,4 @@
-/*
- * CDecimalSupport.cpp
- * -------------------
- * Purpose: Edit field which allows negative and fractional values to be entered
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/CDecimalSupport.cpp
 
 #include "stdafx.h"
 #include "ui/Ui.h"

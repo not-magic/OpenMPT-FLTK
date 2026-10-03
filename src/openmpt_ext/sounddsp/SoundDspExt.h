@@ -1,12 +1,5 @@
-/*
- * SoundDspExt.h
- * -------------
- * Purpose: Upstream's DSP effects (surround, mega bass, EQ, AGC, bitcrush), which libopenmpt compiles out.
- * Notes  : The NO_* guards are only lifted around these includes, so that no engine type changes layout.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Includes openmpt/sounddsp/ (surround, mega bass, EQ, AGC, bitcrush), which libopenmpt compiles out.
+// The NO_* guards are lifted only around these includes, so no engine type changes layout.
 
 #pragma once
 

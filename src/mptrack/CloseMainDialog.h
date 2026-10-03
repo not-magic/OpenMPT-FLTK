@@ -1,12 +1,4 @@
-/*
- * CloseMainDialog.h
- * -----------------
- * Purpose: Dialog showing a list of unsaved documents, with the ability to choose which documents should be saved or not.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/CloseMainDialog.h
 
 #pragma once
 

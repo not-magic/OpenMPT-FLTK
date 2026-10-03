@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: BSL-1.0 OR BSD-3-Clause */
 
-// Copy of mpt/textfile/textfile.hpp: upstream's get_preferred_encoding() does not compile on non-Windows
+// Copy of openmpt/src/mpt/textfile/textfile.hpp: upstream's get_preferred_encoding() does not compile on non-Windows.
 
 #ifndef MPT_TEXTFILE_TEXTFILE_HPP
 #define MPT_TEXTFILE_TEXTFILE_HPP

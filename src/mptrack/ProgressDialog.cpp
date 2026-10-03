@@ -1,12 +1,4 @@
-/*
- * ProgressDialog.cpp
- * ------------------
- * Purpose: An abortable, progress-indicating dialog, e.g. for showing conversion progress.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/ProgressDialog.cpp
 
 #include "stdafx.h"
 #include "ui/Ui.h"

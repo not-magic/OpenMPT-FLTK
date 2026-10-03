@@ -1,12 +1,5 @@
-/*
- * Dialog.h
- * --------
- * Purpose: Dialog windows (modal and modeless) built from the dialog templates in the resource tables.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// MFC replacement on FLTK. Dialog windows (modal and modeless) built from the dialog templates in the resource
+// tables.
 
 #pragma once
 

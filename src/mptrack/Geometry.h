@@ -1,12 +1,4 @@
-/*
- * Geometry.h
- * ----------
- * Purpose: Basic integer geometry and colour value types used by the GUI code.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Integer geometry and colour types, replacing the Win32 POINT/SIZE/RECT/COLORREF used by openmpt/mptrack.
 
 #pragma once
 

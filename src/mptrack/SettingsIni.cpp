@@ -1,13 +1,4 @@
-/*
- * SettingsIni.cpp
- * ---------------
- * Purpose: Application settings in ini format.
- * Notes  : (currently none)
- * Authors: Joern Heusipp
- *          OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/SettingsIni.cpp
 
 #include "stdafx.h"
 #include "ui/Ui.h"

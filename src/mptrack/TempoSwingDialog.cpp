@@ -1,12 +1,4 @@
-/*
- * TempoSwingDialog.cpp
- * --------------------
- * Purpose: Implementation of the tempo swing configuration dialog.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/TempoSwingDialog.cpp
 
 #include "stdafx.h"
 #include "ui/Ui.h"

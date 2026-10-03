@@ -1,12 +1,4 @@
-/*
- * DefaultKeyBindings.h
- * --------------------
- * Purpose: The default key binding definitions, including IT and FT2 flavours.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/DefaultKeyBindings.h
 
 #include "openmpt/all/BuildSettings.hpp"
 #include "ui/Ui.h"

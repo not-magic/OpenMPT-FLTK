@@ -1,13 +1,4 @@
-/*
- * Settings.h
- * ----------
- * Purpose: Header file for application setting handling framework.
- * Notes  : (currently none)
- * Authors: Joern Heusipp
- *          OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/Settings.h
 
 #pragma once
 

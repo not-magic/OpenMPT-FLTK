@@ -1,12 +1,4 @@
-/*
- * ImageList.h
- * -----------
- * Purpose: A collection of equally sized images, such as the icons of a toolbar.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// MFC replacement on FLTK. A collection of equally sized images, such as the icons of a toolbar.
 
 #pragma once
 

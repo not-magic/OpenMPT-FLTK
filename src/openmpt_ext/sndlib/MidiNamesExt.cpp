@@ -1,12 +1,4 @@
-/*
- * MidiNamesExt.cpp
- * ----------------
- * Purpose: General MIDI group, program and percussion names.
- * Notes  : Copied from upstream's Load_mid.cpp, which only defines them in the tracker build.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// General MIDI name tables from openmpt/soundlib/Load_mid.cpp, which only defines them for the tracker.
 
 #include "stdafx.h"
 #include "Mptrack.h"

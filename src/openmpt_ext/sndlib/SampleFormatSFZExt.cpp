@@ -1,13 +1,5 @@
-/*
- * SampleFormatSFZExt.cpp
- * ----------------------
- * Purpose: SFZ instrument export.
- * Notes  : Copied from upstream's SampleFormatSFZ.cpp. libopenmpt declares CSoundFile::SaveSFZInstrument
- *          but only defines it when external samples are enabled, which the library build never does.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// SFZ export from openmpt/soundlib/SampleFormatSFZ.cpp. libopenmpt declares
+// CSoundFile::SaveSFZInstrument but never defines it.
 
 #include "stdafx.h"
 #include "../soundlib/Sndfile.h"

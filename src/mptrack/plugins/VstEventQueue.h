@@ -1,12 +1,4 @@
-/*
- * VstEventQueue.h
- * ---------------
- * Purpose: Event queue for VST events.
- * Notes  : Modelled after an idea from https://www.kvraudio.com/forum/viewtopic.php?p=3043807#p3043807
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/plugins/VstEventQueue.h
 
 #pragma once
 

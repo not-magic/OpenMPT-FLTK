@@ -1,13 +1,4 @@
-/*
- * PatternFindReplaceDlg.cpp
- * -------------------------
- * Purpose: The find/replace dialog for pattern data.
- * Notes  : (currently none)
- * Authors: Olivier Lapicque
- *          OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/PatternFindReplaceDlg.cpp
 
 #include "stdafx.h"
 #include "ui/Ui.h"

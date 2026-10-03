@@ -1,12 +1,4 @@
-/*
- * StreamEncoderSettings.h
- * -----------------------
- * Purpose: Exporting streamed music files.
- * Notes  : none
- * Authors: Joern Heusipp
- *          OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
+// FLTK port of openmpt/mptrack/StreamEncoderSettings.h
 
 #pragma once
 

@@ -1,12 +1,4 @@
-/*
- * ControlFactories.cpp
- * --------------------
- * Purpose: Registers the controls that dialog templates refer to by window class name.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// MFC replacement on FLTK. Registers the controls that dialog templates refer to by window class name.
 
 #include "stdafx.h"
 #include "Controls.h"

@@ -1,12 +1,4 @@
-/*
- * QuickStartDialog.cpp
- * --------------------
- * Purpose: Dialog to show inside the MDI client area when no modules are loaded.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/QuickStartDialog.cpp
 
 #include "stdafx.h"
 #include "ui/Ui.h"

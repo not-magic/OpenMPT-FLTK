@@ -1,12 +1,4 @@
-/*
- * ProgressDialog.h
- * ----------------
- * Purpose: An abortable, progress-indicating dialog, e.g. for showing conversion progress.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/ProgressDialog.h
 
 #pragma once
 

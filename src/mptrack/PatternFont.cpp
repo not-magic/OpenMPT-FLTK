@@ -1,12 +1,4 @@
-/*
- * PatternFont.cpp
- * ---------------
- * Purpose: Code for creating pattern font bitmaps
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/PatternFont.cpp
 
 #include "stdafx.h"
 #include "ui/Ui.h"

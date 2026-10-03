@@ -1,12 +1,4 @@
-/*
- * UiTypes.h
- * ---------
- * Purpose: Basic types shared by all GUI code.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Basic types shared by all GUI code, replacing the Win32 types used by openmpt/mptrack.
 
 #pragma once
 

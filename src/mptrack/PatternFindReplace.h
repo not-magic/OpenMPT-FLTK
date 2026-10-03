@@ -1,12 +1,4 @@
-/*
- * PatternFindReplace.h
- * --------------------
- * Purpose: Implementation of the pattern search.
- * Notes  : (currently none)
- * Authors: Olivier Lapicque
- *          OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
+// FLTK port of openmpt/mptrack/PatternFindReplace.h
 
 #pragma once
 

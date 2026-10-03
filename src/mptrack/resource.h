@@ -1,7 +1,5 @@
-//{{NO_DEPENDENCIES}}
-// Microsoft Visual C++ generated include file.
-// Used by mptrack.rc
-//
+// Copy of openmpt/mptrack/resource.h. The IDs are shared by mptrack.rc and src/tools/rc2cpp.py.
+
 #define IDD_ABOUTBOX                    100
 #define IDD_FILE_NEW                    101
 #define IDD_OPTIONS_PLAYER              103

@@ -1,15 +1,4 @@
-/*
- * VstDefinitions.h
- * ----------------
- * Purpose: Definition of all VST-related constants, function prototypes and structures.
- * Notes  : Based on BeRo's independent VST header, a clean-room implementation based
- *          on several third-party information sources.
- *          The original header, licensed under the Zlib license, can be found at
- *          https://github.com/BeRo1985/br808/blob/master/VSTi/VST/VST.pas
- * Authors: OpenMPT Devs
- *          Benjamin "BeRo" Rosseaux
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
+// FLTK port of openmpt/mptrack/plugins/VstDefinitions.h
 
 #pragma once
 

@@ -1,12 +1,4 @@
-/*
- * UpdateHints.h
- * -------------
- * Purpose: Hint type and abstraction class for passing around hints between module views.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/UpdateHints.h
 
 #pragma once
 

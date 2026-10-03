@@ -1,12 +1,4 @@
-/*
- * SampleGenerator.cpp
- * -------------------
- * Purpose: Generate samples from math formulas using muParser
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/SampleGenerator.cpp
 
 #include "stdafx.h"
 #include "ui/Ui.h"

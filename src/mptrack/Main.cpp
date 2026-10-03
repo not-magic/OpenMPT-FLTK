@@ -1,12 +1,4 @@
-/*
- * Main.cpp
- * --------
- * Purpose: Program entry point.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Program entry point, replacing the MFC application startup of openmpt/mptrack/Mptrack.cpp.
 
 #include "stdafx.h"
 #include "ui/Ui.h"

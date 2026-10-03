@@ -1,12 +1,5 @@
-/*
- * SampleFormatFLACExt.cpp
- * -----------------------
- * Purpose: FLAC sample import.
- * Notes  : Copied from upstream's SampleFormatFLAC.cpp, as libopenmpt is never built with FLAC.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Copy of openmpt/soundlib/SampleFormatFLAC.cpp as CTrackerSoundFile members,
+// as libopenmpt is never built with FLAC.
 
 #include "stdafx.h"
 #include "TrackerSoundFile.h"

@@ -1,13 +1,4 @@
-/*
- * SampleEditorDialogs.h
- * ---------------------
- * Purpose: Code for various dialogs that are used in the sample editor.
- * Notes  : (currently none)
- * Authors: Olivier Lapicque
- *          OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/SampleEditorDialogs.h
 
 #pragma once
 

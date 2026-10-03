@@ -1,12 +1,4 @@
-/*
- * PatternCursor.h
- * ---------------
- * Purpose: Class for storing pattern cursor information.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/PatternCursor.h
 
 #pragma once
 

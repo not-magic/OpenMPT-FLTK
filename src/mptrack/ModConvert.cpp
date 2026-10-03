@@ -1,41 +1,4 @@
-/*
- * ModConvert.cpp
- * --------------
- * Purpose: Converting between various module formats.
- * Notes  : Incomplete list of MPTm-only features and extensions in the old formats:
- *          Features only available for MPTm:
- *           - User definable tunings.
- *           - Extended pattern range
- *           - Extended sequence
- *           - Multiple sequences ("songs")
- *           - Pattern-specific time signatures
- *           - Pattern effects :xy, S7D, S7E
- *           - Long instrument envelopes
- *           - Envelope release node (this was previously also usable in the IT format, but is now deprecated in that format)
- *           - Fractional tempo
- *           - Song-specific resampling
- *           - Alternative tempo modes (only usable in legacy XM / IT files)
- *
- *          Extended features in IT/XM/S3M (not all listed below are available in all of those formats):
- *           - Plugins
- *           - Extended ranges for
- *              - Sample count
- *              - Instrument count
- *              - Pattern count
- *              - Sequence size
- *              - Row count
- *              - Channel count
- *              - Tempo limits
- *           - Extended sample/instrument properties.
- *           - MIDI mapping directives
- *           - Version info
- *           - Channel names
- *           - Pattern names
- *           - For more info, see e.g. SaveExtendedSongProperties(), SaveExtendedInstrumentProperties()
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/ModConvert.cpp
 
 #include "stdafx.h"
 #include "ui/Ui.h"

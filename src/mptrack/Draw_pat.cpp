@@ -1,13 +1,4 @@
-/*
- * draw_pat.cpp
- * ------------
- * Purpose: Code for drawing the pattern data.
- * Notes  : Also used for updating the status bar.
- * Authors: Olivier Lapicque
- *          OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/Draw_pat.cpp
 
 #include "stdafx.h"
 #include "ui/Ui.h"

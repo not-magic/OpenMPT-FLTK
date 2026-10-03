@@ -1,13 +1,5 @@
-/*
- * TrackerCriticalSection.h
- * ------------------------
- * Purpose: Lock that serializes CSoundFile access between the GUI and the audio thread.
- * Notes  : libopenmpt's CriticalSection is a no-op outside the tracker build, so all tracker code uses this instead.
- *          Engine functions that lock internally in the tracker build must be called with this lock held.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Port of openmpt/soundlib/AudioCriticalSection.h, as libopenmpt's CriticalSection is a no-op.
+// Engine functions that lock internally in the tracker build must be called with this lock held.
 
 #pragma once
 

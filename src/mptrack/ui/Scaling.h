@@ -1,12 +1,5 @@
-/*
- * Scaling.h
- * ---------
- * Purpose: Helpers for scaling pixel sizes. FLTK applies the screen scale factor itself, so all logical coordinates are at 96 DPI.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// MFC replacement on FLTK. Helpers for scaling pixel sizes. FLTK applies the screen scale factor itself, so all
+// logical coordinates are at 96 DPI.
 
 #pragma once
 

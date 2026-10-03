@@ -1,13 +1,4 @@
-/*
- * View_pat.cpp
- * ------------
- * Purpose: Pattern tab, lower panel.
- * Notes  : Welcome to about 7000 lines of, err, very beautiful code.
- * Authors: Olivier Lapicque
- *          OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/View_pat.cpp
 
 #include "stdafx.h"
 #include "ui/Ui.h"

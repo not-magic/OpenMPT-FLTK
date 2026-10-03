@@ -1,12 +1,4 @@
-/*
- * Globals.h
- * ---------
- * Purpose: Implementation of the base classes for the upper and lower half of the MDI child windows.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/Globals.h
 
 #pragma once
 

@@ -1,15 +1,4 @@
-/*
- * View_tre.cpp
- * ------------
- * Purpose: Tree view for managing open songs, sound files, file browser, ...
- * Notes  : There are two instances of this class, one for the upper half and one for the lower half of the tree view.
- *          The lower half is referred to the sample browser in the code, i.e. IsSampleBrowser() returns true for code
- *          running in the lower half.
- * Authors: Olivier Lapicque
- *          OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/View_tre.cpp
 
 #include "stdafx.h"
 #include "ui/Ui.h"

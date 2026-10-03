@@ -1,12 +1,4 @@
-/*
- * PropertySheet.h
- * ---------------
- * Purpose: Dialog that shows several pages (tabs), each a dialog of its own.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// MFC replacement on FLTK. Dialog that shows several pages (tabs), each a dialog of its own.
 
 #pragma once
 

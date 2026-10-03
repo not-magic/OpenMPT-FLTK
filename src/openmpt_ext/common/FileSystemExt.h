@@ -1,12 +1,5 @@
-/*
- * FileSystemExt.h
- * ---------------
- * Purpose: File system queries and well-known directories for the tracker, on every platform.
- * Notes  : Upstream's mpt::native_fs and mpt::common_directories only exist on Windows.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// OS-agnostic replacement for upstream's Windows-only mpt::native_fs and
+// mpt::common_directories (openmpt/src/mpt/fs/).
 
 #pragma once
 

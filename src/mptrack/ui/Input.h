@@ -1,12 +1,4 @@
-/*
- * Input.h
- * -------
- * Purpose: Keyboard and mouse input codes shared by the GUI code.
- * Notes  : Key codes use fixed numeric values so that stored key bindings stay valid.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// MFC replacement on FLTK. Keyboard and mouse input codes shared by the GUI code.
 
 #pragma once
 

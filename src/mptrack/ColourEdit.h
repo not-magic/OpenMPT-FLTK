@@ -1,12 +1,4 @@
-/*
- * ColourEdit.h
- * ------------
- * Purpose: Edit control with configurable text and background colours.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/ColourEdit.h
 
 #pragma once
 

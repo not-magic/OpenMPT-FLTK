@@ -1,12 +1,5 @@
-/*
- * StandardIds.h
- * -------------
- * Purpose: IDs of commands and controls that every application has: file, edit, window and help commands, dialog buttons.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// MFC replacement on FLTK. IDs of commands and controls that every application has: file, edit, window and help
+// commands, dialog buttons.
 
 #pragma once
 

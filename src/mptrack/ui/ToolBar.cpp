@@ -1,12 +1,5 @@
-/*
- * ToolBar.cpp
- * -----------
- * Purpose: A bar of icon buttons with check and drop-down buttons, separators, and room for embedded controls.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// MFC replacement on FLTK. A bar of icon buttons with check and drop-down buttons, separators, and room for
+// embedded controls.
 
 #include "stdafx.h"
 #include "ToolBar.h"

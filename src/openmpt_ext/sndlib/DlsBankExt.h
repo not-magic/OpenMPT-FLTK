@@ -1,13 +1,4 @@
-/*
- * DlsBankExt.h
- * ------------
- * Purpose: Sound bank loading.
- * Notes  : Supported sound bank types: DLS (including embedded DLS in MSS & RMI), SF2
- * Authors: Olivier Lapicque
- *          OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Copy of openmpt/soundlib/Dlsbank.h, which libopenmpt only builds for the tracker.
 
 #pragma once
 

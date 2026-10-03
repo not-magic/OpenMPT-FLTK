@@ -1,12 +1,4 @@
-/*
- * mptFileTemporaryExt.h
- * ---------------------
- * Purpose: Unique temporary path names, which upstream only provides for the Windows tracker build.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// TemporaryPathname from openmpt/common/mptFileTemporary.h, which only exists in the Windows tracker build.
 
 #pragma once
 

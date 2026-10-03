@@ -1,12 +1,4 @@
-/*
- * mod2midi.cpp
- * ------------
- * Purpose: Module to MIDI conversion (dialog + conversion code).
- * Notes  : This code makes use of the existing MIDI plugin output functionality.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/mod2midi.cpp
 
 #include "stdafx.h"
 #include "ui/Ui.h"

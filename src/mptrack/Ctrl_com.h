@@ -1,13 +1,4 @@
-/*
- * Ctrl_com.h
- * ----------
- * Purpose: Song comments tab, upper panel.
- * Notes  : (currently none)
- * Authors: Olivier Lapicque
- *          OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/Ctrl_com.h
 
 #pragma once
 

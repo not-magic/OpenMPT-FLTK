@@ -1,12 +1,4 @@
-/*
- * ModSequenceExt.cpp
- * ------------------
- * Purpose: Tracker-only order list and pattern editing operations.
- * Notes  : Ported from upstream's ModSequence.cpp and pattern.cpp, using only the public API.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Tracker-only parts of openmpt/soundlib/ModSequence.cpp and pattern.cpp as free functions.
 
 #include "stdafx.h"
 #include "ModSequenceExt.h"

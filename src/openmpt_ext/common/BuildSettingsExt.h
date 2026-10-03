@@ -1,12 +1,5 @@
-/*
- * BuildSettingsExt.h
- * ------------------
- * Purpose: Settings that upstream's BuildSettings.h only provides for the tracker build.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Definitions from openmpt/common/BuildSettings.h and openmpt/src/openmpt/base/Types.hpp
+// that only reach tracker code in the tracker build.
 
 #pragma once
 

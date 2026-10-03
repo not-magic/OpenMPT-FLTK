@@ -1,12 +1,4 @@
-/*
- * mod2midi.h
- * ----------
- * Purpose: Module to MIDI conversion (dialog + conversion code).
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/mod2midi.h
 
 #pragma once
 

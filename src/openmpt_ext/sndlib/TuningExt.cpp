@@ -1,12 +1,4 @@
-/*
- * TuningExt.cpp
- * -------------
- * Purpose: Tuning export functions that upstream only compiles into the tracker build.
- * Notes  : Ported from upstream's tuning.cpp and tuningCollection.cpp, using only the public CTuning API.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Tracker-only parts of openmpt/soundlib/tuning.cpp and tuningCollection.cpp.
 
 #include "stdafx.h"
 #include "TuningExt.h"

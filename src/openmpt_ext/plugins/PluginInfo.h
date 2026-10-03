@@ -1,12 +1,4 @@
-/*
- * PluginInfo.h
- * ------------
- * Purpose: Parameter and program names of the built-in plugins, which upstream only compiles into the tracker build.
- * Notes  : Values are derived from the public, normalized parameter values.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Parameter and program names from the tracker-only parts of openmpt/soundlib/plugins/.
 
 #pragma once
 

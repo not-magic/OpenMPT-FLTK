@@ -1,12 +1,4 @@
-/*
- * SoundDspAGC.cpp
- * ---------------
- * Purpose: Builds upstream's sounddsp/AGC.cpp, which libopenmpt compiles out.
- * Notes  : See SoundDspExt.h.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Builds openmpt/sounddsp/AGC.cpp, which libopenmpt compiles out. See SoundDspExt.h.
 
 #include "stdafx.h"
 #include "SoundDspExt.h"

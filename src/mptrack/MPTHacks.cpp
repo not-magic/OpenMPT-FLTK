@@ -1,16 +1,4 @@
-/*
- * MPTHacks.cpp
- * ------------
- * Purpose: Find out if MOD/XM/S3M/IT modules have MPT-specific hacks and fix them.
- * Notes  : This is not finished yet. Still need to handle:
- *          - Out-of-range sample pre-amp settings
- *          - Comments in XM files
- *          - Many auto-fix actions (so that the auto-fix mode can actually be used at some point!)
- *          Maybe there should be two options if hacks are found: Convert the song to MPTM or remove hacks.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/MPTHacks.cpp
 
 #include "stdafx.h"
 #include "ui/Ui.h"

@@ -1,12 +1,4 @@
-/*
- * TrackerSoundFile.cpp
- * --------------------
- * Purpose: CSoundFile with the editor state that upstream only compiles into the tracker build.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Tracker-only parts of openmpt/soundlib/Sndfile.cpp, Snd_fx.cpp and Sndmix.cpp that libopenmpt does not build.
 
 #include "stdafx.h"
 #include "TrackerSoundFile.h"

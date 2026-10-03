@@ -1,12 +1,4 @@
-/*
- * MIDIMacrosExt.cpp
- * -----------------
- * Purpose: MIDI macro descriptions and parsing helpers that upstream only compiles into the tracker build.
- * Notes  : Ported from upstream's MIDIMacros.cpp.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Tracker-only parts of openmpt/soundlib/MIDIMacros.cpp as free functions.
 
 #include "stdafx.h"
 #include "MIDIMacrosExt.h"

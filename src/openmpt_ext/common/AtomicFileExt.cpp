@@ -1,12 +1,5 @@
-/*
- * AtomicFileExt.cpp
- * -----------------
- * Purpose: File shared between running instances, read and written whole under an inter-process lock.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Inter-process locked file for settings. Upstream's mpt::IO::atomic_shared_file_ref
+// (openmpt/src/mpt/io_file_atomic/atomic_file.hpp) only exists in the Windows tracker build.
 
 #include "stdafx.h"
 #include "AtomicFileExt.h"

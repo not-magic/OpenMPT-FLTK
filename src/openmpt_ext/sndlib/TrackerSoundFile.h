@@ -1,13 +1,5 @@
-/*
- * TrackerSoundFile.h
- * ------------------
- * Purpose: CSoundFile with the editor state that upstream only compiles into the tracker build.
- * Notes  : libopenmpt is built without MODPLUG_TRACKER, so everything here lives outside the engine.
- *          Every CSoundFile the GUI creates must be a CTrackerSoundFile.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Tracker-only parts of openmpt/soundlib/Sndfile.h that libopenmpt does not build.
+// Every CSoundFile the GUI creates must be a CTrackerSoundFile.
 
 #pragma once
 

@@ -1,12 +1,4 @@
-/*
- * mod2wave.h
- * ----------
- * Purpose: Module to steaming audio (WAV, MP3, etc.) conversion (dialog + conversion code).
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/mod2wave.h
 
 #pragma once
 

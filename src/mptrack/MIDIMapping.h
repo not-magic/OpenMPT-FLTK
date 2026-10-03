@@ -1,12 +1,4 @@
-/*
- * MIDIMapping.h
- * -------------
- * Purpose: MIDI Mapping management classes
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/MIDIMapping.h
 
 #pragma once
 

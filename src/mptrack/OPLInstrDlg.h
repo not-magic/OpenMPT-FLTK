@@ -1,11 +1,4 @@
-/*
- * OPLInstrDlg.h
- * -------------
- * Purpose: Editor for OPL-based synth instruments
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
+// FLTK port of openmpt/mptrack/OPLInstrDlg.h
 
 #pragma once
 

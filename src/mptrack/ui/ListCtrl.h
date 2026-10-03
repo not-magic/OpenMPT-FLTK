@@ -1,12 +1,4 @@
-/*
- * ListCtrl.h
- * ----------
- * Purpose: List with columns, per-item data, check boxes and selection.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// MFC replacement on FLTK. List with columns, per-item data, check boxes and selection.
 
 #pragma once
 

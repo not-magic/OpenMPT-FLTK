@@ -1,12 +1,4 @@
-/*
- * ResourceTables.cpp
- * ------------------
- * Purpose: Lookup of the generated static resources.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// MFC replacement on FLTK. Lookup of the generated static resources.
 
 #include "stdafx.h"
 #include "ResourceTables.h"

@@ -1,12 +1,4 @@
-/*
- * VSTEditor.cpp
- * -------------
- * Purpose: Implementation of the custom plugin editor window that is used if a plugin provides an own editor GUI.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/VSTEditor.cpp
 
 #include "stdafx.h"
 #include "ui/Ui.h"

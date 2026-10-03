@@ -1,12 +1,5 @@
-/*
- * PluginUi.h
- * ----------
- * Purpose: Editor-side plugin interface that upstream builds into IMixPlugin in the tracker build only.
- * Notes  : Non-owning view of a plugin; cheap to construct at each call site.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Editor-side IMixPlugin interface from openmpt/soundlib/plugins/PlugInterface.h,
+// which libopenmpt only builds for the tracker.
 
 #pragma once
 

@@ -1,13 +1,5 @@
-/*
- * PluginManagerExt.cpp
- * --------------------
- * Purpose: Plugin library management that libopenmpt declares but only defines in the tracker build.
- * Notes  : Ported from upstream's PluginManager.cpp. External (VST) plugins are not supported, so
- *          AddPlugin() never finds a plugin and the plugin cache is not written.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Members of openmpt/soundlib/plugins/PluginManager.cpp that libopenmpt declares but only defines
+// in the tracker build. External (VST) plugins are not supported.
 
 #include "stdafx.h"
 #include "../soundlib/plugins/PluginManager.h"

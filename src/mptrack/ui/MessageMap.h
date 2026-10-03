@@ -1,12 +1,5 @@
-/*
- * MessageMap.h
- * ------------
- * Purpose: Per-class tables that route commands, notifications and user messages to member functions.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// MFC replacement on FLTK. Per-class tables that route commands, notifications and user messages to member
+// functions.
 
 #pragma once
 

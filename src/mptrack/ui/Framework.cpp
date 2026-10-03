@@ -1,12 +1,5 @@
-/*
- * Framework.cpp
- * -------------
- * Purpose: Application framework: documents, views, child frames with tabbed document area, main window and application object.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// MFC replacement on FLTK. Application framework: documents, views, child frames with tabbed document area,
+// main window and application object.
 
 #include "stdafx.h"
 #include "Framework.h"

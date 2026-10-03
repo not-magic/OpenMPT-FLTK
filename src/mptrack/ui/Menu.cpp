@@ -1,12 +1,4 @@
-/*
- * Menu.cpp
- * --------
- * Purpose: Menus and popup menus, built from menu templates or by code.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// MFC replacement on FLTK. Menus and popup menus, built from menu templates or by code.
 
 #include "stdafx.h"
 #include "Menu.h"

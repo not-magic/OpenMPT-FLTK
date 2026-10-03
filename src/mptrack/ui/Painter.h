@@ -1,12 +1,4 @@
-/*
- * Painter.h
- * ---------
- * Purpose: Immediate-mode 2D drawing API with GDI-like semantics, implemented on top of FLTK.
- * Notes  : All coordinates are relative to the origin passed to the Painter.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// MFC replacement on FLTK. Immediate-mode 2D drawing API with GDI-like semantics, implemented on top of FLTK.
 
 #pragma once
 

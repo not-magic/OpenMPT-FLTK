@@ -1,12 +1,4 @@
-/*
- * ResizableDialog.h
- * -----------------
- * Purpose: Base class for dialogs that can be resized, moving and resizing their controls with the window.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/ResizableDialog.h
 
 #pragma once
 

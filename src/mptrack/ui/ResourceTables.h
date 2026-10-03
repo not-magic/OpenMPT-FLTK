@@ -1,12 +1,5 @@
-/*
- * ResourceTables.h
- * ----------------
- * Purpose: Static dialog, menu, string and binary resources, generated from mptrack.rc by build/tools/rc2cpp.py.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// MFC replacement on FLTK. Static dialog, menu, string and binary resources, generated from mptrack.rc by
+// src/tools/rc2cpp.py.
 
 #pragma once
 

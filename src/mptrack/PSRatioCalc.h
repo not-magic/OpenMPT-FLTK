@@ -1,12 +1,4 @@
-/*
- * PSRatioCalc.h
- * -------------
- * Purpose: Dialog for calculating time stretch shift ratios in the sample editor.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/PSRatioCalc.h
 
 #pragma once
 

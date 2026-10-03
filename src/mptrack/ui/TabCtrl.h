@@ -1,12 +1,4 @@
-/*
- * TabCtrl.h
- * ---------
- * Purpose: Row of tabs that selects one of several pages.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// MFC replacement on FLTK. Row of tabs that selects one of several pages.
 
 #pragma once
 

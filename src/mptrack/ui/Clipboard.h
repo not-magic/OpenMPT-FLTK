@@ -1,12 +1,4 @@
-/*
- * Clipboard.h
- * -----------
- * Purpose: Access to the clipboard with named data formats.
- * Notes  : The data is kept inside the application; text is also copied to the system clipboard.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// MFC replacement on FLTK. Access to the clipboard with named data formats.
 
 #pragma once
 

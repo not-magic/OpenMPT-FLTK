@@ -1,13 +1,4 @@
-/*
- * DlsBankExt.cpp
- * --------------
- * Purpose: Sound bank loading.
- * Notes  : Supported sound bank types: DLS (including embedded DLS in MSS & RMI), SF2, SF3 / SF4 (modified SF2 with compressed samples)
- * Authors: Olivier Lapicque
- *          OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Copy of openmpt/soundlib/Dlsbank.cpp, which libopenmpt only builds for the tracker.
 
 #include "stdafx.h"
 #include "DlsBankExt.h"

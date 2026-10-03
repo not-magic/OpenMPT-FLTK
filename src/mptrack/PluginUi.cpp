@@ -1,12 +1,5 @@
-/*
- * PluginUi.cpp
- * ------------
- * Purpose: Editor-side plugin interface that upstream builds into IMixPlugin in the tracker build only.
- * Notes  : Ported from the tracker-only parts of soundlib/plugins/PlugInterface.cpp.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Editor-side IMixPlugin interface from openmpt/soundlib/plugins/PlugInterface.cpp,
+// which libopenmpt only builds for the tracker.
 
 #include "stdafx.h"
 #include "PluginUi.h"

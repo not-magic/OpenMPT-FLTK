@@ -1,12 +1,4 @@
-/*
- * TreeCtrl.cpp
- * ------------
- * Purpose: Tree of items with text, icons and expandable branches.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// MFC replacement on FLTK. Tree of items with text, icons and expandable branches.
 
 #include "stdafx.h"
 #include "TreeCtrl.h"

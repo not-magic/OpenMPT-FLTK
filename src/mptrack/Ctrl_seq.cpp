@@ -1,13 +1,4 @@
-/*
- * Ctrl_seq.cpp
- * ------------
- * Purpose: Order list for the pattern editor upper panel.
- * Notes  : (currently none)
- * Authors: Olivier Lapicque
- *          OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/Ctrl_seq.cpp
 
 #include "stdafx.h"
 #include "ui/Ui.h"

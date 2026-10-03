@@ -1,12 +1,5 @@
-/*
- * Wnd.cpp
- * -------
- * Purpose: Base class of all windows, dialogs, views and controls of the GUI. Adds message routing, timers and per-window helpers on top of FLTK.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// MFC replacement on FLTK. Base class of all windows, dialogs, views and controls of the GUI. Adds message
+// routing, timers and per-window helpers on top of FLTK.
 
 #include "stdafx.h"
 #include "Wnd.h"

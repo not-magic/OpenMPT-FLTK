@@ -1,11 +1,4 @@
-/*
- * LFOPluginEditor.cpp
- * -------------------
- * Purpose: Editor interface for the LFO plugin.
- * Notes  : (currently none)
- * Authors: Johannes Schultz (OpenMPT Devs)
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
+// FLTK port of openmpt/mptrack/plugins/LFOPluginEditor.cpp
 
 #include "stdafx.h"
 #include "../ui/Ui.h"

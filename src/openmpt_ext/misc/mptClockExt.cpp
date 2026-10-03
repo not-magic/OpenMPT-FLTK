@@ -1,12 +1,4 @@
-/*
- * mptClockExt.cpp
- * ---------------
- * Purpose: Monotonic clock with the interface of upstream's tracker-only MultimediaClock.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Portable replacement for the tracker-only Util::MultimediaClock in openmpt/misc/mptClock.cpp.
 
 #include "stdafx.h"
 #include "mptClockExt.h"

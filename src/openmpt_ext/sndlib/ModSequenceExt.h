@@ -1,12 +1,4 @@
-/*
- * ModSequenceExt.h
- * ----------------
- * Purpose: Tracker-only order list and pattern editing operations.
- * Notes  : Upstream implements these as ModSequenceSet / CPattern members in the tracker build only.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Tracker-only parts of openmpt/soundlib/ModSequence.h and pattern.h as free functions.
 
 #pragma once
 

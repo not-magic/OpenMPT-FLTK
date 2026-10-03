@@ -1,12 +1,4 @@
-/*
- * WindowMessages.h
- * ----------------
- * Purpose: IDs of custom window messages and their parameters.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/WindowMessages.h
 
 #pragma once
 

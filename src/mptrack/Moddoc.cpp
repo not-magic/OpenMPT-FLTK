@@ -1,12 +1,4 @@
-/*
- * Moddoc.cpp
- * ----------
- * Purpose: Module document handling in OpenMPT.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/Moddoc.cpp
 
 #include "stdafx.h"
 #include "ui/Ui.h"

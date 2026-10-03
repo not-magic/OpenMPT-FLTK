@@ -1,12 +1,4 @@
-/*
- * StatusBar.cpp
- * -------------
- * Purpose: Bar at the bottom of the main window that shows several panes of text.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// MFC replacement on FLTK. Bar at the bottom of the main window that shows several panes of text.
 
 #include "stdafx.h"
 #include "StatusBar.h"

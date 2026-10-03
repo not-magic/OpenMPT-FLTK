@@ -1,12 +1,5 @@
-/*
- * mptStringExt.cpp
- * ----------------
- * Purpose: Tracker-only string, path and logging helpers that libopenmpt does not build.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Tracker-only helpers from openmpt/common/mptString.h, mptPathString.cpp and Logging.cpp,
+// which libopenmpt does not build.
 
 #include "stdafx.h"
 #include "mptStringExt.h"

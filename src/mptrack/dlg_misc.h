@@ -1,12 +1,4 @@
-/*
- * dlg_misc.h
- * ----------
- * Purpose: Implementation for various OpenMPT dialogs.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/dlg_misc.h
 
 #pragma once
 

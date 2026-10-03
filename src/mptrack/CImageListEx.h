@@ -1,12 +1,4 @@
-/*
- * CImageListEx.h
- * --------------
- * Purpose: Image list that loads its images from a PNG resource, with optional recolouring.
- * Notes  : (currently none)
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/CImageListEx.h
 
 #pragma once
 

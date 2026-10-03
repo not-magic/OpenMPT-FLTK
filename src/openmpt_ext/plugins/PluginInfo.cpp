@@ -1,13 +1,5 @@
-/*
- * PluginInfo.cpp
- * --------------
- * Purpose: Parameter and program names of the built-in plugins, which upstream only compiles into the tracker build.
- * Notes  : Ported from the tracker-only parts of soundlib/plugins. The plugin classes are final and keep their
- *          parameter enums protected, so the parameter order is repeated here.
- * Authors: OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// Parameter and program names from the tracker-only parts of openmpt/soundlib/plugins/.
+// The plugin classes are final, so names are derived from the public parameter values.
 
 #include "stdafx.h"
 #include "PluginInfo.h"

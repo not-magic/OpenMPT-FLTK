@@ -1,13 +1,4 @@
-/*
- * CleanupSong.cpp
- * ---------------
- * Purpose: Dialog for cleaning up modules (rearranging, removing unused items).
- * Notes  : (currently none)
- * Authors: Olivier Lapicque
- *          OpenMPT Devs
- * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
- */
-
+// FLTK port of openmpt/mptrack/CleanupSong.cpp
 
 #include "stdafx.h"
 #include "ui/Ui.h"
