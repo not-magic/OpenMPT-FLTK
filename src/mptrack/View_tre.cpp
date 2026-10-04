@@ -2135,7 +2135,7 @@ std::vector<std::filesystem::path> ListDirectory(const mpt::PathString &dir)
 {
 	std::vector<std::filesystem::path> entries;
 	std::error_code ec;
-	for(std::filesystem::directory_iterator it(dir.AsNative(), ec), end; !ec && it != end; it.increment(ec))
+	for(std::filesystem::directory_iterator it(std::filesystem::path(dir.AsNative().c_str()), ec), end; !ec && it != end; it.increment(ec))
 		entries.push_back(it->path());
 	std::sort(entries.begin(), entries.end());
 	return entries;

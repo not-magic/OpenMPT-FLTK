@@ -80,7 +80,7 @@ mpt::PathString RelativePathToAbsolute(const mpt::PathString &path, const mpt::P
 	if(path.empty() || relativeTo.empty())
 		return path;
 	// Modules saved on another OS may use the other separator (".\Samples\x.flac")
-	if(std::filesystem::path(path.AsNative()).is_absolute())
+	if(std::filesystem::path(path.AsNative().c_str()).is_absolute())
 		return path;
 	mpt::os_path pathNative = path.AsNative();
 	std::replace_if(pathNative.begin(), pathNative.end(), [](auto c) { return IsPathSeparator(c); }, static_cast<mpt::os_path::value_type>(std::filesystem::path::preferred_separator));

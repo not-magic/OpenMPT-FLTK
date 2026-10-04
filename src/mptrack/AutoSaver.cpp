@@ -126,7 +126,7 @@ mpt::PathString CAutoSaver::GetBasePath(const CModDoc &modDoc, bool createPath) 
 	}
 	std::error_code ec;
 	if(createPath)
-		std::filesystem::create_directories(mpt::support_long_path(path.AsNative()), ec);
+		std::filesystem::create_directories(std::filesystem::path(mpt::support_long_path(path.AsNative()).c_str()), ec);
 	if(!FileSystem::IsDirectory(path))
 		path = theApp.GetConfigPath();
 

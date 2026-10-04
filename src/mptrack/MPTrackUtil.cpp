@@ -62,33 +62,33 @@ namespace Util
 	bool DeleteFile(const mpt::PathString &path)
 	{
 		std::error_code ec;
-		return std::filesystem::remove(std::filesystem::path(path.AsNative()), ec);
+		return std::filesystem::remove(std::filesystem::path(path.AsNative().c_str()), ec);
 	}
 
 	bool MoveFile(const mpt::PathString &from, const mpt::PathString &to)
 	{
 		std::error_code ec;
-		std::filesystem::rename(std::filesystem::path(from.AsNative()), std::filesystem::path(to.AsNative()), ec);
+		std::filesystem::rename(std::filesystem::path(from.AsNative().c_str()), std::filesystem::path(to.AsNative().c_str()), ec);
 		return !ec;
 	}
 
 	bool CopyFile(const mpt::PathString &from, const mpt::PathString &to, bool isOverwriting)
 	{
 		std::error_code ec;
-		return std::filesystem::copy_file(std::filesystem::path(from.AsNative()), std::filesystem::path(to.AsNative()),
+		return std::filesystem::copy_file(std::filesystem::path(from.AsNative().c_str()), std::filesystem::path(to.AsNative().c_str()),
 			isOverwriting ? std::filesystem::copy_options::overwrite_existing : std::filesystem::copy_options::none, ec);
 	}
 
 	bool CreateDirectory(const mpt::PathString &path)
 	{
 		std::error_code ec;
-		return std::filesystem::create_directories(std::filesystem::path(path.AsNative()), ec);
+		return std::filesystem::create_directories(std::filesystem::path(path.AsNative().c_str()), ec);
 	}
 
 	bool RemoveDirectory(const mpt::PathString &path)
 	{
 		std::error_code ec;
-		return std::filesystem::remove(std::filesystem::path(path.AsNative()), ec);
+		return std::filesystem::remove(std::filesystem::path(path.AsNative().c_str()), ec);
 	}
 
 	bool MoveToTrash(const mpt::PathString &path)
