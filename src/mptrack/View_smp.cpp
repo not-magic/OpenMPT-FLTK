@@ -137,6 +137,7 @@ CViewSample::CViewSample()
 {
 	MemsetZero(m_NcButtonState);
 	m_dwNotifyPos.fill(Notification::PosInvalid);
+	SetNonClientTop(SMP_LEFTBAR_CY);
 }
 
 

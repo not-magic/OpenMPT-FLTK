@@ -835,6 +835,8 @@ void CModTreeBar::RecalcLayout()
 			m_pModTree->MoveWindow(x0, y0, contentWidth, cytree);
 			m_pModTreeData->MoveWindow(x0, y0 + cytree + padding, contentWidth, cydata);
 		}
+		// Redrawing only the moved trees would clip the splitter gap out of the damage region
+		redraw();
 	}
 }
 
@@ -842,11 +844,59 @@ void CModTreeBar::RecalcLayout()
 void CModTreeBar::draw()
 {
 	ui::Painter painter(Point(x(), y()));
-	const Rect rect = GetClientRect();
-	const int padding = Padding();
-	painter.FillSolidRect(rect, ui::GetSystemColor(ui::SysColor::ButtonFace));
+	painter.FillSolidRect(GetClientRect(), ui::GetSystemColor(ui::SysColor::ButtonFace));
 	draw_children();
-	MPT_UNUSED(padding);
+}
+
+
+namespace
+{
+int FindTreeSplitterTop(const Fl_Widget &bar, const Fl_Widget &treeData, int padding)
+{
+	return treeData.y() - bar.y() - padding;
+}
+}
+
+
+// Fl_Group consumes FL_MOVE and forwards clicks to the trees, so the splitters are tracked before the children see the events
+int CModTreeBar::handle(int event)
+{
+	const Point point(Fl::event_x() - x(), Fl::event_y() - y());
+	switch(event)
+	{
+	case FL_ENTER:
+	case FL_MOVE:
+		DoMouseMove(point);
+		break;
+	case FL_PUSH:
+		if(Fl::event_button() == FL_LEFT_MOUSE && m_status[MTB_CAPTURE])
+		{
+			DoLButtonDown(point);
+			return 1;
+		}
+		break;
+	case FL_DRAG:
+		if(m_status[MTB_DRAGGING])
+		{
+			DoMouseMove(point);
+			return 1;
+		}
+		break;
+	case FL_RELEASE:
+		if(m_status[MTB_DRAGGING])
+		{
+			DoLButtonUp();
+			return 1;
+		}
+		break;
+	case FL_LEAVE:
+		if(!m_status[MTB_DRAGGING])
+			CancelTracking();
+		break;
+	default:
+		break;
+	}
+	return Panel::handle(event);
 }
 
 
@@ -854,101 +904,67 @@ void CModTreeBar::DoMouseMove(Point pt)
 {
 	const Rect rect = GetClientRect();
 	const int padding = Padding();
-	const int extraPadding = ui::ScalePixels(2, this);
 
 	if(m_status[MTB_DRAGGING])
 	{
+		// Drag offsets use window coordinates because the bar moves while it is resized on the right side
 		if(m_status[MTB_VERTICAL])
 		{
-			pt.y = std::clamp(static_cast<int>(pt.y), 0, rect.Height());
-			m_nTrackPos = pt.y;
-			m_status.set(MTB_TRACKER);
-		} else
+			const int cyavail = std::max(rect.Height() - padding, padding + 1);
+			const int treeHeight = std::clamp(m_cyOriginal + Fl::event_y() - ptDragging.y, 0, cyavail);
+			m_nTreeSplitRatio = std::clamp(treeHeight * 256 / cyavail, 0, 256);
+			TrackerSettings::Instance().glTreeSplitRatio = m_nTreeSplitRatio;
+			RecalcLayout();
+		} else if(CMainFrame *pMainFrm = CMainFrame::GetMainFrame())
 		{
-			pt.x -= ptDragging.x;
-			if(BarOnLeft())
-				pt.x += (m_cxOriginal - padding);
-			else
-				pt.x = m_cxOriginal - pt.x;
-			pt.x = std::max(pt.x, int32(0));
-			m_nTrackPos = pt.x;
-			m_status.set(MTB_TRACKER);
+			const int deltaX = Fl::event_x() - ptDragging.x;
+			const int maxWidth = std::max(pMainFrm->w() - 2 * padding, 1);
+			const int contentWidth = std::clamp(m_cxOriginal - padding + (BarOnLeft() ? deltaX : -deltaX), 1, maxWidth);
+			TrackerSettings::Instance().glTreeWindowWidth = ui::ScalePixelsInv(contentWidth, this);
+			pMainFrm->RecalcLayout();
 		}
-	} else
+		return;
+	}
+
+	const int extraPadding = ui::ScalePixels(2, this);
+	const Rect widthSplitter = BarOnLeft()
+		? Rect(rect.right - padding - extraPadding, rect.top, rect.right, rect.bottom)
+		: Rect(rect.left, rect.top, rect.left + padding + extraPadding, rect.bottom);
+	const bool isHorizontal = widthSplitter.PtInRect(pt);
+	bool isVertical = false;
+	if(!isHorizontal && m_pModTreeData)
 	{
-		// Find out which splitter is under the cursor
-		Rect splitter;
-		if(BarOnLeft())
-			splitter = Rect(rect.right - padding - extraPadding, rect.top, rect.right, rect.bottom);
-		else
-			splitter = Rect(rect.left, rect.top, rect.left + padding + extraPadding, rect.bottom);
-		bool isHorizontal = splitter.PtInRect(pt);
-		bool isVertical = false;
-		if(!isHorizontal && m_pModTree)
-		{
-			const int treeBottom = m_pModTree->GetWidget()->y() - GetWidget()->y() + m_pModTree->GetWidget()->h();
-			const Rect splitterRect(0, treeBottom - extraPadding, rect.Width(), treeBottom + padding + extraPadding);
-			isVertical = splitterRect.PtInRect(pt);
-		}
-		if(isHorizontal || isVertical)
-		{
-			m_status.set(MTB_CAPTURE);
-			m_status.set(MTB_VERTICAL, isVertical);
-			SetCursorShape(isVertical ? FL_CURSOR_NS : FL_CURSOR_WE);
-		} else if(m_status[MTB_CAPTURE])
-		{
-			m_status.reset(MTB_CAPTURE);
-			SetCursorShape(FL_CURSOR_DEFAULT);
-		}
+		const int splitterTop = FindTreeSplitterTop(*this, *m_pModTreeData->GetWidget(), padding);
+		isVertical = Rect(0, splitterTop - extraPadding, rect.Width(), splitterTop + padding + extraPadding).PtInRect(pt);
+	}
+	if(isHorizontal || isVertical)
+	{
+		m_status.set(MTB_CAPTURE);
+		m_status.set(MTB_VERTICAL, isVertical);
+		SetCursorShape(isVertical ? FL_CURSOR_NS : FL_CURSOR_WE);
+	} else if(m_status[MTB_CAPTURE])
+	{
+		m_status.reset(MTB_CAPTURE);
+		SetCursorShape(FL_CURSOR_DEFAULT);
 	}
 }
 
 
-void CModTreeBar::DoLButtonDown(Point pt)
+void CModTreeBar::DoLButtonDown(Point)
 {
 	if(m_status[MTB_CAPTURE] && !m_status[MTB_DRAGGING])
 	{
-		const Rect rect = GetClientRect();
-		m_cxOriginal = rect.Width();
-		m_cyOriginal = rect.Height();
-		ptDragging = pt;
+		m_cxOriginal = GetClientRect().Width();
+		m_cyOriginal = FindTreeSplitterTop(*this, *m_pModTreeData->GetWidget(), Padding());
+		ptDragging = Point(Fl::event_x(), Fl::event_y());
 		m_status.set(MTB_DRAGGING);
-		DoMouseMove(pt);
 	}
 }
 
 
 void CModTreeBar::DoLButtonUp()
 {
-	if(m_status[MTB_DRAGGING])
-	{
-		m_status.reset(MTB_DRAGGING);
-		m_status.reset(MTB_TRACKER);
-		const int padding = Padding();
-		if(m_status[MTB_VERTICAL])
-		{
-			const Rect rect = GetClientRect();
-			int cyavail = rect.Height() - padding;
-			if(cyavail < padding + 1)
-				cyavail = padding + 1;
-			int ratio = std::clamp(static_cast<int>(m_nTrackPos * 256) / cyavail, 0, 256);
-			m_nTreeSplitRatio = ratio;
-			TrackerSettings::Instance().glTreeSplitRatio = ratio;
-			RecalcLayout();
-		} else
-		{
-			const Rect rect = GetClientRect();
-			m_nTrackPos += padding;
-			if(m_nTrackPos < static_cast<uint32>(padding + 1))
-				m_nTrackPos = padding + 1;
-			CMainFrame *pMainFrm = CMainFrame::GetMainFrame();
-			if((m_nTrackPos != (uint32)rect.Width()) && (pMainFrm))
-			{
-				TrackerSettings::Instance().glTreeWindowWidth = ui::ScalePixelsInv(m_nTrackPos - padding, this);
-				pMainFrm->RecalcLayout();
-			}
-		}
-	}
+	m_status.reset(MTB_DRAGGING);
 	if(m_status[MTB_CAPTURE])
 	{
 		m_status.reset(MTB_CAPTURE);
@@ -959,13 +975,7 @@ void CModTreeBar::DoLButtonUp()
 
 void CModTreeBar::CancelTracking()
 {
-	m_status.reset(MTB_TRACKER);
-	m_status.reset(MTB_DRAGGING);
-	if(m_status[MTB_CAPTURE])
-	{
-		m_status.reset(MTB_CAPTURE);
-		SetCursorShape(FL_CURSOR_DEFAULT);
-	}
+	DoLButtonUp();
 }
 
 
@@ -997,24 +1007,6 @@ void CModTreeBar::OnSize(uint32 nType, int cx, int cy)
 {
 	Wnd::OnSize(nType, cx, cy);
 	RecalcLayout();
-}
-
-
-void CModTreeBar::OnMouseMove(uint32, Point point)
-{
-	DoMouseMove(point);
-}
-
-
-void CModTreeBar::OnLButtonDown(uint32, Point point)
-{
-	DoLButtonDown(point);
-}
-
-
-void CModTreeBar::OnLButtonUp(uint32, Point)
-{
-	DoLButtonUp();
 }
 
 

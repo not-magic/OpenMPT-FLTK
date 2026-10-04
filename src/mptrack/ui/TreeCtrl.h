@@ -7,7 +7,8 @@
 #include "Controls.h"
 #include "ImageList.h"
 
-#include <FL/Fl_Scrollbar.H>
+#include <FL/Fl_Tree.H>
+#include <FL/Fl_Tree_Item.H>
 
 #include <memory>
 #include <string>
@@ -101,20 +102,23 @@ struct TreeItemInfo
 };
 
 
-struct TreeItem
+struct TreeItem : public Fl_Tree_Item
 {
+	explicit TreeItem(Fl_Tree *tree) : Fl_Tree_Item(tree) { }
+	int draw_item_content(int render) override;
+
 	mpt::ustring text;
+	LParam param = 0;
+	uint32 state = 0;
 	int image = 0;
 	int selectedImage = 0;
-	uint32 state = 0;
-	LParam param = 0;
-	bool isExpanded = false;
-	TreeItem *parent = nullptr;
-	std::vector<std::unique_ptr<TreeItem>> children;
+	// Cached label width including padding; negative until measured
+	int textWidth = -1;
 };
 
 
-class TreeCtrl : public WndT<Fl_Group>
+// Fl_Tree lays out and scrolls the items; mouse and keyboard input goes through the Wnd handlers like a platform tree control
+class TreeCtrl : public WndT<Fl_Tree>
 {
 public:
 	TreeCtrl(int x = 0, int y = 0, int width = 0, int height = 0, const char *label = nullptr);
@@ -163,64 +167,52 @@ public:
 	Edit *EditLabel(TreeItemHandle item);
 	Edit *GetEditControl() { return m_editor.get(); }
 	void EndEditLabel(bool isCancelled) { FinishEdit(!isCancelled); }
-	void SetImageList(ImageList *images, int = 0) { m_images = images; redraw(); }
-	void SetRedraw(bool isRedrawing) noexcept { m_isRedrawing = isRedrawing; if(isRedrawing) UpdateScrollBar(); }
+	ImageList *GetImageList() const noexcept { return m_images; }
+	void SetImageList(ImageList *images, int = 0);
+	void SetRedraw(bool isRedrawing);
 	uint32 GetStyle() const noexcept { return m_style; }
-	void SetStyle(uint32 style) { m_style = style; redraw(); }
+	void SetStyle(uint32 style);
 	void ModifyStyle(uint32 remove, uint32 add) { SetStyle((m_style & ~remove) | add); }
 	void SetIndent(int) { }
 	// Sorts the children of an item by their text
 	bool SortChildren(TreeItemHandle item);
-	void SetBackColor(ColorRef color) noexcept { m_backgroundColor = color; }
+	void SetBackColor(ColorRef color);
 
-	void draw() override;
-	void resize(int x, int y, int width, int height) override;
+	int handle(int event) override;
 
 protected:
-	struct VisibleRow
-	{
-		TreeItem *item;
-		int depth;
-	};
-
 	void OnLButtonDown(uint32 flags, Point point) override;
 	void OnLButtonUp(uint32 flags, Point point) override;
 	void OnLButtonDblClk(uint32 flags, Point point) override;
 	void OnRButtonDown(uint32 flags, Point point) override;
 	void OnRButtonUp(uint32 flags, Point point) override;
 	void OnMouseMove(uint32 flags, Point point) override;
-	bool OnMouseWheel(uint32 flags, int16 delta, Point point) override;
 	bool OnKeyDown(uint32 key, uint32 repeatCount, uint32 flags) override;
 
 	// Notifications; handlers can veto by overriding
 	virtual void OnItemExpanded(TreeItemHandle item);
 
-	void BuildRows() const;
-	int RowHeight() const;
-	void UpdateScrollBar();
+	// Item positions are only updated when Fl_Tree draws; queries in between need them recalculated
+	void UpdateItemPositions() const;
+	// Recalculates the tree layout and redraws, unless redrawing is disabled
+	void RefreshLayout();
 	void SendNotification(uint32 code, TreeItemHandle item);
 	void FinishEdit(bool isAccepted);
-	bool IsAncestor(const TreeItem *ancestor, const TreeItem *item) const;
 
-	static void ScrollCallback(Fl_Widget *widget, void *data);
-
-	std::unique_ptr<TreeItem> m_root;
+	TreeItem *m_root = nullptr;
 	TreeItem *m_selected = nullptr;
 	TreeItem *m_dropTarget = nullptr;
 	TreeItem *m_dragItem = nullptr;
 	TreeItem *m_editedItem = nullptr;
 	ImageList *m_images = nullptr;
-	Fl_Scrollbar *m_scrollBar = nullptr;
 	std::unique_ptr<Edit> m_editor;
-	mutable std::vector<VisibleRow> m_rows;
-	mutable bool m_isRowsDirty = true;
-	int m_firstRow = 0;
-	uint32 m_style = TreeStyleHasButtons | TreeStyleHasLines | TreeStyleLinesAtRoot;
-	bool m_isRedrawing = true;
 	Point m_pressPoint;
-	bool m_isDragCandidate = false;
+	uint32 m_style = TreeStyleHasButtons | TreeStyleHasLines | TreeStyleLinesAtRoot;
 	int m_dragButton = 0;
-	ColorRef m_backgroundColor = RGB(255, 255, 255);
+	bool m_isRedrawing = true;
+	bool m_isDragCandidate = false;
+	// The tree handles the mouse button itself instead of Fl_Tree (which only gets its scroll bars)
+	bool m_isMouseCaptured = false;
 };
 
 

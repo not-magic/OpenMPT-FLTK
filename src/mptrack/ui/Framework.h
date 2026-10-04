@@ -300,6 +300,8 @@ public:
 	};
 	// Attaches a bar at one side of the document area; bars at the same side stack in the order they were added
 	void DockBar(Wnd *bar, DockSide side, int size);
+	// Changes the side and size of a docked bar; takes effect with the next RecalcLayout
+	void UpdateDockedBar(const Wnd *bar, DockSide side, int size);
 
 	// Name of the application in the title bar; the title of the active document is shown in front of it
 	void SetTitle(const mpt::ustring &title) { m_title = title; }

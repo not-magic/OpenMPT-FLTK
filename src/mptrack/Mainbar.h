@@ -105,14 +105,13 @@ public:
 		MTB_VERTICAL = 0x01,
 		MTB_CAPTURE = 0x02,
 		MTB_DRAGGING = 0x04,
-		MTB_TRACKER = 0x08,
 	};
 
 protected:
 	FlagSet<Status> m_status;
 	Point ptDragging;
-	uint32 m_cxOriginal = 0, m_cyOriginal = 0, m_nTrackPos = 0;
-	uint32 m_nTreeSplitRatio = 0;
+	int m_cxOriginal = 0, m_cyOriginal = 0;
+	int32 m_nTreeSplitRatio = 0;
 	bool m_isOnLeft = true;
 
 	std::unique_ptr<Edit> m_filterEdit;
@@ -150,6 +149,7 @@ public:
 	int GetDesiredWidth() const;
 
 	void draw() override;
+	int handle(int event) override;
 
 protected:
 	bool PreTranslateMessage(int event) override;
@@ -161,9 +161,6 @@ protected:
 
 protected:
 	void OnSize(uint32 nType, int cx, int cy) override;
-	void OnMouseMove(uint32 nFlags, Point point) override;
-	void OnLButtonDown(uint32, Point) override;
-	void OnLButtonUp(uint32, Point) override;
 	void OnRButtonDown(uint32, Point) override { CancelTracking(); }
 	void OnFilterChanged();
 	void OnFilterLostFocus();

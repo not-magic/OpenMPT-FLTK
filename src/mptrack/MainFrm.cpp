@@ -260,8 +260,8 @@ bool CMainFrame::OnCreate()
 		return false;
 	DockBar(&m_wndStatusBar, DockSide::Bottom, ui::ScalePixels(22, this));
 	m_wndTree.CreateChild(*this, Rect(0, 0, m_wndTree.GetDesiredWidth(), 100), IDD_TREEVIEW);
-	DockBar(&m_wndTree, TrackerSettings::Instance().treeViewOnLeft ? DockSide::Left : DockSide::Right, m_wndTree.GetDesiredWidth());
 	m_wndTree.SetBarOnLeft(TrackerSettings::Instance().treeViewOnLeft);
+	DockBar(&m_wndTree, TrackerSettings::Instance().treeViewOnLeft ? DockSide::Left : DockSide::Right, m_wndTree.GetDesiredWidth());
 	SetupStatusBarSizes();
 	m_wndToolBar.Init(this);
 	m_wndTree.RecalcLayout();
@@ -532,6 +532,7 @@ void CMainFrame::OnUpdateFrameTitle(bool isAddToTitle)
 
 void CMainFrame::RecalcLayout(bool notify)
 {
+	UpdateDockedBar(&m_wndTree, m_wndTree.BarOnLeft() ? DockSide::Left : DockSide::Right, m_wndTree.GetDesiredWidth());
 	MainFrameBase::RecalcLayout(notify);
 	if(m_quickStartDlg)
 	{

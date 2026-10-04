@@ -113,6 +113,7 @@ CViewInstrument::CViewInstrument()
 	m_dwNotifyPos.fill(uint32(Notification::PosInvalid));
 	MemsetZero(m_NcButtonState);
 	m_baPlayingNote.reset();
+	SetNonClientTop(ENV_LEFTBAR_CY);
 }
 
 

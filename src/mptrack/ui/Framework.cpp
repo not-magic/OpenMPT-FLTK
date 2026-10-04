@@ -1104,6 +1104,19 @@ void MainFrameBase::DockBar(Wnd *bar, DockSide side, int size)
 }
 
 
+void MainFrameBase::UpdateDockedBar(const Wnd *bar, DockSide side, int size)
+{
+	for(DockedBar &docked : m_bars)
+	{
+		if(docked.window == bar)
+		{
+			docked.side = side;
+			docked.size = size;
+		}
+	}
+}
+
+
 void MainFrameBase::ShowControlBar(Wnd *bar, bool isVisible)
 {
 	bar->ShowWindow(isVisible);
