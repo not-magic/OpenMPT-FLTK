@@ -394,7 +394,16 @@ bool CModDoc::SaveModified()
 {
 	if(m_SndFile.GetType() == MOD_TYPE_MPT && !SaveAllSamples())
 		return false;
-	return Document::SaveModified();
+	if(!IsModified())
+		return true;
+	const mpt::PathString &pathName = GetPathName();
+	const mpt::ustring name = pathName.empty() ? GetTitle() : pathName.GetFilename().ToUnicode();
+	switch(Reporting::Confirm(MPT_UFORMAT("Save changes to {}?")(name), true, false, CMainFrame::GetMainFrame()))
+	{
+	case cnfYes: return DoFileSave();
+	case cnfNo: return true;
+	default: return false;
+	}
 }
 
 

@@ -403,6 +403,7 @@ Edit::Edit(int x, int y, int width, int height, const char *label)
 	    {
 		    if(Edit *edit = dynamic_cast<Edit *>(widget))
 		    {
+			    edit->m_isModified = true;
 			    NotifyParent(*edit, EditUpdate);
 			    NotifyParent(*edit, EditChange);
 		    }
@@ -462,6 +463,7 @@ void Edit::ReplaceSel(const mpt::ustring &text)
 void Edit::SetWindowText(const mpt::ustring &text)
 {
 	value(ToEditText(text).c_str());
+	m_isModified = false;
 }
 
 

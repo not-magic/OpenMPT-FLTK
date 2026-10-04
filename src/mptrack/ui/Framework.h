@@ -64,6 +64,8 @@ public:
 	virtual bool DoFileSave();
 	// Closes the document after asking whether to save pending changes
 	void OnFileClose() { if(SaveModified()) OnCloseDocument(); }
+	void OnFileSave() { DoFileSave(); }
+	void OnFileSaveAs() { DoSave(mpt::PathString{}); }
 	virtual void OnChangedViewList();
 	virtual void UpdateFrameCounts();
 	virtual void PreCloseFrame(ChildFrameBase *frame);

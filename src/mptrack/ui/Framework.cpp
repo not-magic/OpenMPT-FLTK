@@ -195,6 +195,8 @@ private:
 
 UI_MESSAGE_MAP_BEGIN(Document, CommandTarget)
 	UI_COMMAND(ID_FILE_CLOSE, &Document::OnFileClose)
+	UI_COMMAND(ID_FILE_SAVE, &Document::OnFileSave)
+	UI_COMMAND(ID_FILE_SAVE_AS, &Document::OnFileSaveAs)
 UI_MESSAGE_MAP_END()
 
 
@@ -217,11 +219,7 @@ void Document::SetPathName(const mpt::PathString &path, bool addToMostRecentlyUs
 void Document::SetTitle(const mpt::ustring &title)
 {
 	m_title = title;
-	for(View *view : m_views)
-	{
-		if(ChildFrameBase *frame = view->GetParentFrame())
-			frame->OnUpdateFrameTitle(true);
-	}
+	UpdateFrameCounts();
 }
 
 
@@ -344,6 +342,11 @@ void Document::OnChangedViewList()
 
 void Document::UpdateFrameCounts()
 {
+	for(View *view : m_views)
+	{
+		if(ChildFrameBase *frame = view->GetParentFrame())
+			frame->OnUpdateFrameTitle(true);
+	}
 }
 
 
@@ -965,7 +968,9 @@ void MainFrameBase::RemoveChildFrame(ChildFrameBase *frame)
 	if(isActive)
 	{
 		m_activeFrame = nullptr;
-		if(!m_frames.empty())
+		if(m_frames.empty())
+			OnUpdateFrameTitle(true);
+		else
 			MDIActivate(m_frames.back());
 	}
 	RecalcLayout();
