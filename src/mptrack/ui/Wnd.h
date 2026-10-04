@@ -410,7 +410,12 @@ public:
 			return isAccepted ? 1 : 0;
 		}
 		if(result)
+		{
+			// A group claims moves that no child takes, which would hide them from OnMouseMove
+			if(event == FL_MOVE && Fl::belowmouse() == this)
+				DispatchEvent(event);
 			return result;
+		}
 		return DispatchEvent(event) ? 1 : 0;
 	}
 

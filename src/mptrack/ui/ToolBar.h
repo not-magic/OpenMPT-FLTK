@@ -8,6 +8,7 @@
 #include "ImageList.h"
 #include "Wnd.h"
 
+#include <functional>
 #include <vector>
 
 
@@ -91,6 +92,9 @@ public:
 	void UpdateControl(bool isShown, Wnd &control, int index, int id, int height = 0);
 
 	void draw() override;
+
+	// Supplies the tooltip text for a button ID when GetButtonToolTip is not overridden
+	std::function<mpt::ustring(uint32)> onToolTip;
 
 protected:
 	// Text shown while the mouse rests on a button; empty for none

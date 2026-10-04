@@ -633,10 +633,17 @@ void Wnd::SetToolTipText(const mpt::ustring &text)
 void Wnd::ShowToolTip(const Rect &area, const mpt::ustring &text)
 {
 	Fl_Widget *widget = GetWidget();
-	// FLTK keeps the pointer while the tooltip is shown
-	static std::string currentTip;
-	currentTip = mpt::transcode<std::string>(mpt::common_encoding::utf8, text);
-	Fl_Tooltip::enter_area(widget, widget->x() + area.left, widget->y() + area.top, area.Width(), area.Height(), currentTip.c_str());
+	// FLTK keeps the pointer while the tooltip is shown and ignores a repeated widget/pointer pair,
+	// so a changed text needs a different buffer
+	static std::string tips[2];
+	static int tip_index = 0;
+	std::string newTip = mpt::transcode<std::string>(mpt::common_encoding::utf8, text);
+	if(tips[tip_index] != newTip)
+	{
+		tip_index ^= 1;
+		tips[tip_index] = std::move(newTip);
+	}
+	Fl_Tooltip::enter_area(widget, area.left, area.top, area.Width(), area.Height(), tips[tip_index].c_str());
 }
 
 

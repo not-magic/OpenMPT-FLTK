@@ -377,9 +377,9 @@ void ToolBar::OnLButtonUp(uint32, Point point)
 }
 
 
-mpt::ustring ToolBar::GetButtonToolTip(uint32) const
+mpt::ustring ToolBar::GetButtonToolTip(uint32 id) const
 {
-	return {};
+	return onToolTip ? onToolTip(id) : mpt::ustring{};
 }
 
 

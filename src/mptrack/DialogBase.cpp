@@ -84,6 +84,11 @@ void DialogBase::UpdateToolTips()
 		Wnd *control = dynamic_cast<Wnd *>(child);
 		if(control == nullptr)
 			continue;
+		if(ui::ToolBar *toolBar = dynamic_cast<ui::ToolBar *>(control))
+		{
+			toolBar->onToolTip = [this](uint32 buttonId) { return GetToolTipText(buttonId, nullptr); };
+			continue;
+		}
 		const mpt::ustring text = GetToolTipText(control->GetDlgCtrlID(), control);
 		if(text.empty())
 			continue;
