@@ -114,7 +114,8 @@ IniVersion IniFileHelpers::ProbeVersion(const std::vector<mpt::ustring> &lines)
 	{
 		return result;
 	}
-	if(!((lines.size() > 1) && (lines[1] == MPT_ULITERAL("!Format=org.openmpt.fileformat.ini"))))
+	// Earlier OpenMPT-FLTK builds wrote "!Format=1"
+	if(!((lines.size() > 1) && (lines[1] == MPT_ULITERAL("!Format=org.openmpt.fileformat.ini") || lines[1] == MPT_ULITERAL("!Format=1"))))
 	{
 		return result;
 	}
@@ -159,7 +160,7 @@ std::list<std::pair<SettingPath, SettingValue>> IniFileHelpers::CreateIniHeader(
 		case 3:
 			break;
 		case 4:
-			result.emplace_back(std::make_pair(SettingPath{UL_("!Type"), UL_("!Format")}, UL_("org.openmpt.fileformat.ini")));
+			result.emplace_back(std::make_pair(SettingPath{UL_("!Type"), UL_("!Format")}, U_("org.openmpt.fileformat.ini")));
 			result.emplace_back(std::make_pair(SettingPath{UL_("!Type"), UL_("!VersionMajor")}, static_cast<int32>(version.major)));
 			result.emplace_back(std::make_pair(SettingPath{UL_("!Type"), UL_("!VersionMinor")}, static_cast<int32>(version.minor)));
 			result.emplace_back(std::make_pair(SettingPath{UL_("!Type"), UL_("!VersionPatch")}, static_cast<int32>(version.patch)));

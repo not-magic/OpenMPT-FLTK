@@ -17,12 +17,12 @@ template<> inline SettingValue ToSettingValue(const Encoder::Mode &val)
 {
 	switch(val)
 	{
-	case Encoder::ModeCBR: return SettingValue(UL_("CBR"), "Encoder::Mode"); break;
-	case Encoder::ModeABR: return SettingValue(UL_("ABR"), "Encoder::Mode"); break;
-	case Encoder::ModeVBR: return SettingValue(UL_("VBR"), "Encoder::Mode"); break;
-	case Encoder::ModeQuality: return SettingValue(UL_("Quality"), "Encoder::Mode"); break;
-	case Encoder::ModeLossless: return SettingValue(UL_("Lossless"), "Encoder::Mode"); break;
-	default: return SettingValue(UL_("Invalid"), "Encoder::Mode"); break;
+	case Encoder::ModeCBR: return SettingValue(U_("CBR"), "Encoder::Mode"); break;
+	case Encoder::ModeABR: return SettingValue(U_("ABR"), "Encoder::Mode"); break;
+	case Encoder::ModeVBR: return SettingValue(U_("VBR"), "Encoder::Mode"); break;
+	case Encoder::ModeQuality: return SettingValue(U_("Quality"), "Encoder::Mode"); break;
+	case Encoder::ModeLossless: return SettingValue(U_("Lossless"), "Encoder::Mode"); break;
+	default: return SettingValue(U_("Invalid"), "Encoder::Mode"); break;
 	}
 }
 template<> inline Encoder::Mode FromSettingValue(const SettingValue &val)

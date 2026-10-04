@@ -114,6 +114,8 @@ public:
 	SettingValue(const wchar_t *val) = delete;
 	SettingValue(const char *val, const std::string &typeTag_) = delete;
 	SettingValue(const wchar_t *val, const std::string &typeTag_) = delete;
+	SettingValue(const char8_t *val) = delete;
+	SettingValue(const char8_t *val, const std::string &typeTag_) = delete;
 	SettingType GetType() const
 	{
 		SettingType result = SettingTypeNone;
