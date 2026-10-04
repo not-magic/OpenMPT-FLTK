@@ -321,7 +321,7 @@ void CNoteMapWnd::OnRButtonUp(uint32, Point pt)
 				}
 
 				AppendMenu(hMenu, ui::MenuItemPopup, reinterpret_cast<uintptr_t>(hSubMenu), ih->GetKeyTextFromCommand(kcInsNoteMapEditSample, UL_("&Edit Sample")));
-				AppendMenu(hMenu, ui::MenuItemSeparator, 0, NULL);
+				AppendMenu(hMenu, ui::MenuItemSeparator, 0);
 			}
 			AppendMenu(hMenu, ui::MenuItemString, ID_NOTEMAP_COPY_SMP, ih->GetKeyTextFromCommand(kcInsNoteMapCopyCurrentSample, MPT_UFORMAT("Map All Notes to &Sample {}")(pIns->Keyboard[m_nNote])));
 

@@ -619,7 +619,12 @@ void CModScrollView::SaveLastFocusItem(WindowHandle hwnd)
 
 void CModScrollView::OnSetFocus(Wnd *pOldWnd)
 {
-	RestoreLastFocusItem(*this, m_lastFocusItem);
+	if(!m_isRestoringFocus)
+	{
+		m_isRestoringFocus = true;
+		RestoreLastFocusItem(*this, m_lastFocusItem);
+		m_isRestoringFocus = false;
+	}
 	ScrollView::OnSetFocus(pOldWnd);
 }
 

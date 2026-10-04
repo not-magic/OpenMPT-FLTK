@@ -448,7 +448,7 @@ void CSmpGenDialog::OnShowPresets()
 		}
 	}
 	
-	if(prestsExist) AppendMenu(hMenu, ui::MenuItemSeparator, 0, NULL);
+	if(prestsExist) AppendMenu(hMenu, ui::MenuItemSeparator, 0);
 
 	AppendMenu(hMenu, ui::MenuItemString, ID_SAMPLE_GENERATOR_PRESET_MENU + MAX_SAMPLEGEN_PRESETS, _TEXT("Manage..."));
 

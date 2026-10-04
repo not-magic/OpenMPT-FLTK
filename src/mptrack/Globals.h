@@ -186,6 +186,7 @@ protected:
 	int m_nScrollPosX = 0, m_nScrollPosY = 0;
 	int m_nScrollPosXfine = 0, m_nScrollPosYfine = 0;
 	int m_dpi = ui::kLogicalDpi;  // Cached DPI settings
+	bool m_isRestoringFocus = false;
 
 public:
 	CModScrollView() = default;

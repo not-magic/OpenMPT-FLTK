@@ -6922,7 +6922,7 @@ bool CViewPattern::BuildSetInstCtxMenu(HMENU hMenu, CInputHandler *ih) const
 			// Add options to remove instrument from selection.
 			if(addSeparator)
 			{
-				AppendMenu(instrumentChangeMenu, ui::MenuItemSeparator, 0, 0);
+				AppendMenu(instrumentChangeMenu, ui::MenuItemSeparator, 0);
 			}
 			AppendMenu(instrumentChangeMenu, ui::MenuItemString, ID_CHANGE_INSTRUMENT, UL_("&Remove Instrument"));
 			AppendMenu(instrumentChangeMenu, ui::MenuItemString, ID_CHANGE_INSTRUMENT + GetCurrentInstrument(), ih->GetKeyTextFromCommand(kcPatternSetInstrument, UL_("&Current Instrument")));
