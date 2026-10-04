@@ -10,6 +10,9 @@
 #include <vector>
 
 
+class Fl_Tabs;
+
+
 OPENMPT_NAMESPACE_BEGIN
 
 
@@ -77,17 +80,16 @@ public:
 	UI_DECLARE_MESSAGE_MAP()
 
 private:
-	class TabBar;
-
 	void BuildFrame();
 	void ShowPage(int index);
+	void OnTabSelected();
 
 	std::vector<PropertyPage *> m_pages;
 	mpt::ustring m_caption;
 	int m_activeIndex = -1;
 	int m_initialIndex = 0;
-	Fl_Group *m_content = nullptr;
-	Fl_Widget *m_tabBar = nullptr;
+	Fl_Tabs *m_tabs = nullptr;
+	std::vector<Fl_Group *> m_tabGroups;
 	Button *m_okButton = nullptr;
 	Button *m_cancelButton = nullptr;
 	Button *m_applyButton = nullptr;

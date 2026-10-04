@@ -94,6 +94,7 @@ public:
 	void SetIconImage(Fl_Image *image) { this->image(image); }
 
 	void draw() override;
+	int handle(int event) override;
 
 private:
 	bool m_isGroupBox = false;
@@ -471,6 +472,8 @@ public:
 	int GetCheck(int index) const;
 	void SetTopIndex(int index) { topline(index + 1); }
 	int GetTopIndex() const { return topline() - 1; }
+
+	int handle(int event) override;
 
 private:
 	static void BrowserCallback(Fl_Widget *widget, void *data);

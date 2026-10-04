@@ -50,6 +50,28 @@ std::string ToEditText(const mpt::ustring &text)
 	return utf8;
 }
 
+constexpr const char *kCheckedMarker = "\xE2\x98\x91 ";
+constexpr const char *kUncheckedMarker = "\xE2\x98\x90 ";
+
+bool HasCheckMarker(const char *label)
+{
+	if(label == nullptr)
+		return false;
+	const std::string_view text = label;
+	return text.starts_with(kCheckedMarker) || text.starts_with(kUncheckedMarker);
+}
+
+void NotifyCheckChanged(ListBox &list, int index)
+{
+	ListCheckInfo info{index, list.GetCheck(index) != 0};
+	NotifyHeader header;
+	header.from = &list;
+	header.id = list.GetDlgCtrlID();
+	header.code = CheckListChange;
+	header.extra = &info;
+	list.RouteNotification(header);
+}
+
 }  // namespace
 
 
@@ -300,6 +322,16 @@ void Static::ConfigureFromTemplate(const DialogControl &control)
 	if(control.style & kStaticSunken)
 		box(FL_THIN_DOWN_BOX);
 	this->align(alignment | FL_ALIGN_INSIDE | FL_ALIGN_CLIP | ((control.style & kStaticCenterImage) ? 0 : FL_ALIGN_WRAP));
+}
+
+
+int Static::handle(int event)
+{
+	// Like Windows, group boxes let mouse input through to the controls they enclose
+	const bool isMouseEvent = (event == FL_PUSH || event == FL_RELEASE || event == FL_DRAG || event == FL_MOVE || event == FL_MOUSEWHEEL);
+	if(m_isGroupBox && isMouseEvent)
+		return 0;
+	return WndT<Fl_Box>::handle(event);
 }
 
 
@@ -1415,10 +1447,9 @@ void ListBox::SetCheck(int index, int state)
 	if(index < 0 || index >= size())
 		return;
 	std::string label = text(index + 1);
-	const bool isMarked = label.rfind("\xE2\x98\x91 ", 0) == 0 || label.rfind("\xE2\x98\x90 ", 0) == 0;
-	if(isMarked)
+	if(HasCheckMarker(label.c_str()))
 		label.erase(0, 4);
-	label.insert(0, state ? "\xE2\x98\x91 " : "\xE2\x98\x90 ");
+	label.insert(0, state ? kCheckedMarker : kUncheckedMarker);
 	this->text(index + 1, label.c_str());
 }
 
@@ -1427,7 +1458,36 @@ int ListBox::GetCheck(int index) const
 {
 	if(index < 0 || index >= size())
 		return 0;
-	return std::string(text(index + 1)).rfind("\xE2\x98\x91 ", 0) == 0 ? 1 : 0;
+	return std::string(text(index + 1)).rfind(kCheckedMarker, 0) == 0 ? 1 : 0;
+}
+
+
+int ListBox::handle(int event)
+{
+	int toggledIndex = -1;
+	if(event == FL_PUSH && Fl::event_button() == FL_LEFT_MOUSE)
+	{
+		if(void *item = find_item(Fl::event_y()))
+		{
+			const int index = lineno(item) - 1;
+			fl_font(textfont(), textsize());
+			const int markerWidth = static_cast<int>(fl_width(kCheckedMarker)) + Fl::box_dx(box()) + 2;
+			if(HasCheckMarker(text(index + 1)) && Fl::event_x() - x() < markerWidth)
+				toggledIndex = index;
+		}
+	} else if(event == FL_KEYBOARD && Fl::event_key() == ' ' && HasCheckMarker(text(value())))
+	{
+		SetCheck(value() - 1, !GetCheck(value() - 1));
+		NotifyCheckChanged(*this, value() - 1);
+		return 1;
+	}
+	const int result = WndT<Fl_Browser>::handle(event);
+	if(toggledIndex >= 0)
+	{
+		SetCheck(toggledIndex, !GetCheck(toggledIndex));
+		NotifyCheckChanged(*this, toggledIndex);
+	}
+	return result;
 }
 
 

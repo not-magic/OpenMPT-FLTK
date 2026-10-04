@@ -5,6 +5,7 @@
 #include "StandardIds.h"
 
 #include <FL/Fl.H>
+#include <FL/Fl_Tabs.H>
 #include <FL/fl_draw.H>
 
 #include <algorithm>
@@ -21,6 +22,9 @@ namespace
 {
 
 constexpr int kTabBarHeight = 26;
+constexpr int kTabLabelSize = 12;
+constexpr int kTabLabelPadding = 20;
+constexpr int kPagePadding = 6;
 constexpr int kButtonAreaHeight = 40;
 constexpr int kMargin = 8;
 constexpr uint32 kApplyButtonId = 0x3021;
@@ -31,61 +35,6 @@ std::string ToUtf8(const mpt::ustring &text)
 }
 
 }  // namespace
-
-
-class PropertySheet::TabBar : public Fl_Widget
-{
-public:
-	TabBar(int x, int y, int width, int height, PropertySheet &sheet)
-	    : Fl_Widget(x, y, width, height)
-	    , m_sheet(sheet)
-	{
-	}
-
-	void draw() override
-	{
-		fl_push_clip(x(), y(), w(), h());
-		fl_color(FL_BACKGROUND_COLOR);
-		fl_rectf(x(), y(), w(), h());
-		fl_font(FL_HELVETICA, 12);
-		int tabX = x();
-		for(int i = 0; i < m_sheet.GetPageCount(); ++i)
-		{
-			const std::string title = ToUtf8(m_sheet.GetPage(i)->m_title);
-			const int width = static_cast<int>(fl_width(title.c_str())) + 20;
-			const bool isActive = (i == m_sheet.GetActiveIndex());
-			draw_box(isActive ? FL_UP_BOX : FL_THIN_UP_BOX, tabX, y() + (isActive ? 0 : 3), width, h() - (isActive ? 0 : 3), FL_BACKGROUND_COLOR);
-			fl_color(FL_FOREGROUND_COLOR);
-			fl_draw(title.c_str(), tabX + 10, y() + h() / 2 + fl_height() / 2 - fl_descent() + 1);
-			tabX += width;
-		}
-		fl_pop_clip();
-	}
-
-	int handle(int event) override
-	{
-		if(event == FL_PUSH)
-		{
-			fl_font(FL_HELVETICA, 12);
-			int tabX = x();
-			for(int i = 0; i < m_sheet.GetPageCount(); ++i)
-			{
-				const int width = static_cast<int>(fl_width(ToUtf8(m_sheet.GetPage(i)->m_title).c_str())) + 20;
-				if(Fl::event_x() >= tabX && Fl::event_x() < tabX + width)
-				{
-					m_sheet.SetActivePage(i);
-					return 1;
-				}
-				tabX += width;
-			}
-			return 1;
-		}
-		return Fl_Widget::handle(event);
-	}
-
-private:
-	PropertySheet &m_sheet;
-};
 
 
 UI_MESSAGE_MAP_BEGIN(PropertyPage, Dialog)
@@ -125,9 +74,10 @@ void PropertyPage::SetModified(bool isModified)
 
 PropertySheet *PropertyPage::GetParentSheet() const
 {
-	for(Wnd *wnd = GetParent(); wnd != nullptr; wnd = wnd->GetParent())
+	// The tab group between page and sheet is not a Wnd, so walk the FLTK parents
+	for(Fl_Group *group = parent(); group != nullptr; group = group->parent())
 	{
-		if(PropertySheet *sheet = dynamic_cast<PropertySheet *>(wnd))
+		if(PropertySheet *sheet = dynamic_cast<PropertySheet *>(group))
 			return sheet;
 	}
 	return nullptr;
@@ -164,11 +114,11 @@ PropertySheet::PropertySheet(const mpt::ustring &caption, Wnd *, uint32 selected
 
 PropertySheet::~PropertySheet()
 {
-	// Pages are owned by the caller; detach them so that they are not deleted with the sheet
-	for(PropertyPage *page : m_pages)
+	// Pages are owned by the caller and may already be destroyed, so only detach what is still attached
+	for(Fl_Group *tabGroup : m_tabGroups)
 	{
-		if(page->GetWidget()->parent())
-			page->GetWidget()->parent()->remove(page->GetWidget());
+		while(tabGroup->children() > 0)
+			tabGroup->remove(0);
 	}
 }
 
@@ -201,25 +151,43 @@ void PropertySheet::BuildFrame()
 	if(m_isBuilt)
 		return;
 	m_isBuilt = true;
-	// Create all pages to measure them
 	int contentWidth = 200;
 	int contentHeight = 100;
 	for(PropertyPage *page : m_pages)
 	{
 		if(const DialogTemplate *dialogTemplate = FindDialogTemplate(page->m_templateId))
 		{
-			contentWidth = std::max(contentWidth, DialogUnitsToPixelsX(dialogTemplate->width));
-			contentHeight = std::max(contentHeight, DialogUnitsToPixelsY(dialogTemplate->height));
+			contentWidth = std::max(contentWidth, DialogUnitsToPixelsX(dialogTemplate->width) + 2 * kPagePadding);
+			contentHeight = std::max(contentHeight, DialogUnitsToPixelsY(dialogTemplate->height) + 2 * kPagePadding);
 		}
 	}
+	fl_font(FL_HELVETICA, kTabLabelSize);
+	int tabsWidth = 0;
+	for(const PropertyPage *page : m_pages)
+		tabsWidth += static_cast<int>(fl_width(ToUtf8(page->m_title).c_str())) + kTabLabelPadding;
+	contentWidth = std::max(contentWidth, tabsWidth);
 	const int width = contentWidth + 2 * kMargin;
 	const int height = kTabBarHeight + contentHeight + kButtonAreaHeight + kMargin;
 	resize(0, 0, width, height);
 	begin();
-	m_tabBar = new TabBar(kMargin, kMargin / 2, width - 2 * kMargin, kTabBarHeight, *this);
-	m_content = new Fl_Group(kMargin, kMargin / 2 + kTabBarHeight, contentWidth, contentHeight);
-	m_content->box(FL_UP_FRAME);
-	m_content->end();
+	m_tabs = new Fl_Tabs(kMargin, kMargin / 2, contentWidth, kTabBarHeight + contentHeight);
+	m_tabs->labelsize(kTabLabelSize);
+	m_tabs->callback(
+	    [](Fl_Widget *, void *data)
+	    {
+		    static_cast<PropertySheet *>(data)->OnTabSelected();
+	    },
+	    this);
+	for(const PropertyPage *page : m_pages)
+	{
+		Fl_Group *tabGroup = new Fl_Group(kMargin, kMargin / 2 + kTabBarHeight, contentWidth, contentHeight);
+		tabGroup->copy_label(ToUtf8(page->m_title).c_str());
+		tabGroup->labelsize(kTabLabelSize);
+		tabGroup->end();
+		tabGroup->hide();
+		m_tabGroups.push_back(tabGroup);
+	}
+	m_tabs->end();
 	const int buttonY = height - kButtonAreaHeight + 6;
 	m_okButton = new Button(width - 3 * 80 - 2 * kMargin - 2 * 4, buttonY, 80, 26, "OK");
 	m_okButton->argument(IDOK);
@@ -238,14 +206,28 @@ void PropertySheet::ShowPage(int index)
 	PropertyPage *page = GetPage(index);
 	if(page == nullptr)
 		return;
+	Fl_Group *tabGroup = m_tabGroups[index];
 	if(!page->m_isPageCreated)
 	{
 		page->m_isPageCreated = true;
 		page->CreateChild(page->m_templateId, *this, 0, 0);
-		m_content->add(page->GetWidget());
-		page->GetWidget()->position(m_content->x(), m_content->y());
+		tabGroup->add(page->GetWidget());
+		Fl_Widget *pageWidget = page->GetWidget();
+		pageWidget->box(FL_NO_BOX);
+		pageWidget->position(tabGroup->x() + std::max(kPagePadding, (tabGroup->w() - pageWidget->w()) / 2), tabGroup->y() + kPagePadding);
 	}
 	page->GetWidget()->show();
+	m_tabs->value(tabGroup);
+}
+
+
+void PropertySheet::OnTabSelected()
+{
+	const auto it = std::find(m_tabGroups.begin(), m_tabGroups.end(), m_tabs->value());
+	if(it == m_tabGroups.end())
+		return;
+	if(!SetActivePage(static_cast<int>(it - m_tabGroups.begin())) && m_activeIndex >= 0)
+		m_tabs->value(m_tabGroups[m_activeIndex]);
 }
 
 
@@ -257,14 +239,11 @@ bool PropertySheet::SetActivePage(int index)
 	{
 		if(!current->OnKillActive())
 			return false;
-		current->GetWidget()->hide();
 	}
 	m_activeIndex = index;
 	ShowPage(index);
 	if(PropertyPage *page = GetActivePage())
 		page->OnSetActive();
-	if(m_tabBar)
-		m_tabBar->redraw();
 	return true;
 }
 
