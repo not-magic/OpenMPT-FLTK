@@ -34,6 +34,41 @@
 OPENMPT_NAMESPACE_BEGIN
 
 
+namespace
+{
+
+mpt::ustring FindHomePrefix()
+{
+	mpt::ustring home = FileSystem::FindHomeDirectory().ToUnicode();
+	while(!home.empty() && (home.back() == UC_('/') || home.back() == UC_('\\')))
+		home.pop_back();
+	return home;
+}
+
+bool IsPathBoundary(const mpt::ustring &text, std::size_t length)
+{
+	return text.size() == length || text[length] == UC_('/') || text[length] == UC_('\\');
+}
+
+mpt::ustring AbbreviateHome(const mpt::ustring &text)
+{
+	const mpt::ustring home = FindHomePrefix();
+	if(home.empty() || text.compare(0, home.size(), home) != 0 || !IsPathBoundary(text, home.size()))
+		return text;
+	return UL_("~") + text.substr(home.size());
+}
+
+mpt::ustring ExpandHome(const mpt::ustring &text)
+{
+	if(text.empty() || text[0] != UC_('~') || !IsPathBoundary(text, 1))
+		return text;
+	const mpt::ustring home = FindHomePrefix();
+	return home.empty() ? text : home + text.substr(1);
+}
+
+}  // namespace
+
+
 CTrackerSoundFile *CModTree::m_SongFile = nullptr;
 CModTree::LibrarySortOrder CModTree::m_librarySort = LibrarySortOrder::Name;
 
@@ -264,7 +299,7 @@ mpt::PathString CModTree::InsLibGetFullPath(TreeItemHandle hItem) const
 {
 	mpt::PathString fullPath = m_InstrLibPath;
 	fullPath = fullPath.WithTrailingSlash();
-	return fullPath + mpt::PathString::FromUnicode(GetItemText(hItem));
+	return fullPath + mpt::PathString::FromUnicode(ExpandHome(GetItemText(hItem)));
 }
 
 
@@ -661,7 +696,7 @@ void CModTree::RefreshInstrumentLibrary()
 	// Check if the currently selected item should be selected after refreshing
 	mpt::ustring selectedName;
 	if((IsSampleBrowser() || GetParentRootItem(GetSelectedItem()) == m_hInsLib)
-	   && GetItemText(GetSampleBrowser()->m_hInsLib) == (m_SongFileName.empty() ? m_InstrLibPath : m_SongFileName).ToUnicode())
+	   && GetItemText(GetSampleBrowser()->m_hInsLib) == AbbreviateHome((m_SongFileName.empty() ? m_InstrLibPath : m_SongFileName).ToUnicode()))
 	{
 		selectedName = GetItemText(GetSelectedItem());
 	}
@@ -1332,7 +1367,7 @@ bool CModTree::ExecuteItem(TreeItemHandle hItem)
 
 		case MODITEM_INSLIB_SONG:
 		case MODITEM_INSLIB_FOLDER:
-			InstrumentLibraryChDir(mpt::PathString::FromUnicode(GetItemText(hItem)), modItem.type == MODITEM_INSLIB_SONG);
+			InstrumentLibraryChDir(mpt::PathString::FromUnicode(ExpandHome(GetItemText(hItem))), modItem.type == MODITEM_INSLIB_SONG);
 			return true;
 
 		case MODITEM_HDR_SONG:
@@ -1803,7 +1838,7 @@ void CModTree::FillInstrumentLibrary(const mpt::ustring &selectedItem)
 	{
 		if(!IsSampleBrowser())
 		{
-			SetItemText(m_hInsLib, UL_("Instrument Library (") + m_InstrLibPath.ToUnicode() + UL_(")"));
+			SetItemText(m_hInsLib, UL_("Instrument Library (") + AbbreviateHome(m_InstrLibPath.ToUnicode()) + UL_(")"));
 		}
 
 		// Shortcuts to the file system root, the home directory and mounted media
@@ -1814,7 +1849,7 @@ void CModTree::FillInstrumentLibrary(const mpt::ustring &selectedItem)
 				std::error_code ec;
 				if(!std::filesystem::is_directory(path, ec))
 					return;
-				m_fileBrowserEntries.push_back({mpt::PathString::FromUTF8(path.string()).WithTrailingSlash().ToUnicode(), 0, 0, static_cast<uint32>(IMAGE_FOLDER), false});
+				m_fileBrowserEntries.push_back({AbbreviateHome(mpt::PathString::FromUTF8(path.string()).WithTrailingSlash().ToUnicode()), 0, 0, static_cast<uint32>(IMAGE_FOLDER), false});
 			};
 			addRoot("/");
 			if(const char *home = std::getenv("HOME"); home && *home)
@@ -2019,9 +2054,9 @@ void CModTree::FilterInstrumentLibrary(mpt::ustring filter, const mpt::ustring &
 		if(m_hInsLib)
 			DeleteItem(m_hInsLib);
 		if(!m_SongFileName.empty() && m_SongFile)
-			m_hInsLib = InsertItem(m_SongFileName.ToUnicode(), IMAGE_FOLDERSONG, IMAGE_FOLDERSONG, ui::TreeRoot, ui::TreeFirst);
+			m_hInsLib = InsertItem(AbbreviateHome(m_SongFileName.ToUnicode()), IMAGE_FOLDERSONG, IMAGE_FOLDERSONG, ui::TreeRoot, ui::TreeFirst);
 		else
-			m_hInsLib = InsertItem(m_InstrLibPath.ToUnicode(), IMAGE_FOLDER, IMAGE_FOLDER, ui::TreeRoot, ui::TreeFirst);
+			m_hInsLib = InsertItem(AbbreviateHome(m_InstrLibPath.ToUnicode()), IMAGE_FOLDER, IMAGE_FOLDER, ui::TreeRoot, ui::TreeFirst);
 	}
 
 	if(!filter.empty() && !selectedTreeItem)
