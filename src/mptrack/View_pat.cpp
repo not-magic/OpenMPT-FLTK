@@ -1588,9 +1588,41 @@ void CViewPattern::OnXButtonUp(uint32 nFlags, uint32 nButton, Point point)
 }
 
 
+void CViewPattern::OnMButtonDown(uint32 nFlags, Point point)
+{
+	if(m_isPanning)
+		return;
+	m_isPanning = true;
+	m_panGrabPoint = point;
+	m_panGrabScroll = Point(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT));
+	SetCapture();
+	CModScrollView::OnMButtonDown(nFlags, point);
+}
+
+
+void CViewPattern::OnMButtonUp(uint32 nFlags, Point point)
+{
+	if(m_isPanning)
+	{
+		m_isPanning = false;
+		ReleaseCapture();
+	}
+	CModScrollView::OnMButtonUp(nFlags, point);
+}
+
+
 void CViewPattern::OnMouseMove(uint32 nFlags, Point point)
 {
 	CModScrollView::OnMouseMove(nFlags, point);
+
+	if(m_isPanning)
+	{
+		const int x_delta = m_panGrabScroll.x - (point.x - m_panGrabPoint.x) - GetScrollPos(SB_HORZ);
+		const int y_delta = m_panGrabScroll.y - (point.y - m_panGrabPoint.y) - GetScrollPos(SB_VERT);
+		if(x_delta != 0 || y_delta != 0)
+			OnScrollBy(Size(x_delta, y_delta), true);
+		return;
+	}
 
 	const bool isDraggingRecordGroup = IsDraggingRecordGroup();
 	if(!m_Status[psDragging] && !isDraggingRecordGroup)

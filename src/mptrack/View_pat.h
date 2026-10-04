@@ -119,6 +119,8 @@ protected:
 	static int32 m_nTransposeAmount;
 
 	int m_nXScroll = 0, m_nYScroll = 0;
+	Point m_panGrabPoint, m_panGrabScroll;
+	bool m_isPanning = false;
 	int m_ledWidth = 0, m_ledHeight = 0;
 	std::bitset<PatternCursor::numColumns> m_visibleColumns;
 
@@ -357,6 +359,8 @@ protected:
 	bool OnMouseWheel(uint32 nFlags, short zDelta, Point pt);
 	void OnXButtonUp(uint32 nFlags, uint32 nButton, Point point);
 	void OnMouseMove(uint32, Point);
+	void OnMButtonDown(uint32, Point) override;
+	void OnMButtonUp(uint32, Point) override;
 	void OnLButtonUp(uint32, Point);
 	void OnLButtonDown(uint32, Point);
 	void OnLButtonDblClk(uint32, Point);
