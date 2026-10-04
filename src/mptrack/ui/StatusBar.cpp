@@ -3,7 +3,7 @@
 #include "stdafx.h"
 #include "StatusBar.h"
 
-#include <FL/fl_draw.H>
+#include <FL/Fl_Box.H>
 
 #include <algorithm>
 
@@ -16,16 +16,30 @@ namespace ui
 
 
 StatusBar::StatusBar(int x, int y, int width, int height)
-    : WndT<Fl_Widget>(x, y, width, height)
+    : WndT<Fl_Group>(x, y, width, height)
 {
 }
 
 
 void StatusBar::SetPanes(const std::vector<std::pair<uint32, int>> &idsAndWidths)
 {
+	for(const Pane &pane : m_panes)
+	{
+		remove(pane.box);
+		delete pane.box;
+	}
 	m_panes.clear();
+	begin();
 	for(const auto &[id, width] : idsAndWidths)
-		m_panes.push_back(Pane{id, width, {}});
+	{
+		Fl_Box *const box = new Fl_Box(x(), y(), 0, h());
+		box->box(FL_THIN_DOWN_BOX);
+		box->labelsize(12);
+		box->align(FL_ALIGN_LEFT | FL_ALIGN_INSIDE | FL_ALIGN_CLIP);
+		m_panes.push_back(Pane{id, width, box});
+	}
+	end();
+	Layout();
 	redraw();
 }
 
@@ -35,19 +49,17 @@ void StatusBar::SetPaneText(int index, const mpt::ustring &text)
 	if(index < 0 || index >= static_cast<int>(m_panes.size()))
 		return;
 	const std::string utf8 = mpt::transcode<std::string>(mpt::common_encoding::utf8, text);
-	if(m_panes[index].text != utf8)
-	{
-		m_panes[index].text = utf8;
-		redraw();
-	}
+	Fl_Box *const box = m_panes[index].box;
+	if(!box->label() || utf8 != box->label())
+		box->copy_label(utf8.c_str());
 }
 
 
 mpt::ustring StatusBar::GetPaneText(int index) const
 {
-	if(index < 0 || index >= static_cast<int>(m_panes.size()))
+	if(index < 0 || index >= static_cast<int>(m_panes.size()) || !m_panes[index].box->label())
 		return {};
-	return mpt::transcode<mpt::ustring>(mpt::common_encoding::utf8, m_panes[index].text);
+	return mpt::transcode<mpt::ustring>(mpt::common_encoding::utf8, std::string(m_panes[index].box->label()));
 }
 
 
@@ -56,7 +68,7 @@ void StatusBar::SetPaneWidth(int index, int width)
 	if(index >= 0 && index < static_cast<int>(m_panes.size()))
 	{
 		m_panes[index].width = width;
-		redraw();
+		Layout();
 	}
 }
 
@@ -72,32 +84,33 @@ int StatusBar::CommandToIndex(uint32 id) const
 }
 
 
-void StatusBar::draw()
+void StatusBar::resize(int x, int y, int width, int height)
 {
-	fl_push_clip(x(), y(), w(), h());
-	fl_color(FL_BACKGROUND_COLOR);
-	fl_rectf(x(), y(), w(), h());
-	int fixedWidth = 0;
-	int flexibleCount = 0;
+	WndT<Fl_Group>::resize(x, y, width, height);
+	Layout();
+}
+
+
+void StatusBar::Layout()
+{
+	int fixed_width = 0;
+	int flexible_total = 0;
 	for(const Pane &pane : m_panes)
 	{
 		if(pane.width > 0)
-			fixedWidth += pane.width;
+			fixed_width += pane.width;
 		else
-			++flexibleCount;
+			++flexible_total;
 	}
-	const int flexibleWidth = flexibleCount ? std::max((w() - fixedWidth) / flexibleCount, 20) : 0;
-	fl_font(FL_HELVETICA, 12);
+	const int flexible_width = flexible_total ? std::max((w() - fixed_width) / flexible_total, 20) : 0;
 	int left = x();
 	for(const Pane &pane : m_panes)
 	{
-		const int width = pane.width > 0 ? pane.width : flexibleWidth;
-		draw_box(FL_THIN_DOWN_BOX, left, y() + 1, width - 1, h() - 2, FL_BACKGROUND_COLOR);
-		fl_color(FL_FOREGROUND_COLOR);
-		fl_draw(pane.text.c_str(), left + 4, y() + 1, width - 8, h() - 2, FL_ALIGN_LEFT | FL_ALIGN_CLIP);
+		const int width = pane.width > 0 ? pane.width : flexible_width;
+		pane.box->resize(left, y(), width, h());
 		left += width;
 	}
-	fl_pop_clip();
+	redraw();
 }
 
 

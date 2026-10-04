@@ -8,6 +8,8 @@
 
 #include <vector>
 
+class Fl_Box;
+
 
 OPENMPT_NAMESPACE_BEGIN
 
@@ -15,7 +17,7 @@ OPENMPT_NAMESPACE_BEGIN
 namespace ui
 {
 
-class StatusBar : public WndT<Fl_Widget>
+class StatusBar : public WndT<Fl_Group>
 {
 public:
 	StatusBar(int x = 0, int y = 0, int width = 0, int height = 0);
@@ -28,14 +30,16 @@ public:
 	int CommandToIndex(uint32 id) const;
 	int GetPaneCount() const { return static_cast<int>(m_panes.size()); }
 
-	void draw() override;
+	void resize(int x, int y, int width, int height) override;
 
 private:
+	void Layout();
+
 	struct Pane
 	{
 		uint32 id = 0;
 		int width = 0;
-		std::string text;
+		Fl_Box *box = nullptr;
 	};
 
 	std::vector<Pane> m_panes;
