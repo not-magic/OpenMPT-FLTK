@@ -27,6 +27,8 @@ target_compile_definitions(OpenMPT PRIVATE
 	MPT_BUILD_ENABLE_PCH
 	MPT_WITH_FLTK
 	MPT_WITH_OGG
+	MPT_WITH_VORBIS
+	MPT_WITH_VORBISENC
 	$<$<CONFIG:Debug>:DEBUG>
 )
 
@@ -59,6 +61,7 @@ target_link_libraries(OpenMPT PRIVATE
 	fltk::fltk
 	mpt_flac
 	mpt_ogg
+	mpt_vorbis
 	mpt_pugixml
 	mpt_rtmidi
 	mpt_platform

@@ -58,6 +58,7 @@ Files:
 - Channel mute status is always saved (the "save channel mute status" setting is ignored); IT sample compression is never used.
 - External samples are read back by re-parsing MPTM sample headers, but saving embeds them into the file. `.itp` projects cannot be loaded.
 - MIDI (`.mid`/`.rmi`/`.smf`), WAV and UAX files cannot be opened as modules. SFZ instruments cannot be imported (export works). FLAC files load as samples but not as instruments. Opus samples are not supported; MP3/Vorbis use libopenmpt's minimp3/stb_vorbis.
+- Stream export offers WAV, AU, raw PCM and Ogg Vorbis. The FLAC, Opus and MP3 encoders are not built (the FLAC one needs `MPT_WITH_FLAC`).
 - Upstream's tracker-only load messages (local tuning migration, missing plugin summary) are not emitted.
 
 UI and other:

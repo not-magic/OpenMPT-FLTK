@@ -10,6 +10,18 @@ target_include_directories(mpt_ogg PUBLIC
 )
 target_compile_options(mpt_ogg PRIVATE -w)
 
+file(GLOB MPT_VORBIS_SOURCES CONFIGURE_DEPENDS ${OPENMPT_FLTK_INCLUDE}/vorbis/lib/*.c)
+list(FILTER MPT_VORBIS_SOURCES EXCLUDE REGEX "/(barkmel|psytune|tone|vorbisfile)\\.c$")
+add_library(mpt_vorbis STATIC ${MPT_VORBIS_SOURCES})
+target_include_directories(mpt_vorbis
+	PUBLIC
+		${OPENMPT_FLTK_INCLUDE}/vorbis/include
+	PRIVATE
+		${OPENMPT_FLTK_INCLUDE}/vorbis/lib
+)
+target_link_libraries(mpt_vorbis PUBLIC mpt_ogg)
+target_compile_options(mpt_vorbis PRIVATE -w)
+
 file(GLOB MPT_FLAC_SOURCES CONFIGURE_DEPENDS ${OPENMPT_FLTK_INCLUDE}/flac/src/libFLAC/*.c)
 add_library(mpt_flac STATIC ${MPT_FLAC_SOURCES})
 target_compile_definitions(mpt_flac
