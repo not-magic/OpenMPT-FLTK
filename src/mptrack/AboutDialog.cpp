@@ -58,8 +58,11 @@ void CRippleBitmap::OnMouseMove(uint32 nFlags, Point point)
 	m_lastRipple = now;
 
 	// Initiate ripples at cursor location
-	point.x = ui::ScalePixelsInv(point.x, this);
-	point.y = ui::ScalePixelsInv(point.y, this);
+	const Rect client_rect = GetClientRect();
+	const int client_width = std::max(1, int(client_rect.Width()));
+	const int client_height = std::max(1, int(client_rect.Height()));
+	point.x = point.x * int(m_bitmapSrc->Width()) / client_width;
+	point.y = point.y * int(m_bitmapSrc->Height()) / client_height;
 	Limit(point.x, 1, int(m_bitmapSrc->Width()) - 2);
 	Limit(point.y, 2, int(m_bitmapSrc->Height()) - 3);
 	int32 *p = m_backBuf + point.x + point.y * m_bitmapSrc->Width();
