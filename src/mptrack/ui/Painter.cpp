@@ -275,9 +275,8 @@ bool Painter::RectVisible(const Rect &rect) const
 	Rect shifted = rect;
 	shifted.OffsetRect(m_origin.x, m_origin.y);
 	int x = 0, y = 0, width = 0, height = 0;
-	if(fl_clip_box(shifted.left, shifted.top, shifted.Width(), shifted.Height(), x, y, width, height) == 0)
-		return width > 0 && height > 0;
-	return true;
+	fl_clip_box(shifted.left, shifted.top, shifted.Width(), shifted.Height(), x, y, width, height);
+	return width > 0 && height > 0;
 }
 
 
