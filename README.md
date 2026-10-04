@@ -1,12 +1,12 @@
 # OpenMPT-FLTK
 
-A port of the OpenMPT Tracker to FLTK, with the intention of having something that works natively on Linux. This is a heavily AI-assisted port with a design chosen to minimize how much code needs to be converted. openmpt and fltk are submodules, with only the GUI code and an 'extension' wrapper around tracker-specific internals has been ported. The actual playback works by linking against libOpenMPT as-is.
-
-This is complicated because libOpenMPT has many editor hooks that are compiled out when built as a library.
-
-Not everything works yet, it's basically proof of concept that the UI can be converted. It can load and play a song, and the custom drawing widgets are converted.
+A port of the OpenMPT Tracker to FLTK, with the intention of having something that works natively on Linux. This is an AI-assisted port (it would be infeasible for a single person otherwise) with a design chosen to minimize how much code needs to be converted. openmpt and fltk are submodules, with only the GUI code and an 'extension' wrapper around tracker-specific internals has been ported. The actual playback works by linking against libOpenMPT as-is.
 
 FLTK was chosen because it has that old shool computer vibe and is very lightweight.
+
+### Status
+
+It is in a semi-functional state, it's basically proof of concept that the UI can be converted. It can load and play a song, and the custom drawing widgets are converted.
 
 
 ## Screenshots

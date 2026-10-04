@@ -15,10 +15,11 @@ permissions:
   contents: write
 
 jobs:
-  release:
+  build:
+    name: linux
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
           ref: ${{ github.event.inputs.tag || github.ref }}
@@ -40,14 +41,35 @@ jobs:
       - name: Build
         run: ninja -C build OpenMPT
 
+      - name: Upload binary
+        uses: actions/upload-artifact@v7
+        with:
+          name: OpenMPT-bin-linux
+          path: build/bin/OpenMPT
+
+  package:
+    name: Package
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.inputs.tag || github.ref }}
+
+      - name: Download binary
+        uses: actions/download-artifact@v8
+        with:
+          name: OpenMPT-bin-linux
+          path: OpenMPT
+
       - name: Zip binary
         run: |
-          mkdir OpenMPT
-          cp build/bin/OpenMPT LICENSE OpenMPT/
+          chmod +x OpenMPT/OpenMPT
+          cp LICENSE OpenMPT/LICENSE
           zip -r OpenMPT-linux.zip OpenMPT
 
       - name: Create release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: ${{ github.event.inputs.tag || github.ref_name }}
           files: OpenMPT-linux.zip
