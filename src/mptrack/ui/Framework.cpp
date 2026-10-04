@@ -1181,19 +1181,8 @@ int AppBase::ExitInstance()
 
 int AppBase::Run()
 {
-	static AppBase *idleApp = nullptr;
-	idleApp = this;
-	Fl::add_idle(
-	    [](void *)
-	    {
-		    static int idleCount = 0;
-		    if(idleApp->OnIdle(idleCount++))
-			    return;
-		    idleCount = 0;
-	    },
-	    nullptr);
-	const int result = Fl::run();
-	return result;
+	SetIdleHandler([this](int idleCount) { return OnIdle(idleCount); });
+	return Fl::run();
 }
 
 

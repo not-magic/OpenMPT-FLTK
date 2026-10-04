@@ -113,8 +113,27 @@ bool IsAlive(const Wnd *wnd)
 	return GetLiveWindows().count(wnd) != 0;
 }
 
+std::function<bool(int)> idleHandler;
+int idleCount = 0;
+bool isIdleScheduled = false;
+
+void IdleCallback(void *)
+{
+	if(idleHandler && idleHandler(idleCount++))
+		return;
+	Fl::remove_idle(IdleCallback);
+	isIdleScheduled = false;
+}
+
+int OnSystemEvent(void *, void *)
+{
+	RequestIdleProcessing();
+	return 0;
+}
+
 void DeliverPostedMessage(void *data)
 {
+	RequestIdleProcessing();
 	std::unique_ptr<PostedMessage> msg(static_cast<PostedMessage *>(data));
 	if(IsAlive(msg->target))
 		msg->target->SendMessage(msg->message, msg->wParam, msg->lParam);
@@ -129,6 +148,7 @@ void TimerCallback(void *data)
 	const uintptr_t timerId = timer->timerId;
 	const double seconds = timer->seconds;
 	Fl::repeat_timeout(seconds, TimerCallback, data);
+	RequestIdleProcessing();
 	target->SendMessage(MsgUser + 0x7F00, timerId, 0);
 }
 
@@ -842,6 +862,25 @@ LResult Wnd::SendMessage(uint32 message, WParam wParam, LParam lParam)
 	if(OnCmdMsg(message, MsgMessageCode, &args, &result))
 		return result;
 	return OnUserMessage(message, wParam, lParam);
+}
+
+
+void SetIdleHandler(std::function<bool(int)> handler)
+{
+	if(!idleHandler)
+		Fl::add_system_handler(OnSystemEvent, nullptr);
+	idleHandler = std::move(handler);
+	RequestIdleProcessing();
+}
+
+
+void RequestIdleProcessing()
+{
+	idleCount = 0;
+	if(isIdleScheduled)
+		return;
+	isIdleScheduled = true;
+	Fl::add_idle(IdleCallback);
 }
 
 

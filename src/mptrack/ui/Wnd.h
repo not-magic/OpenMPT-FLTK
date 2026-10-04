@@ -457,6 +457,9 @@ inline Size GetScreenSize() { return Size(Fl::w(), Fl::h()); }
 inline void PumpMessages() { Fl::check(); }
 // Plays the system alert sound
 void Beep();
+// Runs the handler from the event loop until it returns false, then again after the next event, timer or posted message
+void SetIdleHandler(std::function<bool(int)> handler);
+void RequestIdleProcessing();
 
 
 }  // namespace ui
