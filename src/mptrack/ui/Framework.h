@@ -200,6 +200,8 @@ public:
 	// Largest scroll position of a bar
 	int GetScrollLimit(int bar) const;
 	void ShowScrollBar(int bar, bool isVisible);
+	// Leaves the start of the bars free: horizontal bar left inset (cx), vertical bar top inset (cy)
+	void SetBarInsets(Size insets);
 
 	void resize(int x, int y, int width, int height) override;
 	void draw() override;
@@ -213,6 +215,7 @@ protected:
 	Size m_page;
 	Size m_line;
 	Point m_position;
+	Size m_barInsets;
 
 	static constexpr int kBarSize = 16;
 

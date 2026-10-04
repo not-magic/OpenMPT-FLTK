@@ -130,6 +130,7 @@ CViewPattern::CViewPattern()
 	m_Dib.Init(CMainFrame::bmpNotes.get());
 	UpdateColors();
 	m_octaveKeyMemory.fill(NOTE_NONE);
+	m_wheelLineCount = 8;
 }
 
 
@@ -1565,7 +1566,7 @@ bool CViewPattern::OnMouseWheel(uint32 nFlags, short zDelta, Point pt)
 	if(IsLiveRecord() && !m_Status[psDragActive])
 	{
 		// During live playback with "follow song" enabled, the mouse wheel can be used to jump forwards and backwards.
-		CursorJump(-mpt::signum(zDelta), false);
+		CursorJump(-mpt::signum(zDelta) * m_wheelLineCount, false);
 		return true;
 	}
 	return CModScrollView::OnMouseWheel(nFlags, zDelta, pt);

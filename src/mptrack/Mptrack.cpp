@@ -1433,21 +1433,36 @@ void CFastBitmap::Blit(ui::Painter &painter, int x, int y, int cx, int cy)
 {
 	cx = std::min(cx, m_width);
 	cy = std::min(cy, m_height);
-	if(cx <= 0 || cy <= 0)
+	const Rect clip = painter.GetClipBox();
+	const int first_column = std::max(0, clip.left - x);
+	const int end_column = std::min(cx, clip.right - x);
+	const int first_row = std::max(0, clip.top - y);
+	const int end_row = std::min(cy, clip.bottom - y);
+	if(first_column >= end_column || first_row >= end_row)
 		return;
-	if(m_bitmap.GetWidth() != cx || m_bitmap.GetHeight() != cy)
-		m_bitmap.Create(cx, cy);
-	uint32 *out = m_bitmap.GetPixels();
-	for(int row = 0; row < cy; ++row)
+
+	if(m_isPaletteDirty)
 	{
-		const uint8 *source = &m_pixels[static_cast<std::size_t>(row) * m_width];
-		for(int column = 0; column < cx; ++column)
+		for(int i = 0; i < 256; ++i)
 		{
-			const ColorRef color = m_palette[source[column]];
-			*out++ = 0xFF000000u | (static_cast<uint32>(GetRValue(color)) << 16) | (static_cast<uint32>(GetGValue(color)) << 8) | GetBValue(color);
+			m_paletteRgbx[i][0] = GetRValue(m_palette[i]);
+			m_paletteRgbx[i][1] = GetGValue(m_palette[i]);
+			m_paletteRgbx[i][2] = GetBValue(m_palette[i]);
 		}
+		m_isPaletteDirty = false;
 	}
-	painter.DrawBitmap(m_bitmap, x, y, 0, 0, cx, cy);
+
+	const int width = end_column - first_column;
+	const int height = end_row - first_row;
+	m_rgbxPixels.resize(static_cast<std::size_t>(width) * height * 4);
+	uint8 *out = m_rgbxPixels.data();
+	for(int row = first_row; row < end_row; ++row)
+	{
+		const uint8 *source = &m_pixels[static_cast<std::size_t>(row) * m_width + first_column];
+		for(int column = 0; column < width; ++column, out += 4)
+			std::memcpy(out, m_paletteRgbx[source[column]], 4);
+	}
+	painter.DrawRgbx(m_rgbxPixels.data(), x + first_column, y + first_row, width, height);
 }
 
 
@@ -1456,6 +1471,7 @@ void CFastBitmap::SetColor(uint32 nIndex, ColorRef cr)
 	if (nIndex < 256)
 	{
 		m_palette[nIndex] = cr;
+		m_isPaletteDirty = true;
 	}
 }
 
@@ -1479,6 +1495,7 @@ void CFastBitmap::SetBlendColor(ColorRef cr)
 		uint32 m = (GetRValue(m_palette[i]) >> 2)
 				+ (GetGValue(m_palette[i]) >> 1)
 				+ (GetBValue(m_palette[i]) >> 2);
+		m_isPaletteDirty = true;
 		m_palette[i|BLEND_OFFSET] = RGB(static_cast<uint8>((m + r)>>1), static_cast<uint8>((m + g)>>1), static_cast<uint8>((m + b)>>1));
 	}
 }

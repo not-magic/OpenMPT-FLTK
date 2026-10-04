@@ -11,6 +11,8 @@
 #include "../common/FileReaderFwd.h"
 #include "../tracklib/Types.h"
 
+class Fl_Box;
+
 OPENMPT_NAMESPACE_BEGIN
 
 class CModControlView;
@@ -95,6 +97,7 @@ protected:
 protected:
 	CModControlView *m_controlView = nullptr;
 	View *m_bottomView = nullptr;
+	Fl_Box *m_viewFrame = nullptr;
 	WindowHandle m_hWndCtrl = nullptr, m_hWndView = nullptr;
 	GeneralViewState m_ViewGeneral;
 	PatternViewState m_ViewPatterns;

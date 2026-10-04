@@ -187,6 +187,7 @@ protected:
 	int m_nScrollPosXfine = 0, m_nScrollPosYfine = 0;
 	int m_dpi = ui::kLogicalDpi;  // Cached DPI settings
 	bool m_isRestoringFocus = false;
+	int m_wheelLineCount = 3;
 
 public:
 	CModScrollView() = default;

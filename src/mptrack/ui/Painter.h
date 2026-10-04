@@ -196,6 +196,8 @@ public:
 
 	// Copies a part of a bitmap, 1:1 or scaled
 	void DrawBitmap(const Bitmap &bitmap, int destX, int destY, int srcX, int srcY, int width, int height);
+	// Draws tightly packed RGBX pixels (the fourth byte is ignored)
+	void DrawRgbx(const uint8 *pixels, int destX, int destY, int width, int height);
 	void StretchBitmap(const Bitmap &bitmap, const Rect &dest);
 
 	// Copies a part of an offscreen buffer to the target

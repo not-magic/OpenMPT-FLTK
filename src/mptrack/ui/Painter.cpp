@@ -638,6 +638,12 @@ void Painter::DrawBitmap(const Bitmap &bitmap, int destX, int destY, int srcX, i
 }
 
 
+void Painter::DrawRgbx(const uint8 *pixels, int destX, int destY, int width, int height)
+{
+	fl_draw_image(pixels, destX + m_origin.x, destY + m_origin.y, width, height, 4, 0);
+}
+
+
 void Painter::StretchBitmap(const Bitmap &bitmap, const Rect &dest)
 {
 	if(!bitmap.IsValid() || dest.IsRectEmpty())

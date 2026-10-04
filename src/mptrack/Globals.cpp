@@ -672,6 +672,14 @@ bool CModScrollView::PreTranslateMessage(int event)
 			return true;  // Mapped to a command, no need to pass the key on.
 	}
 
+	if(event == FL_MOUSEWHEEL)
+	{
+		// The scrollbar children would otherwise consume the wheel with their own step size
+		const Point point(Fl::event_x() - GetWidget()->x(), Fl::event_y() - GetWidget()->y());
+		if(GetClientRect().PtInRect(point))
+			return DispatchEvent(event);
+	}
+
 	return ScrollView::PreTranslateMessage(event);
 }
 
@@ -704,7 +712,7 @@ bool CModScrollView::OnMouseWheel(uint32 fFlags, int16 zDelta, Point)
 	const short steps = RoundMouseWheelToWholeStep(zDelta, m_nScrollPosYfine);
 	if(steps == 0)
 		return true;
-	return OnScrollBy(Size(0, -steps * m_line.cy / kWheelDelta * 3), true);
+	return OnScrollBy(Size(0, -steps * m_line.cy / kWheelDelta * m_wheelLineCount), true);
 }
 
 

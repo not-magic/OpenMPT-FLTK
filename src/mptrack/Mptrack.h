@@ -347,13 +347,15 @@ protected:
 	static constexpr uint8 BLEND_OFFSET = 0x80;
 
 	std::vector<uint8> m_pixels;
+	std::vector<uint8> m_rgbxPixels;
 	ColorRef m_palette[256] = {};
-	ui::Bitmap m_bitmap;
+	uint8 m_paletteRgbx[256][4] = {};
 	int m_width = 0;
 	int m_height = 0;
 	uint32 m_nTextColor = 0, m_nBkColor = 0;
 	const MODPLUGDIB *m_pTextDib = nullptr;
 	uint8 m_nBlendOffset = 0;
+	bool m_isPaletteDirty = true;
 	uint8 m_n4BitPalette[16] = {{}};
 	uint8 m_nXShiftFactor = 0;
 

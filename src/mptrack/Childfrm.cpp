@@ -88,6 +88,9 @@ int ClampSplitHeight(int splitHeight, const CModControlView *controlView, int fr
 bool CChildFrame::CreateViews(int initialHeight)
 {
 	begin();
+	m_viewFrame = new Fl_Box(0, 0, 0, 0);
+	m_viewFrame->box(FL_DOWN_FRAME);
+	m_viewFrame->hide();
 	m_controlView = new CModControlView();
 	end();
 	m_controlView->SetDocument(GetActiveDocument());
@@ -120,7 +123,19 @@ void CChildFrame::LayoutViews()
 	if(m_bottomView)
 	{
 		const int bottomTop = splitHeight + splitterBarHeight;
-		m_bottomView->GetWidget()->resize(x(), y() + bottomTop, frameWidth, std::max(0, frameHeight - bottomTop));
+		const int bottomHeight = std::max(0, frameHeight - bottomTop);
+		const bool isFramed = m_currentViewType == ViewType::Pattern;
+		const int borderWidth = isFramed ? Fl::box_dx(FL_DOWN_FRAME) : 0;
+		const int borderTotal = isFramed ? Fl::box_dw(FL_DOWN_FRAME) : 0;
+		m_bottomView->GetWidget()->resize(x() + borderWidth, y() + bottomTop + borderWidth, std::max(0, frameWidth - borderTotal), std::max(0, bottomHeight - borderTotal));
+		if(isFramed)
+		{
+			m_viewFrame->resize(x(), y() + bottomTop, frameWidth, bottomHeight);
+			m_viewFrame->show();
+		} else
+		{
+			m_viewFrame->hide();
+		}
 	}
 	redraw();
 }

@@ -1366,6 +1366,7 @@ void CViewPattern::UpdateScrollSize()
 		m_nMidRow = (rect.Height() - m_szHeader.cy) / (m_szCell.cy * 2);
 	if(m_nMidRow)
 		sizeTotal.cy += m_nMidRow * m_szCell.cy * 2;
+	SetBarInsets(Size(m_szHeader.cx, m_szHeader.cy));
 	SetScrollSizes(sizeTotal, sizePage, sizeLine);
 	m_bWholePatternFitsOnScreen = (rect.Height() >= sizeTotal.cy);
 	if(m_bWholePatternFitsOnScreen)

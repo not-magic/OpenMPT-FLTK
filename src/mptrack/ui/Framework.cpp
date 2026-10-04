@@ -814,7 +814,13 @@ void ScrollView::resize(int x, int y, int width, int height)
 void ScrollView::draw()
 {
 	if(damage() & ~FL_DAMAGE_CHILD)
+	{
 		DispatchDraw();
+		if(m_verticalBar->visible() && m_barInsets.cy > 0)
+			draw_box(FL_FLAT_BOX, x() + w() - kBarSize, y() + GetNonClientTop(), kBarSize, m_barInsets.cy, FL_BACKGROUND_COLOR);
+		if(m_horizontalBar->visible() && m_barInsets.cx > 0)
+			draw_box(FL_FLAT_BOX, x(), y() + h() - kBarSize, m_barInsets.cx, kBarSize, FL_BACKGROUND_COLOR);
+	}
 	draw_children();
 	// Child windows created by the view are added after the bars and must not cover them
 	draw_child(*m_horizontalBar);
@@ -831,6 +837,13 @@ bool ScrollView::OnMouseWheel(uint32, int16 delta, Point)
 
 void ScrollView::OnScrollChanged()
 {
+}
+
+
+void ScrollView::SetBarInsets(Size insets)
+{
+	m_barInsets = insets;
+	UpdateBars();
 }
 
 
@@ -851,7 +864,7 @@ void ScrollView::UpdateBars()
 	m_position.y = std::clamp(m_position.y, 0, std::max(m_total.cy - viewHeight, 0));
 	if(isHorizontal)
 	{
-		m_horizontalBar->resize(x(), y() + h() - kBarSize, viewWidth, kBarSize);
+		m_horizontalBar->resize(x() + m_barInsets.cx, y() + h() - kBarSize, std::max(viewWidth - m_barInsets.cx, 0), kBarSize);
 		m_horizontalBar->scrollvalue(m_position.x, std::max(viewWidth, 1), 0, std::max(m_total.cx, 1));
 		m_horizontalBar->linesize(std::max(m_line.cx, 1));
 		m_horizontalBar->show();
@@ -861,7 +874,7 @@ void ScrollView::UpdateBars()
 	}
 	if(isVertical)
 	{
-		m_verticalBar->resize(x() + w() - kBarSize, y() + GetNonClientTop(), kBarSize, viewHeight);
+		m_verticalBar->resize(x() + w() - kBarSize, y() + GetNonClientTop() + m_barInsets.cy, kBarSize, std::max(viewHeight - m_barInsets.cy, 0));
 		m_verticalBar->scrollvalue(m_position.y, std::max(viewHeight, 1), 0, std::max(m_total.cy, 1));
 		m_verticalBar->linesize(std::max(m_line.cy, 1));
 		m_verticalBar->show();
