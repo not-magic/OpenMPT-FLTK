@@ -20,6 +20,8 @@
 #include "PlugNotFoundDlg.h"
 #include "Reporting.h"
 #include "resource.h"
+#include <FL/Fl_ICO_Image.H>
+#include <FL/Fl_Window.H>
 #include "SettingsIni.h"
 #include "TrackerSettings.h"
 #include "WelcomeDialog.h"
@@ -785,6 +787,24 @@ bool CTrackApp::InitInstanceImpl(CMPTCommandLineInfo &cmdInfo)
 
 	m_pPluginState = std::make_unique<IniFileSettingsContainer>(m_PluginStateFileName);
 	m_pPluginCache = std::make_unique<IniFileSettingsContainer>(m_szPluginCacheFileName);
+
+	{
+		static constexpr int iconEntryIds[] = {0, 1, 2, 4, 5};
+		static std::vector<std::unique_ptr<Fl_ICO_Image>> appIcons;
+		static std::vector<const Fl_RGB_Image *> appIconPtrs;
+		const mpt::const_byte_span iconData = GetResource(IDR_MAINFRAME);
+		for(const int iconEntryId : iconEntryIds)
+		{
+			auto icon = std::make_unique<Fl_ICO_Image>(nullptr, iconEntryId, reinterpret_cast<const unsigned char *>(iconData.data()), iconData.size());
+			if(icon->fail() == 0)
+			{
+				appIconPtrs.push_back(icon.get());
+				appIcons.push_back(std::move(icon));
+			}
+		}
+		Fl_Window::default_xclass("OpenMPT");
+		Fl_Window::default_icons(appIconPtrs.data(), static_cast<int>(appIconPtrs.size()));
+	}
 
 	// create main frame window
 	CMainFrame *pMainFrame = new CMainFrame();

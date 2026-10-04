@@ -324,7 +324,7 @@ def main():
 
     # binary files
     for rid, rtype, path in files:
-        if rtype in ('ICON', 'CURSOR'):
+        if rtype in ('CURSOR',):
             continue
         full = os.path.join(res_dir, path)
         if not os.path.exists(full):
@@ -341,7 +341,7 @@ def main():
         o.append('};\n')
     o.append('const BinaryResource binaryResources[] = {')
     for rid, rtype, path in files:
-        if rtype in ('ICON', 'CURSOR'): continue
+        if rtype in ('CURSOR',): continue
         if not os.path.exists(os.path.join(res_dir, path)) and not any(True for _ in []):
             pass
         o.append('\t{%s, ResourceType::%s, data_%s, sizeof(data_%s)},' % (rid, 'Png' if rtype == 'PNG' else ('Bitmap' if rtype == 'BITMAP' else 'Data'), rid, rid))
