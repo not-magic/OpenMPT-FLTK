@@ -37,6 +37,13 @@ namespace
 constexpr int kTabStripHeight = 24;
 constexpr int kTabBorderHeight = 3;
 constexpr int kTabLabelSize = 12;
+constexpr int kTabClosePadding = 4;
+// Fl_Tabs internals
+constexpr int kTabBorder = 2;
+constexpr int kTabExtraSpace = 10;
+constexpr int kTabCloseGap = 2;
+constexpr int kTabDrawRight = 1;
+constexpr int kTabDrawSelected = 2;
 
 }  // namespace
 
@@ -155,11 +162,73 @@ public:
 			if(&tab->GetFrame() == m_frame.MDIGetActive())
 				value(tab);
 		}
-		if(frames.empty())
+		if(frames.size() < 2)
 			hide();
 		else
 			show();
 		redraw();
+	}
+
+	int tab_positions() override
+	{
+		const int selectedIndex = Fl_Tabs::tab_positions();
+		int shift = 0;
+		for(int i = 0; i < tab_count; ++i)
+		{
+			tab_pos[i] += shift;
+			tab_width[i] += 2 * kTabClosePadding;
+			shift += 2 * kTabClosePadding;
+		}
+		tab_pos[tab_count] += shift;
+		return selectedIndex;
+	}
+
+	int hit_close(Fl_Widget *widget, int eventX, int eventY) override
+	{
+		if(eventY < y() || eventY >= y() + tab_height())
+			return 0;
+		for(int i = 0; i < tab_count; ++i)
+		{
+			if(child(i) != widget)
+				continue;
+			const int tabX = x() + tab_pos[i] + tab_offset;
+			return (eventX >= tabX) && (eventX < tabX + labelsize() / 2 + kTabExtraSpace / 2 + kTabCloseGap + 2 * kTabClosePadding);
+		}
+		return 0;
+	}
+
+	void draw_tab(int x1, int x2, int width, int height, Fl_Widget *widget, int flags, int what) override
+	{
+		if(height < 0)
+		{
+			Fl_Tabs::draw_tab(x1, x2, width, height, widget, flags, what);
+			return;
+		}
+		x1 += tab_offset;
+		x2 += tab_offset;
+		const bool isSelected = (what == kTabDrawSelected);
+		if(x2 < x1 + width && what == kTabDrawRight)
+			x1 = x2 - width;
+		const int yOffset = isSelected ? 0 : kTabBorder;
+		const int tabHeight = height + Fl::box_dh(box());
+		const Fl_Boxtype tabBox = (widget == push() && !isSelected) ? fl_down(box()) : box();
+		const Fl_Color tabColor = isSelected ? selection_color() : widget->selection_color();
+		draw_box(tabBox, x1, y() + yOffset, width, tabHeight + 10 - yOffset, tabColor);
+
+		const Fl_Color oldLabelColor = widget->labelcolor();
+		widget->labelcolor(isSelected ? labelcolor() : oldLabelColor);
+		const int symbolSize = labelsize() / 2;
+		const int symbolY = y() + yOffset / 2 + (tabHeight - symbolSize) / 2;
+		Fl_Color closeColor = fl_contrast(FL_GRAY_RAMP + 0, tabColor);
+		if(!active_r())
+			closeColor = fl_inactive(closeColor);
+		fl_draw_symbol("@3+", x1 + kTabExtraSpace / 2 + kTabClosePadding, symbolY, symbolSize, symbolSize, closeColor);
+		const int labelOffset = symbolSize + kTabCloseGap + 2 * kTabClosePadding;
+		widget->draw_label(x1 + labelOffset, y() + yOffset, width - labelOffset, tabHeight - yOffset, tab_align());
+		widget->labelcolor(oldLabelColor);
+
+		if(Fl::focus() == this && widget->visible())
+			draw_focus(tabBox, x1, y(), width, tabHeight, tabColor);
 	}
 
 	void draw() override
@@ -1081,8 +1150,9 @@ void MainFrameBase::RecalcLayout(bool)
 		}
 	}
 	m_documentArea->resize(left, top, right - left, bottom - top);
-	const int tabHeight = m_frames.empty() ? 0 : kTabStripHeight;
-	const int frameTop = m_frames.empty() ? top : top + tabHeight + kTabBorderHeight;
+	const bool hasTabs = m_frames.size() > 1;
+	const int tabHeight = hasTabs ? kTabStripHeight : 0;
+	const int frameTop = hasTabs ? top + tabHeight + kTabBorderHeight : top;
 	if(m_tabs == nullptr)
 	{
 		m_documentArea->begin();
