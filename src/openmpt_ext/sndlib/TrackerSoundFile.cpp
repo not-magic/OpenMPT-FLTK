@@ -582,6 +582,7 @@ samplecount_t CTrackerSoundFile::Render(samplecount_t count, IAudioTarget &targe
 		{
 			// The next Read() starts a new tick, and its length is only known once it has started
 			OnTickBoundary();
+			EmulatePause();
 			chunkSize = 1;
 		}
 		chunkSize = std::min(chunkSize, count - renderedTotal);
@@ -596,6 +597,37 @@ samplecount_t CTrackerSoundFile::Render(samplecount_t count, IAudioTarget &targe
 			break;
 	}
 	return renderedTotal;
+}
+
+
+// ReadNote() only skips ProcessRow() while SONG_PAUSED in the tracker build. Here ProcessRow() is kept
+// on a mid-row tick without pending effects, so only the preview and sustaining channels are mixed.
+void CTrackerSoundFile::EmulatePause()
+{
+	if(!m_PlayState.m_flags[SONG_PAUSED])
+	{
+		if(m_savedSpeedValue >= 0)
+			m_PlayState.m_nMusicSpeed = static_cast<uint16>(m_savedSpeedValue);
+		m_savedSpeedValue = -1;
+		m_isPauseEmulated = false;
+		return;
+	}
+	if(!m_isPauseEmulated)
+	{
+		m_isPauseEmulated = true;
+		for(ModChannel &chn : m_PlayState.PatternChannels(*this))
+		{
+			chn.nCommand = CMD_NONE;
+			chn.rowCommand = ModCommand();
+		}
+	}
+	if(m_PlayState.TicksOnRow() < 2)
+	{
+		if(m_savedSpeedValue < 0)
+			m_savedSpeedValue = m_PlayState.m_nMusicSpeed;
+		m_PlayState.m_nMusicSpeed = 2;
+	}
+	m_PlayState.m_nTickCount = 0;
 }
 
 

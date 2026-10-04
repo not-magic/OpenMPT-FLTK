@@ -118,6 +118,7 @@ public:
 
 private:
 	void OnTickBoundary();
+	void EmulatePause();
 	void ProcessOutput(mpt::audio_span_interleaved<MixSampleInt> buffer);
 	void HandleRowTransitionEvents();
 
@@ -131,6 +132,8 @@ private:
 	const ModSample *m_metronomeBeat = nullptr;
 	const ModSample *m_metronomePlaying = nullptr;
 	double m_metronomePosition = 0.0;
+	int32 m_savedSpeedValue = -1;
+	bool m_isPauseEmulated = false;
 };
 
 CTrackerSoundFile &TrackerSoundFile(CSoundFile &sndFile);
