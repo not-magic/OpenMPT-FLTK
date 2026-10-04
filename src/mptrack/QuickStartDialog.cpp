@@ -44,7 +44,7 @@ QuickStartDlg::QuickStartDlg(const std::vector<mpt::PathString> &templates, cons
 {
 	m_newButton.SetAccessibleText(UL_("New Module"));
 	m_openButton.SetAccessibleText(UL_("Open Module"));
-	Create(IDD_QUICKSTART, parent);
+	Create(IDD_QUICKSTART, parent, true);
 
 	m_groupsEnabled = m_list.EnableGroupView();
 	m_list.SetRedraw(false);

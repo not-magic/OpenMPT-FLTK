@@ -536,7 +536,7 @@ void CMainFrame::RecalcLayout(bool notify)
 	if(m_quickStartDlg)
 	{
 		m_quickStartDlg->UpdateHeight();
-		m_quickStartDlg->CenterWindow();
+		m_quickStartDlg->CenterWindow(this);
 	}
 }
 
@@ -3124,11 +3124,14 @@ void CMainFrame::UpdateDocumentCount()
 	if(shouldLoad && !isLoaded)
 	{
 		m_quickStartDlg = std::make_unique<QuickStartDlg>(m_TemplateModulePaths, m_ExampleModulePaths, this);
-		m_quickStartDlg->CenterWindow();
+		m_quickStartDlg->CenterWindow(this);
 		m_quickStartDlg->ShowWindow(true);
 	} else if(isLoaded && !shouldLoad)
 	{
-		m_quickStartDlg.reset();
+		// Documents are opened from the dialog's own list callbacks, which still use it after this returns
+		if(Fl_Window *frame = m_quickStartDlg->GetFrameWindow())
+			frame->hide();
+		Fl::delete_widget(m_quickStartDlg.release());
 	}
 }
 

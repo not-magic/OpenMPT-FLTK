@@ -464,11 +464,11 @@ void Dialog::DestroyFrame()
 }
 
 
-bool Dialog::Create(uint32 templateId, Wnd *parent)
+bool Dialog::Create(uint32 templateId, Wnd *parent, bool isModal)
 {
 	m_templateId = templateId;
 	m_isModal = false;
-	if(!CreateFrame(parent, false))
+	if(!CreateFrame(parent, isModal))
 		return false;
 	UpdateData(false);
 	OnInitDialog();

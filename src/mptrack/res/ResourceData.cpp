@@ -5210,7 +5210,7 @@ const DialogTemplate dialogTemplates[] = {
 	{IDD_EDIT_GOTO, 0, 0, 123, 122, "Go to...", 0x80C80048, 0x0, 8, controls_IDD_EDIT_GOTO, std::size(controls_IDD_EDIT_GOTO), nullptr, 0},
 	{IDD_ADDSILENCE, 0, 0, 195, 93, "Add Silence / Resize", 0x80C800C8, 0x0, 8, controls_IDD_ADDSILENCE, std::size(controls_IDD_ADDSILENCE), nullptr, 0},
 	{IDD_OPTIONS_MIXER, 0, 0, 327, 314, "Mixer", 0x48C0004C, 0x0, 8, controls_IDD_OPTIONS_MIXER, std::size(controls_IDD_OPTIONS_MIXER), nullptr, 0},
-	{IDD_QUICKSTART, 0, 0, 332, 211, "", 0x440000C8, 0x8010000, 8, controls_IDD_QUICKSTART, std::size(controls_IDD_QUICKSTART), layout_IDD_QUICKSTART, std::size(layout_IDD_QUICKSTART)},
+	{IDD_QUICKSTART, 0, 0, 332, 211, "Project Assistant", 0x440000C8, 0x8010000, 8, controls_IDD_QUICKSTART, std::size(controls_IDD_QUICKSTART), layout_IDD_QUICKSTART, std::size(layout_IDD_QUICKSTART)},
 	{IDD_MIDIPARAMCONTROL, 0, 0, 413, 247, "MIDI Mapping", 0x80CC0048, 0x0, 8, controls_IDD_MIDIPARAMCONTROL, std::size(controls_IDD_MIDIPARAMCONTROL), layout_IDD_MIDIPARAMCONTROL, std::size(layout_IDD_MIDIPARAMCONTROL)},
 	{IDD_TUNING, 0, 0, 495, 231, "Tuning Properties", 0x80CC0048, 0x10000, 8, controls_IDD_TUNING, std::size(controls_IDD_TUNING), layout_IDD_TUNING, std::size(layout_IDD_TUNING)},
 	{IDD_CHANNELMANAGER, 0, 0, 524, 116, "Channel Manager", 0x80CA08C8, 0x0, 8, controls_IDD_CHANNELMANAGER, std::size(controls_IDD_CHANNELMANAGER), nullptr, 0},

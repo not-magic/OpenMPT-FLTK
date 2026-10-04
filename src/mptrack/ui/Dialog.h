@@ -69,7 +69,7 @@ public:
 	int CalcTemplateHeight() const;
 
 	// Modeless creation. The dialog stays alive until DestroyWindow() is called.
-	bool Create(uint32 templateId, Wnd *parent = nullptr);
+	bool Create(uint32 templateId, Wnd *parent = nullptr, bool isModal = false);
 	// Builds the child controls inside an existing parent, without opening a window of its own (property pages and nested dialogs)
 	bool CreateChild(uint32 templateId, Wnd &parent, int x = 0, int y = 0);
 	intptr_t DoModal();
