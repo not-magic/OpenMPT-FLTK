@@ -14,6 +14,7 @@ else()
 	list(FILTER OPENMPT_UPSTREAM_SOURCES EXCLUDE REGEX "/sounddevice/SoundDevice(ASIO|DirectSound|Waveout)\\.")
 endif()
 list(FILTER OPENMPT_UPSTREAM_SOURCES EXCLUDE REGEX "/misc/mptWine\\.")
+list(FILTER OPENMPT_UPSTREAM_SOURCES EXCLUDE REGEX "/streamencoder/StreamEncoderFLAC\\.")
 
 file(GLOB_RECURSE OPENMPT_GUI_SOURCES CONFIGURE_DEPENDS
 	${OPENMPT_FLTK_SRC}/mptrack/*.cpp

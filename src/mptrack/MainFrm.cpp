@@ -188,7 +188,6 @@ void CMainFrame::Initialize()
 	#ifndef MPT_WITH_VST
 		title += UL_(" NO_VST");
 	#endif
-		title += UL_(" NO_DMO");
 	SetTitle(title);
 	OnUpdateFrameTitle(false);
 

@@ -8,6 +8,7 @@
 #include <FL/Fl_Menu_Item.H>
 
 #include <algorithm>
+#include <unordered_set>
 
 
 OPENMPT_NAMESPACE_BEGIN
@@ -22,6 +23,13 @@ std::function<void(uint32)> menuCommandHandler;
 
 namespace
 {
+
+// Menus made by CreatePopupMenu that no other menu has taken over
+std::unordered_set<const Menu *> &ownedMenus()
+{
+	static std::unordered_set<const Menu *> menus;
+	return menus;
+}
 
 mpt::ustring FromUtf8(const char *text)
 {
@@ -131,6 +139,17 @@ bool Menu::AppendMenu(uint32 flags, uint32 id, const mpt::ustring &text)
 }
 
 
+bool Menu::AppendMenu(uint32 flags, std::shared_ptr<Menu> subMenu, const mpt::ustring &text)
+{
+	Item item;
+	item.text = text;
+	item.flags = flags | MenuItemPopup;
+	item.subMenu = std::move(subMenu);
+	m_items.push_back(std::move(item));
+	return true;
+}
+
+
 bool Menu::AppendMenu(uint32 flags, const Menu &subMenu, const mpt::ustring &text)
 {
 	Item item;
@@ -151,14 +170,30 @@ uint32 Menu::TrackPopupMenu(uint32 flags, int x, int y, Wnd *owner)
 }
 
 
+HMENU CreatePopupMenu()
+{
+	Menu *menu = new Menu;
+	ownedMenus().insert(menu);
+	return menu;
+}
+
+
+bool DestroyMenu(HMENU menu)
+{
+	if(ownedMenus().erase(menu) != 0)
+		delete menu;
+	return true;
+}
+
+
 bool AppendMenu(HMENU menu, uint32 flags, uintptr_t idOrSubMenu, const mpt::ustring &text)
 {
 	if(flags & MenuItemPopup)
 	{
 		HMENU subMenu = reinterpret_cast<HMENU>(idOrSubMenu);
-		const bool result = menu->AppendMenu(flags, *subMenu, text);
-		delete subMenu;
-		return result;
+		if(ownedMenus().erase(subMenu) == 0)
+			return menu->AppendMenu(flags, *subMenu, text);
+		return menu->AppendMenu(flags, std::shared_ptr<Menu>(subMenu), text);
 	}
 	return menu->AppendMenu(flags, static_cast<uint32>(idOrSubMenu), text);
 }

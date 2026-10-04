@@ -10,6 +10,8 @@
 
 #include <FL/Fl_Native_File_Chooser.H>
 
+#include <algorithm>
+
 
 OPENMPT_NAMESPACE_BEGIN
 
@@ -25,6 +27,19 @@ std::string ToUtf8(const mpt::ustring &str)
 std::string ToUtf8(const mpt::PathString &path)
 {
 	return path.ToUTF8();
+}
+
+// FLTK appends "(glob)" itself and its GTK chooser takes the glob from the first '(' of a name
+std::string StripFilterDescription(std::string description)
+{
+	const size_t open = description.find('(');
+	if(open != std::string::npos && !description.empty() && description.back() == ')')
+		description.erase(open);
+	while(!description.empty() && description.back() == ' ')
+		description.pop_back();
+	std::replace(description.begin(), description.end(), '(', '[');
+	std::replace(description.begin(), description.end(), ')', ']');
+	return description;
 }
 
 // "Description|*.a;*.b|..." to the "Description\t*.{a,b}\n..." format of FLTK
@@ -70,7 +85,7 @@ std::string ConvertFilter(const mpt::ustring &filter)
 				glob += (n ? "," : "") + patterns[n];
 			glob += "}";
 		}
-		result += parts[i] + "\t" + glob + "\n";
+		result += StripFilterDescription(parts[i]) + "\t" + glob + "\n";
 	}
 	return result;
 }

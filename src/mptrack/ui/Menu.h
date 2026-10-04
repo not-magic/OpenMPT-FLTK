@@ -59,6 +59,7 @@ public:
 	// Appends an item or, with MenuItemPopup, a sub menu with the items of another menu
 	bool AppendMenu(uint32 flags, uint32 id = 0, const mpt::ustring &text = {});
 	bool AppendMenu(uint32 flags, const Menu &subMenu, const mpt::ustring &text);
+	bool AppendMenu(uint32 flags, std::shared_ptr<Menu> subMenu, const mpt::ustring &text);
 	bool InsertMenu(uint32 position, uint32 flags, uint32 id, const mpt::ustring &text);
 	bool InsertMenu(uint32 position, uint32 flags, const Menu &subMenu, const mpt::ustring &text);
 	bool RemoveMenu(uint32 position, bool isByPosition = true);
@@ -109,9 +110,10 @@ constexpr uint32 TPM_RETURNCMD = TrackReturnCommand;
 
 // Functions that keep the shape of the Windows menu functions; menus are owned by whoever created them
 using HMENU = Menu *;
-inline HMENU CreatePopupMenu() { return new Menu; }
-inline bool DestroyMenu(HMENU menu) { delete menu; return true; }
-// With MenuItemPopup, idOrSubMenu is the HMENU of a menu that is moved into the new item
+HMENU CreatePopupMenu();
+// Does nothing for a menu that has been appended to another one, as that one owns it now
+bool DestroyMenu(HMENU menu);
+// With MenuItemPopup, idOrSubMenu is the HMENU of a menu that the new item takes over; it stays valid and can still be filled
 bool AppendMenu(HMENU menu, uint32 flags, uintptr_t idOrSubMenu = 0, const mpt::ustring &text = {});
 // Menus have no default item
 inline void SetMenuDefaultItem(HMENU, uint32, bool) { }
