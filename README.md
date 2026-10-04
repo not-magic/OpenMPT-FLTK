@@ -4,7 +4,7 @@ A port of the OpenMPT Tracker to FLTK, with the intention of having something th
 
 This is complicated because libOpenMPT has many editor hooks that are compiled out when built as a library.
 
-Not everything works yet, it's basically proof of concept that the UI can be converted. It can load and play a song, and the custom drawing widgets are converted. Things like exporting does not work yet.
+Not everything works yet, it's basically proof of concept that the UI can be converted. It can load and play a song, and the custom drawing widgets are converted.
 
 FLTK was chosen because it has that old shool computer vibe and is very lightweight.
 
