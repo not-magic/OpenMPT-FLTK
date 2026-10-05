@@ -1,3 +1,14 @@
+/*
+ * Ctrl_pat.h
+ * ----------
+ * Purpose: Pattern tab, upper panel.
+ * Notes  : (currently none)
+ * Authors: Olivier Lapicque
+ *          OpenMPT Devs
+ * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
+ */
+// This file was translated by AI and may not represent the original authors' intent.
+
 // FLTK port of openmpt/mptrack/Ctrl_pat.h
 
 #pragma once

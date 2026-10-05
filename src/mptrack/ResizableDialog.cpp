@@ -1,3 +1,16 @@
+/*
+ * ResizableDialog.cpp
+ * -------------------
+ * Purpose: A wrapper for resizable MFC dialogs that fixes the dialog's minimum size,
+ *          as MFC does not scale controls properly if the user makes the dialog smaller than it originally was.
+ *          It also does not handle DPI changes properly. Because CMFCDynamicLayout is not inheritable in any practical way,
+ *          we do a partial re-implementation.
+ * Notes  : (currently none)
+ * Authors: OpenMPT Devs
+ * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
+ */
+// This file was translated by AI and may not represent the original authors' intent.
+
 // FLTK port of openmpt/mptrack/ResizableDialog.cpp
 
 #include "stdafx.h"

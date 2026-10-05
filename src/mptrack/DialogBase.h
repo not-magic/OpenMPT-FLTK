@@ -1,3 +1,13 @@
+/*
+ * DialogBase.h
+ * ------------
+ * Purpose: Base class for dialogs that adds functionality on top of CDialog.
+ * Notes  : (currently none)
+ * Authors: OpenMPT Devs
+ * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
+ */
+// This file was translated by AI and may not represent the original authors' intent.
+
 // FLTK port of openmpt/mptrack/DialogBase.h
 
 #pragma once

@@ -1,3 +1,14 @@
+/*
+ * Globals.cpp
+ * -----------
+ * Purpose: Implementation of the base classes for the upper and lower half of the MDI child windows.
+ * Notes  : CModControlDlg = Upper half (Ctrl_*.cpp/h), which is contained inside a CModControlView together with the tab switcher (CModTabCtrl).
+ *          CModScrollView = Lower half (View_*.cpp/h).
+ * Authors: OpenMPT Devs
+ * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
+ */
+// This file was translated by AI and may not represent the original authors' intent.
+
 // FLTK port of openmpt/mptrack/Globals.cpp
 
 #include "stdafx.h"

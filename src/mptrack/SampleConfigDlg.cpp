@@ -1,3 +1,13 @@
+/*
+ * SampleConfigDlg.cpp
+ * -------------------
+ * Purpose: Implementation of the sample/instrument editor settings dialog.
+ * Notes  : (currently none)
+ * Authors: OpenMPT Devs
+ * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
+ */
+// This file was translated by AI and may not represent the original authors' intent.
+
 // FLTK port of openmpt/mptrack/SampleConfigDlg.cpp
 
 #include "stdafx.h"

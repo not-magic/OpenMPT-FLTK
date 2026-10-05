@@ -1,3 +1,13 @@
+/*
+ * Mainbar.h
+ * ---------
+ * Purpose: Implementation of OpenMPT's window toolbar and parent container of the tree view.
+ * Notes  : (currently none)
+ * Authors: OpenMPT Devs
+ * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
+ */
+// This file was translated by AI and may not represent the original authors' intent.
+
 // FLTK port of openmpt/mptrack/Mainbar.h
 
 #pragma once

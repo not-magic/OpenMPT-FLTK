@@ -1,3 +1,13 @@
+/*
+ * AbstractVstEditor.cpp
+ * ---------------------
+ * Purpose: Common plugin editor interface class. This code is shared between custom and default plugin user interfaces.
+ * Notes  : (currently none)
+ * Authors: OpenMPT Devs
+ * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
+ */
+// This file was translated by AI and may not represent the original authors' intent.
+
 // FLTK port of openmpt/mptrack/AbstractVstEditor.cpp
 
 #include "stdafx.h"

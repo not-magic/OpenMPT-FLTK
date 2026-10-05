@@ -1,3 +1,13 @@
+/*
+ * CommandSet.h
+ * ------------
+ * Purpose: Header file for custom key handling: List of supported keyboard shortcuts and class for them.
+ * Notes  : (currently none)
+ * Authors: OpenMPT Devs
+ * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
+ */
+// This file was translated by AI and may not represent the original authors' intent.
+
 // FLTK port of openmpt/mptrack/CommandSet.h
 
 #pragma once

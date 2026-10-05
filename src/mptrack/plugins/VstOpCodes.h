@@ -1,3 +1,13 @@
+/*
+ * OpCodes.h
+ * ---------
+ * Purpose: A human-readable list of VST opcodes, for error reporting purposes.
+ * Notes  : (currently none)
+ * Authors: OpenMPT Devs
+ * The OpenMPT source code is released under the BSD license. Read LICENSE for more details.
+ */
+// This file was translated by AI and may not represent the original authors' intent.
+
 // FLTK port of openmpt/mptrack/plugins/VstOpCodes.h
 
 #pragma once
