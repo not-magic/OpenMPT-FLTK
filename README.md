@@ -8,6 +8,7 @@ FLTK was chosen because it has that old shool computer vibe and is very lightwei
 
 It is in a semi-functional state, it's basically proof of concept that the UI can be converted. It can load and play a song, and the custom drawing widgets are converted.
 
+This was made just as a discovery to find early issues to see what it would take to make OpenMPT cross platform.
 
 ## Screenshots
 
